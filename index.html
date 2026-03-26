@@ -377,7 +377,7 @@ header { position: relative; }
     <div class="form-group">
       <label>入金額（税引後の手取額）</label>
       <div class="input-prefix">
-        <input type="text" id="deposit-amount" inputmode="numeric" placeholder="例: 797">
+        <input type="text" id="deposit-amount" inputmode="numeric" placeholder="例: 797" onkeydown="if(event.key==='Enter'){event.preventDefault();calcInterest();}">
       </div>
     </div>
 
