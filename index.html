@@ -448,6 +448,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.6 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
         <li>v1.5 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
         <li>v1.4 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
         <li>v1.3 (2026-03-26) 全ツールにEnterキーで計算実行を追加。修繕費判定フローチャートを追加（国税庁No.1379準拠・災害分岐対応・全体図表示付き）</li>
@@ -2689,9 +2690,10 @@ function calcYakuin() {
 
   const h = getHyojun(monthly);
 
-  // 保険料率（大阪府 R7）
-  const healthRate = ageType === '40to64' ? 0.1192 : 0.1033;
+  // 保険料率（大阪府 R8・2026年3月分〜）
+  const healthRate = ageType === '40to64' ? 0.1175 : 0.1013;
   const pensionRate = 0.183;
+  const kosodateRate = 0.0023; // 子ども・子育て支援金（R8年4月分〜）
 
   // 月額保険料（折半）
   const healthTotal = Math.round(h.health * healthRate);
@@ -2702,8 +2704,12 @@ function calcYakuin() {
   const pensionSelf = Math.ceil(pensionTotal / 2);
   const pensionComp = pensionTotal - pensionSelf;
 
-  const socialSelf = healthSelf + pensionSelf;
-  const socialComp = healthComp + pensionComp;
+  const kosodateTotal = Math.round(h.health * kosodateRate);
+  const kosodateSelf = Math.ceil(kosodateTotal / 2);
+  const kosodateComp = kosodateTotal - kosodateSelf;
+
+  const socialSelf = healthSelf + pensionSelf + kosodateSelf;
+  const socialComp = healthComp + pensionComp + kosodateComp;
 
   // 年間計算
   const annualSalary = monthly * 12;
@@ -2734,8 +2740,9 @@ function calcYakuin() {
   html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:12px 0 6px;">社会保険料（月額）</div>';
   html += '<div class="result-row"><span class="label">健康保険料' + (ageType === '40to64' ? '（介護込）' : '') + '</span><span class="value">¥' + fmt(healthSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">厚生年金保険料</span><span class="value">¥' + fmt(pensionSelf) + '</span></div>';
-  html += '<div class="result-row highlight"><span class="label">社保合計（本人負担）</span><span class="value">¥' + fmt(socialSelf) + '</span></div>';
-  html += '<div class="result-row" style="color:#888;"><span class="label">社保合計（会社負担）</span><span class="value">¥' + fmt(socialComp) + '</span></div>';
+  html += '<div class="result-row"><span class="label">子ども・子育て支援金</span><span class="value">¥' + fmt(kosodateSelf) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">社保等合計（本人負担）</span><span class="value">¥' + fmt(socialSelf) + '</span></div>';
+  html += '<div class="result-row" style="color:#888;"><span class="label">社保等合計（会社負担）</span><span class="value">¥' + fmt(socialComp) + '</span></div>';
 
   html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">所得税（概算）</div>';
   html += '<div class="result-row"><span class="label">年間報酬</span><span class="value">¥' + fmt(annualSalary) + '</span></div>';
@@ -2801,12 +2808,13 @@ calcGensenSalary();
     <div id="yakuin-result" class="result" style="display:none;"></div>
 
     <p class="note">
-      ※ 協会けんぽ大阪府 令和7年度（2025年3月分〜）の料率で計算<br>
-      ※ 健保料率 10.33%（介護なし）/ 11.92%（介護あり）、厚年 18.3%<br>
+      ※ 協会けんぽ大阪府 令和8年度（2026年3月分〜）の料率で計算<br>
+      ※ 健保料率 10.13%（介護なし）/ 11.75%（介護あり）、厚年 18.3%<br>
+      ※ 子ども・子育て支援金 0.23%（令和8年4月分〜新設・労使折半）<br>
       ※ 所得税は令和7年分の給与所得控除・基礎控除で概算（住民税は含みません）<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.0 (2026-03-26) 初版作成</div>
+    <div class="page-changelog">更新: v1.1 (2026-03-26) R8料率に更新・子育て支援金追加 | v1.0 (2026-03-26) 初版作成</div>
   </div>
 </div>
 
@@ -2868,9 +2876,10 @@ calcGensenSalary();
 
     <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">役員報酬シミュレーション</h3>
     <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r07/r7ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和7年3月分からの健康保険・厚生年金保険の保険料額表</a>（大阪府）</li>
-      <li>健保料率：大阪府 10.33%（介護なし）/ 11.92%（介護あり・40〜64歳）</li>
+      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r08/r8ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和8年度保険料額表</a>（大阪府）</li>
+      <li>健保料率：大阪府 10.13%（介護なし）/ 11.75%（介護あり・40〜64歳）</li>
       <li>厚生年金保険料率：18.300%（全国一律）</li>
+      <li>子ども・子育て支援金率：0.23%（令和8年4月分〜新設・労使折半）</li>
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a>（令和7年分：最低65万円）</li>
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
