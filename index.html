@@ -151,6 +151,9 @@ header { position: relative; }
   transition: opacity 0.2s;
 }
 .btn:hover { opacity: 0.9; }
+.checkbox-row { margin-bottom:14px; }
+.checkbox-row label { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:500; color:#555; cursor:pointer; }
+.checkbox-row input[type="checkbox"] { width:18px; height:18px; margin:0; accent-color:#2980b9; cursor:pointer; }
 .result {
   margin-top: 16px;
   background: #f8fbff;
@@ -519,8 +522,8 @@ header { position: relative; }
       </div>
     </div>
 
-    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
-      <label style="display:inline; margin-bottom:0;" for="sales-personal-check">
+    <div class="checkbox-row">
+      <label for="sales-personal-check">
         <input type="checkbox" id="sales-personal-check" onchange="toggleSalesPersonal()"> 個人事業主（税率を考慮しない）
       </label>
     </div>
@@ -608,8 +611,8 @@ header { position: relative; }
         </select>
       </div>
 
-      <div class="form-group" style="display:flex; align-items:center; gap:8px;">
-        <label style="display:inline; margin-bottom:0;" for="dep-kojin-check">
+      <div class="checkbox-row">
+        <label for="dep-kojin-check">
           <input type="checkbox" id="dep-kojin-check" onchange="toggleKojin()"> 個人（定額法に変更）
         </label>
       </div>
