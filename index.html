@@ -335,48 +335,7 @@ header { position: relative; }
 .flow-result-desc { font-size:0.9rem; color:#555; line-height:1.6; }
 .flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:#888; }
 
-/* フロー全体図（CSS図解 v3） */
-.fc { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:28px 20px 20px; max-width:520px; margin:0 auto; }
-.fc-title { background:linear-gradient(135deg, #1a5276, #2980b9); color:#fff; font-weight:700; font-size:0.88rem; padding:12px 20px; border-radius:10px; text-align:center; letter-spacing:0.5px; }
-.fc-line { width:2px; height:18px; background:linear-gradient(to bottom, #a0aec0, #cbd5e0); margin:0 auto; }
-
-/* 各判定行 */
-.fc-item { display:grid; grid-template-columns:1fr auto; align-items:center; gap:0; margin:0; }
-.fc-center { display:flex; justify-content:center; }
-.fc-q { background:#edf2f7; border:2px solid #4a90b8; border-radius:10px; padding:10px 16px; font-size:0.8rem; font-weight:600; color:#2c5282; text-align:center; line-height:1.5; width:220px; box-sizing:border-box; }
-.fc-q-sm { width:auto; min-width:0; font-size:0.75rem; padding:8px 12px; }
-.fc-right { display:flex; align-items:center; gap:6px; padding-left:8px; white-space:nowrap; }
-.fc-lbl-yes { font-size:0.72rem; color:#38a169; font-weight:700; }
-.fc-lbl-yes::before { content:''; display:inline-block; width:20px; height:2px; background:#a0d8b0; vertical-align:middle; margin-right:4px; }
-.fc-lbl-no { font-size:0.72rem; color:#c53030; font-weight:700; }
-
-/* 結果バッジ */
-.fc-badge { display:inline-block; padding:5px 14px; border-radius:20px; font-weight:700; font-size:0.75rem; text-align:center; line-height:1.4; }
-.fc-badge-g { background:#f0fff4; color:#276749; border:2px solid #68d391; }
-.fc-badge-r { background:#fff5f5; color:#c53030; border:2px solid #fc8181; }
-.fc-badge-y { background:#fffff0; color:#975a16; border:2px solid #ecc94b; white-space:normal; font-size:0.7rem; padding:4px 10px; }
-
-/* 縦コネクター（No） */
-.fc-connector { display:flex; align-items:center; justify-content:center; gap:6px; padding:0; margin:0; height:28px; position:relative; }
-.fc-connector::before { content:''; position:absolute; left:50%; transform:translateX(calc(-110px)); width:2px; height:100%; background:linear-gradient(to bottom, #feb2b2, #fc8181); }
-
-/* 分岐セクション */
-.fc-branch { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; width:100%; }
-.fc-branch-box { border-radius:12px; overflow:hidden; border:1px solid #e2e8f0; }
-.fc-branch-header { padding:6px 10px; font-size:0.72rem; font-weight:700; text-align:center; color:#fff; }
-.fc-bh-orange { background:linear-gradient(135deg, #dd6b20, #ed8936); }
-.fc-bh-gray { background:linear-gradient(135deg, #5a6778, #718096); }
-.fc-branch-body { padding:10px 8px; display:flex; flex-direction:column; align-items:center; gap:8px; background:#fafbfc; }
-.fc-branch-results { display:flex; flex-direction:column; gap:5px; align-items:center; width:100%; }
-.fc-br-item { display:flex; align-items:center; gap:4px; font-size:0.72rem; flex-wrap:wrap; justify-content:center; }
-
-/* 最終判定 */
-.fc-final-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px; width:100%; }
-.fc-final-box { text-align:center; }
-.fc-final-lbl { font-size:0.72rem; color:#718096; font-weight:600; margin-bottom:6px; }
-
-.fc-note { font-size:0.68rem; color:#a0aec0; margin-top:20px; text-align:center; line-height:1.7; border-top:1px solid #edf2f7; padding-top:12px; }
-.fc-note a { color:#4a90b8; }
+/* フロー全体図はインラインSVGで描画 */
 </style>
 </head>
 <body>
@@ -788,141 +747,139 @@ header { position: relative; }
     </div>
 
     <div id="flow-overview" style="display:none; margin-bottom:20px;">
-      <div class="fc">
-        <!-- ヘッダー -->
-        <div class="fc-title">修理改良等のための支出金額</div>
-        <div class="fc-line"></div>
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:20px 8px; overflow-x:auto;">
+        <svg viewBox="0 0 540 780" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:540px; display:block; margin:0 auto; font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;">
+          <defs>
+            <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#a0aec0"/></marker>
+            <marker id="ah-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#e53e3e"/></marker>
+            <filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/></filter>
+            <linearGradient id="gH" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a5276"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
+            <linearGradient id="gO" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#dd6b20"/><stop offset="100%" stop-color="#ed8936"/></linearGradient>
+            <linearGradient id="gG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5a6778"/><stop offset="100%" stop-color="#718096"/></linearGradient>
+          </defs>
 
-        <!-- Q1〜Q6: メインフロー -->
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">20万円未満か</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-g">修繕費</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- タイトル -->
+          <rect x="120" y="4" width="300" height="40" rx="10" fill="url(#gH)" filter="url(#shadow)"/>
+          <text x="270" y="29" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">修理改良等のための支出金額</text>
 
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">おおむね3年以内の周期か</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-g">修繕費</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- 縦の幹線 -->
+          <line x1="270" y1="44" x2="270" y2="488" stroke="#cbd5e0" stroke-width="2"/>
 
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">明らかに価値を高める<br>or 耐久性を増すか</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-r">資本的支出</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- === Q1: 20万円未満か === -->
+          <rect x="173" y="56" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="79" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">20万円未満か</text>
+          <line x1="367" y1="74" x2="410" y2="74" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="388" y="68" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="62" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
+          <text x="452" y="79" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
+          <text x="280" y="101" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
 
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">通常の維持管理のためか</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-g">修繕費</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- === Q2: 3年以内周期 === -->
+          <rect x="173" y="110" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="133" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">おおむね3年以内の周期か</text>
+          <line x1="367" y1="128" x2="410" y2="128" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="388" y="122" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="116" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
+          <text x="452" y="133" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
+          <text x="280" y="155" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
 
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">災害でき損 → 原状回復か</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-g">修繕費</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- === Q3: 価値増加 === -->
+          <rect x="173" y="164" width="194" height="46" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="184" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">明らかに価値を高める</text>
+          <text x="270" y="200" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">or 耐久性を増すか</text>
+          <line x1="367" y1="187" x2="410" y2="187" stroke="#fc8181" stroke-width="1.5" marker-end="url(#ah-r)"/>
+          <text x="388" y="181" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="175" width="84" height="24" rx="12" fill="#fff5f5" stroke="#fc8181" stroke-width="1.5"/>
+          <text x="458" y="192" text-anchor="middle" fill="#c53030" font-size="11" font-weight="bold">資本的支出</text>
+          <text x="280" y="220" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
 
-        <div class="fc-item">
-          <div class="fc-center">
-            <div class="fc-q">60万円未満 or<br>取得価額の10%以下か</div>
-          </div>
-          <div class="fc-right">
-            <span class="fc-lbl-yes">Yes</span>
-            <span class="fc-badge fc-badge-g">修繕費</span>
-          </div>
-        </div>
-        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
+          <!-- === Q4: 維持管理 === -->
+          <rect x="173" y="228" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="251" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">通常の維持管理のためか</text>
+          <line x1="367" y1="246" x2="410" y2="246" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="388" y="240" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="234" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
+          <text x="452" y="251" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
+          <text x="280" y="273" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
 
-        <!-- 分岐: 災害かどうか -->
-        <div class="fc-item" style="margin-bottom:0;">
-          <div class="fc-center">
-            <div class="fc-q">災害に伴って支出したものか</div>
-          </div>
-        </div>
+          <!-- === Q5: 災害原状回復 === -->
+          <rect x="173" y="282" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="305" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">災害でき損 → 原状回復か</text>
+          <line x1="367" y1="300" x2="410" y2="300" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="388" y="294" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="288" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
+          <text x="452" y="305" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
+          <text x="280" y="327" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
 
-        <div class="fc-branch">
+          <!-- === Q6: 60万円/10% === -->
+          <rect x="173" y="336" width="194" height="46" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="356" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">60万円未満 or</text>
+          <text x="270" y="372" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">取得価額の10%以下か</text>
+          <line x1="367" y1="359" x2="410" y2="359" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="388" y="353" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
+          <rect x="416" y="347" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
+          <text x="452" y="364" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
+          <text x="280" y="392" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
+
+          <!-- === Q7: 災害に伴う支出か === -->
+          <rect x="173" y="400" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="423" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">災害に伴って支出したものか</text>
+
+          <!-- 分岐の矢印 -->
+          <line x1="220" y1="436" x2="150" y2="465" stroke="#dd6b20" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="172" y="450" fill="#dd6b20" font-size="9" font-weight="bold">Yes</text>
+          <line x1="320" y1="436" x2="390" y2="465" stroke="#718096" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="363" y="450" fill="#718096" font-size="9" font-weight="bold">No</text>
+
           <!-- 災害の場合 -->
-          <div class="fc-branch-box">
-            <div class="fc-branch-header fc-bh-orange">Yes：災害の場合</div>
-            <div class="fc-branch-body">
-              <div class="fc-q fc-q-sm">割合区分を採用しているか</div>
-              <div class="fc-branch-results">
-                <div class="fc-br-item">
-                  <span class="fc-lbl-yes">Yes →</span>
-                  <span class="fc-badge fc-badge-y">70%＝修繕費</span>
-                </div>
-                <div class="fc-br-item">
-                  <span class="fc-lbl-no">No → 実質判定へ</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <rect x="18" y="468" width="244" height="120" rx="10" fill="#fff" stroke="#ed8936" stroke-width="1.5" filter="url(#shadow)"/>
+          <rect x="18" y="468" width="244" height="26" rx="10" fill="url(#gO)"/>
+          <rect x="18" y="484" width="244" height="10" fill="url(#gO)"/>
+          <text x="140" y="487" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="bold">Yes：災害の場合</text>
+          <rect x="52" y="504" width="176" height="30" rx="6" fill="#f7fafc" stroke="#a0aec0" stroke-width="1"/>
+          <text x="140" y="524" text-anchor="middle" fill="#4a5568" font-size="10.5" font-weight="600">割合区分を採用しているか</text>
+          <text x="52" y="552" fill="#38a169" font-size="9" font-weight="bold">Yes →</text>
+          <rect x="88" y="540" width="100" height="22" rx="11" fill="#fffff0" stroke="#ecc94b" stroke-width="1.5"/>
+          <text x="138" y="555" text-anchor="middle" fill="#975a16" font-size="10" font-weight="bold">70% ＝ 修繕費</text>
+          <text x="52" y="578" fill="#e53e3e" font-size="9" font-weight="bold">No → 実質判定へ ↓</text>
+
           <!-- 災害以外 -->
-          <div class="fc-branch-box">
-            <div class="fc-branch-header fc-bh-gray">No：災害以外</div>
-            <div class="fc-branch-body">
-              <div class="fc-q fc-q-sm">割合区分を採用しているか</div>
-              <div class="fc-branch-results">
-                <div class="fc-br-item">
-                  <span class="fc-lbl-yes">Yes →</span>
-                  <span class="fc-badge fc-badge-y">30%/10%の<br>少ない方＝修繕費</span>
-                </div>
-                <div class="fc-br-item">
-                  <span class="fc-lbl-no">No → 実質判定へ</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          <rect x="278" y="468" width="244" height="120" rx="10" fill="#fff" stroke="#a0aec0" stroke-width="1.5" filter="url(#shadow)"/>
+          <rect x="278" y="468" width="244" height="26" rx="10" fill="url(#gG)"/>
+          <rect x="278" y="484" width="244" height="10" fill="url(#gG)"/>
+          <text x="400" y="487" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="bold">No：災害以外</text>
+          <rect x="312" y="504" width="176" height="30" rx="6" fill="#f7fafc" stroke="#a0aec0" stroke-width="1"/>
+          <text x="400" y="524" text-anchor="middle" fill="#4a5568" font-size="10.5" font-weight="600">割合区分を採用しているか</text>
+          <text x="312" y="552" fill="#38a169" font-size="9" font-weight="bold">Yes →</text>
+          <rect x="348" y="537" width="152" height="28" rx="11" fill="#fffff0" stroke="#ecc94b" stroke-width="1.5"/>
+          <text x="424" y="549" text-anchor="middle" fill="#975a16" font-size="9.5" font-weight="bold">30%と10%の少ない方</text>
+          <text x="424" y="561" text-anchor="middle" fill="#975a16" font-size="9.5" font-weight="bold">＝ 修繕費(A)</text>
+          <text x="312" y="578" fill="#e53e3e" font-size="9" font-weight="bold">No → 実質判定へ ↓</text>
 
-        <div class="fc-line"></div>
+          <!-- 実質判定への接続線 -->
+          <line x1="140" y1="588" x2="140" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
+          <line x1="400" y1="588" x2="400" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
+          <line x1="140" y1="614" x2="400" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
+          <line x1="270" y1="614" x2="270" y2="628" stroke="#cbd5e0" stroke-width="2" marker-end="url(#ah)"/>
 
-        <!-- 最終判定 -->
-        <div class="fc-center">
-          <div class="fc-q" style="background:#f7fafc; border-color:#718096;">実質により判定する</div>
-        </div>
-        <div class="fc-final-row">
-          <div class="fc-final-box">
-            <div class="fc-final-lbl">該当する</div>
-            <div class="fc-badge fc-badge-r">資本的支出</div>
-          </div>
-          <div class="fc-final-box">
-            <div class="fc-final-lbl">該当しない</div>
-            <div class="fc-badge fc-badge-g">修繕費</div>
-          </div>
-        </div>
+          <!-- 実質判定 -->
+          <rect x="173" y="632" width="194" height="36" rx="8" fill="#f7fafc" stroke="#718096" stroke-width="1.5" filter="url(#shadow)"/>
+          <text x="270" y="655" text-anchor="middle" fill="#4a5568" font-size="12" font-weight="600">実質により判定する</text>
 
-        <p class="fc-note">
-          ※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額<br>
-          出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379</a>
-        </p>
+          <!-- 最終分岐 -->
+          <line x1="220" y1="668" x2="160" y2="694" stroke="#e53e3e" stroke-width="1.5" marker-end="url(#ah-r)"/>
+          <text x="180" y="682" fill="#718096" font-size="9">該当する</text>
+          <line x1="320" y1="668" x2="380" y2="694" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
+          <text x="345" y="682" fill="#718096" font-size="9">該当しない</text>
+
+          <rect x="104" y="698" width="100" height="30" rx="15" fill="#fff5f5" stroke="#fc8181" stroke-width="2" filter="url(#shadow)"/>
+          <text x="154" y="718" text-anchor="middle" fill="#c53030" font-size="12" font-weight="bold">資本的支出</text>
+          <rect x="336" y="698" width="80" height="30" rx="15" fill="#f0fff4" stroke="#68d391" stroke-width="2" filter="url(#shadow)"/>
+          <text x="376" y="718" text-anchor="middle" fill="#276749" font-size="12" font-weight="bold">修繕費</text>
+
+          <!-- 注釈 -->
+          <text x="270" y="756" text-anchor="middle" fill="#a0aec0" font-size="8.5">※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額（国税庁 No.1379）</text>
+        </svg>
       </div>
     </div>
 
