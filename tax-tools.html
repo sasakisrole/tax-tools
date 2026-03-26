@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>税理士ツール</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+  background: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+}
+header {
+  background: linear-gradient(135deg, #1a5276, #2980b9);
+  color: #fff;
+  padding: 16px 20px;
+  text-align: center;
+}
+header h1 { font-size: 1.3rem; font-weight: 600; }
+.tab-bar {
+  display: flex;
+  background: #fff;
+  border-bottom: 2px solid #e0e0e0;
+  overflow-x: auto;
+}
+.tab-bar button {
+  flex: 0 0 auto;
+  min-width: 80px;
+  padding: 12px 8px;
+  border: none;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-bar button.active {
+  color: #1a5276;
+  border-bottom-color: #2980b9;
+  font-weight: 600;
+}
+/* ホーム画面 */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.home-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  text-align: center;
+  border: 2px solid transparent;
+}
+.home-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  border-color: #2980b9;
+}
+.home-card .icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.home-card .title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a5276;
+  margin-bottom: 4px;
+}
+.home-card .subtitle {
+  font-size: 0.75rem;
+  color: #888;
+  line-height: 1.4;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.back-btn:hover { opacity: 0.8; }
+header { position: relative; }
+.tab-content { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
+.tab-content.active { display: block; }
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card h2 {
+  font-size: 1.05rem;
+  color: #1a5276;
+  margin-bottom: 4px;
+}
+.card .desc {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 16px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #555;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: #2980b9;
+}
+.btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #1a5276, #2980b9);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn:hover { opacity: 0.9; }
+.result {
+  margin-top: 16px;
+  background: #f8fbff;
+  border: 1px solid #d6e9f8;
+  border-radius: 10px;
+  padding: 16px;
+}
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eef3f8;
+  font-size: 0.9rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row .label { color: #666; }
+.result-row .value { font-weight: 600; color: #1a5276; }
+.result-row.highlight { background: #eef6ff; margin: 0 -16px; padding: 10px 16px; border-radius: 6px; }
+.result-row.highlight .value { font-size: 1.1rem; color: #c0392b; }
+.note {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.input-prefix {
+  position: relative;
+}
+.input-prefix input {
+  padding-left: 20px;
+}
+.input-prefix::before {
+  content: '¥';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 0.9rem;
+}
+.input-suffix {
+  position: relative;
+}
+.input-suffix input {
+  padding-right: 30px;
+}
+.input-suffix::after {
+  content: attr(data-suffix);
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 0.9rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
+  <h1>税理士ツールボックス</h1>
+</header>
+
+<div class="tab-bar" id="tab-bar" style="display:none;">
+  <button onclick="switchTab('interest')">受取利息逆算</button>
+  <button onclick="switchTab('sales')">必要売上計算</button>
+  <button onclick="switchTab('depreciation')">耐用年数検索</button>
+  <button onclick="switchTab('tax-rates')">税率一覧</button>
+  <button onclick="switchTab('tax-calendar')">税務カレンダー</button>
+</div>
+
+<!-- ===== ホーム画面 ===== -->
+<div id="home-screen" class="home-grid">
+  <div class="home-card" onclick="switchTab('interest')">
+    <div class="icon">🏦</div>
+    <div class="title">受取利息逆算</div>
+    <div class="subtitle">入金額から税引前利息・源泉税を逆算</div>
+  </div>
+  <div class="home-card" onclick="switchTab('sales')">
+    <div class="icon">📊</div>
+    <div class="title">必要売上計算</div>
+    <div class="subtitle">目標利益から必要売上高を算出</div>
+  </div>
+  <div class="home-card" onclick="switchTab('depreciation')">
+    <div class="icon">🔍</div>
+    <div class="title">耐用年数検索</div>
+    <div class="subtitle">資産の法定耐用年数を検索</div>
+  </div>
+  <div class="home-card" onclick="switchTab('tax-rates')">
+    <div class="icon">📋</div>
+    <div class="title">税率一覧</div>
+    <div class="subtitle">所得税・贈与税・相続税の速算表</div>
+  </div>
+  <div class="home-card" onclick="switchTab('tax-calendar')">
+    <div class="icon">📅</div>
+    <div class="title">税務カレンダー</div>
+    <div class="subtitle">月別の申告・納付期限一覧</div>
+  </div>
+</div>
+
+<!-- ===== 受取利息逆算ツール ===== -->
+<div id="tab-interest" class="tab-content">
+  <div class="card">
+    <h2>受取利息・配当金の逆算計算（法人用）</h2>
+    <p class="desc">入金額（手取額）から税引前金額・源泉所得税・復興特別所得税を逆算します</p>
+
+    <div class="form-group">
+      <label>種類</label>
+      <select id="interest-type" onchange="updateInterestUI()">
+        <option value="interest">受取利息（源泉税率 15.315%）</option>
+        <option value="dividend">配当金・出資分配金（源泉税率 20.42%）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>入金額（税引後の手取額）</label>
+      <div class="input-prefix">
+        <input type="text" id="deposit-amount" inputmode="numeric" placeholder="例: 797">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>端数処理</label>
+      <select id="rounding-method">
+        <option value="truncate">切捨て（一般的）</option>
+        <option value="round">四捨五入</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="calcInterest()">計算する</button>
+
+    <div id="interest-result" class="result" style="display:none;"></div>
+
+    <p class="note" id="interest-note">
+      ※ 法人向け：源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）<br>
+      ※ 法人の利子割は平成28年1月以降廃止されています<br>
+      ※ 2037年12月31日まで復興特別所得税が課されます<br>
+      ※ 個人事業主の場合は事業主借で処理するため逆算不要です
+    </p>
+  </div>
+</div>
+
+<!-- ===== 必要売上計算ツール ===== -->
+<div id="tab-sales" class="tab-content">
+  <div class="card">
+    <h2>必要売上シミュレーター</h2>
+    <p class="desc">手元に残したい金額・粗利率・固定費から必要な売上高を計算します</p>
+
+    <div class="form-group">
+      <label>手元に残したい金額（税引後利益目標）</label>
+      <div class="input-prefix">
+        <input type="text" id="target-profit" inputmode="numeric" placeholder="例: 5000000">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>粗利率（売上総利益率）</label>
+      <div class="input-suffix" data-suffix="%">
+        <input type="text" id="gross-margin" inputmode="decimal" placeholder="例: 40">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>固定費（人件費・家賃等の年間合計）</label>
+      <div class="input-prefix">
+        <input type="text" id="fixed-cost" inputmode="numeric" placeholder="例: 10000000">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>想定実効税率</label>
+      <select id="tax-rate">
+        <option value="0.25">約25%（小規模・所得400万以下）</option>
+        <option value="0.30" selected>約30%（中小企業・一般的）</option>
+        <option value="0.34">約34%（中小企業・所得800万超）</option>
+        <option value="0.37">約37%（大企業）</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="calcSales()">計算する</button>
+
+    <div id="sales-result" class="result" style="display:none;"></div>
+
+    <p class="note">
+      ※ 実効税率は法人税・住民税・事業税の合計概算です<br>
+      ※ 個人事業の場合は所得税率に応じて調整してください
+    </p>
+  </div>
+</div>
+
+<!-- ===== 耐用年数検索 ===== -->
+<div id="tab-depreciation" class="tab-content">
+  <div class="card">
+    <h2>減価償却 耐用年数検索</h2>
+    <p class="desc">資産名・種類で耐用年数を検索できます</p>
+
+    <div class="form-group">
+      <label>キーワード検索</label>
+      <input type="text" id="dep-search" placeholder="例: パソコン、車、エアコン、机" oninput="searchDepreciation()">
+    </div>
+
+    <div class="form-group">
+      <label>カテゴリで絞り込み</label>
+      <select id="dep-category" onchange="searchDepreciation()">
+        <option value="">すべて</option>
+        <option value="建物">建物</option>
+        <option value="建物附属設備">建物附属設備</option>
+        <option value="構築物">構築物</option>
+        <option value="車両運搬具">車両運搬具</option>
+        <option value="工具器具備品">工具器具備品</option>
+        <option value="機械装置">機械装置</option>
+        <option value="ソフトウェア">ソフトウェア</option>
+      </select>
+    </div>
+
+    <div id="dep-result"></div>
+
+    <p class="note">
+      ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
+      ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
+    </p>
+  </div>
+</div>
+
+<!-- ===== 税率一覧 ===== -->
+<div id="tab-tax-rates" class="tab-content">
+  <div class="card">
+    <h2>税率一覧表</h2>
+    <p class="desc">所得税・贈与税・相続税の速算表</p>
+
+    <div class="form-group">
+      <label>表示する税率表</label>
+      <select id="rate-type" onchange="showTaxRates()">
+        <option value="income">所得税（総合課税）</option>
+        <option value="gift-general">贈与税（一般贈与）</option>
+        <option value="gift-special">贈与税（特例贈与：直系尊属→18歳以上）</option>
+        <option value="inheritance">相続税</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>金額を入力すると税額を計算します（任意）</label>
+      <div class="input-prefix">
+        <input type="text" id="rate-amount" inputmode="numeric" placeholder="例: 7000000" oninput="showTaxRates()">
+      </div>
+    </div>
+
+    <div id="tax-rates-result"></div>
+  </div>
+</div>
+
+<!-- ===== 税務カレンダー ===== -->
+<div id="tab-tax-calendar" class="tab-content">
+  <div class="card">
+    <h2>主要税務スケジュール</h2>
+    <p class="desc">月別の主な税務申告・納付期限（法人：3月決算の場合）</p>
+
+    <div class="form-group">
+      <label>表示する月</label>
+      <select id="calendar-month" onchange="showCalendar()">
+        <option value="0">すべての月を表示</option>
+        <option value="1">1月</option><option value="2">2月</option>
+        <option value="3">3月</option><option value="4">4月</option>
+        <option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option>
+        <option value="9">9月</option><option value="10">10月</option>
+        <option value="11">11月</option><option value="12">12月</option>
+      </select>
+    </div>
+
+    <div id="calendar-result"></div>
+  </div>
+</div>
+
+<script>
+// ===== タブ切替 =====
+function switchTab(name) {
+  // ホーム画面を非表示、タブバーと戻るボタンを表示
+  document.getElementById('home-screen').style.display = 'none';
+  document.getElementById('tab-bar').style.display = 'flex';
+  document.getElementById('back-btn').style.display = 'inline-flex';
+
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4 };
+  document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
+}
+
+function goHome() {
+  // 全タブを非表示、ホーム画面を表示
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-bar').style.display = 'none';
+  document.getElementById('back-btn').style.display = 'none';
+  document.getElementById('home-screen').style.display = 'grid';
+}
+
+// ===== 数値フォーマット =====
+function fmt(n) {
+  return Math.floor(n).toLocaleString('ja-JP');
+}
+
+function parseNum(str) {
+  return parseFloat(str.replace(/[,，、]/g, '')) || 0;
+}
+
+// ===== 受取利息・配当金逆算 =====
+const interestTypes = {
+  interest:  { incomeTaxRate: 0.15, reconstructionRate: 0.00315, label: '受取利息', account: '受取利息' },
+  dividend:  { incomeTaxRate: 0.20, reconstructionRate: 0.0042,  label: '配当金',   account: '受取配当金' }
+};
+
+function updateInterestUI() {
+  const type = document.getElementById('interest-type').value;
+  const t = interestTypes[type];
+  const totalRate = ((t.incomeTaxRate + t.reconstructionRate) * 100).toFixed(3);
+  const noteEl = document.getElementById('interest-note');
+  if (type === 'interest') {
+    noteEl.innerHTML = '※ 法人向け：源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）<br>'
+      + '※ 法人の利子割は平成28年1月以降廃止されています<br>'
+      + '※ 2037年12月31日まで復興特別所得税が課されます<br>'
+      + '※ 個人事業主の場合は事業主借で処理するため逆算不要です';
+  } else {
+    noteEl.innerHTML = '※ 法人向け：源泉所得税率 20.42%（所得税20% + 復興特別所得税0.42%）<br>'
+      + '※ 非上場株式の配当・出資金の分配金等が対象です<br>'
+      + '※ 2037年12月31日まで復興特別所得税が課されます';
+  }
+  document.getElementById('interest-result').style.display = 'none';
+}
+
+function calcInterest() {
+  const deposit = parseNum(document.getElementById('deposit-amount').value);
+  if (deposit <= 0) { alert('入金額を入力してください'); return; }
+
+  const method = document.getElementById('rounding-method').value;
+  const type = document.getElementById('interest-type').value;
+  const t = interestTypes[type];
+
+  // 税率
+  const incomeTaxRate = t.incomeTaxRate;
+  const reconstructionRate = t.reconstructionRate;
+  const nationalTaxRate = incomeTaxRate + reconstructionRate;
+
+  // 税引前金額 = 入金額 / (1 - 税率)
+  // ただし源泉税は1円未満切捨てのため、逆算は近似値から探索する
+  let grossAmount = Math.ceil(deposit / (1 - nationalTaxRate));
+
+  // 正確な値を探索（端数処理の影響で±数円ずれることがある）
+  let found = false;
+  for (let g = grossAmount - 5; g <= grossAmount + 5; g++) {
+    if (g <= 0) continue;
+    let natTax;
+    if (method === 'truncate') {
+      natTax = Math.floor(g * nationalTaxRate);
+    } else {
+      natTax = Math.round(g * nationalTaxRate);
+    }
+    if (g - natTax === deposit) {
+      grossAmount = g;
+      found = true;
+      break;
+    }
+  }
+
+  // 各税額計算
+  let nationalTax;
+  if (method === 'truncate') {
+    nationalTax = Math.floor(grossAmount * nationalTaxRate);
+  } else {
+    nationalTax = Math.round(grossAmount * nationalTaxRate);
+  }
+
+  const incomeTax = Math.floor(grossAmount * incomeTaxRate);
+  const reconstructionTax = nationalTax - incomeTax;
+  const netAmount = grossAmount - nationalTax;
+
+  const taxPct = (incomeTaxRate * 100).toFixed(0);
+  const recPct = (reconstructionRate * 100).toFixed(3);
+  const totalPct = (nationalTaxRate * 100).toFixed(3);
+
+  let html = '';
+  html += '<div class="result-row highlight"><span class="label">' + t.label + '（税引前）</span><span class="value">¥' + fmt(grossAmount) + '</span></div>';
+  html += '<div class="result-row"><span class="label">所得税（' + taxPct + '%）</span><span class="value">¥' + fmt(incomeTax) + '</span></div>';
+  html += '<div class="result-row"><span class="label">復興特別所得税（' + recPct + '%）</span><span class="value">¥' + fmt(reconstructionTax) + '</span></div>';
+  html += '<div class="result-row"><span class="label">源泉所得税 計（' + totalPct + '%）</span><span class="value">¥' + fmt(nationalTax) + '</span></div>';
+  html += '<div class="result-row"><span class="label">差引手取額（検算）</span><span class="value">¥' + fmt(netAmount) + '</span></div>';
+
+  if (!found) {
+    html += '<p class="note" style="color:#c0392b;">※ 端数処理の関係で入金額と完全一致する金額が見つかりませんでした。最も近い値を表示しています。</p>';
+  }
+
+  // 仕訳例
+  html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid #e0e0e0;">';
+  html += '<div style="font-size:0.85rem; font-weight:600; color:#1a5276; margin-bottom:8px;">仕訳例</div>';
+  html += '<div style="font-size:0.8rem; color:#555; font-family:monospace; line-height:1.8;">';
+  html += '普通預金　　　' + fmt(deposit).padStart(10) + ' ／ ' + t.account + '　' + fmt(grossAmount).padStart(10) + '<br>';
+  html += '仮払法人税等　' + fmt(nationalTax).padStart(10);
+  html += '</div></div>';
+
+  const el = document.getElementById('interest-result');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// ===== 必要売上計算 =====
+function calcSales() {
+  const targetProfit = parseNum(document.getElementById('target-profit').value);
+  const grossMarginPct = parseNum(document.getElementById('gross-margin').value);
+  const fixedCost = parseNum(document.getElementById('fixed-cost').value);
+  const taxRate = parseFloat(document.getElementById('tax-rate').value);
+
+  if (targetProfit <= 0) { alert('手元に残したい金額を入力してください'); return; }
+  if (grossMarginPct <= 0 || grossMarginPct > 100) { alert('粗利率は1〜100の間で入力してください'); return; }
+
+  const grossMargin = grossMarginPct / 100;
+
+  // 税引後利益 = 税引前利益 × (1 - 実効税率)
+  // 税引前利益 = 目標利益 / (1 - 実効税率)
+  const preTaxProfit = targetProfit / (1 - taxRate);
+
+  // 税引前利益 = 売上 × 粗利率 - 固定費
+  // 売上 = (税引前利益 + 固定費) / 粗利率
+  const requiredSales = (preTaxProfit + fixedCost) / grossMargin;
+
+  // 売上原価
+  const cogs = requiredSales * (1 - grossMargin);
+  // 粗利額
+  const grossProfitAmount = requiredSales * grossMargin;
+  // 税額
+  const taxAmount = preTaxProfit * taxRate;
+
+  // 月次目標
+  const monthlySales = requiredSales / 12;
+
+  let html = '';
+  html += '<div class="result-row highlight"><span class="label">必要売上高（年間）</span><span class="value">¥' + fmt(requiredSales) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">月間売上目標</span><span class="value">¥' + fmt(monthlySales) + '</span></div>';
+  html += '<div style="height:8px;"></div>';
+  html += '<div class="result-row"><span class="label">売上原価</span><span class="value">¥' + fmt(cogs) + '</span></div>';
+  html += '<div class="result-row"><span class="label">粗利額（売上総利益）</span><span class="value">¥' + fmt(grossProfitAmount) + '</span></div>';
+  html += '<div class="result-row"><span class="label">固定費</span><span class="value">¥' + fmt(fixedCost) + '</span></div>';
+  html += '<div class="result-row"><span class="label">税引前利益</span><span class="value">¥' + fmt(preTaxProfit) + '</span></div>';
+  html += '<div class="result-row"><span class="label">税額（税率 ' + (taxRate * 100) + '%）</span><span class="value">¥' + fmt(taxAmount) + '</span></div>';
+  html += '<div class="result-row"><span class="label">税引後利益</span><span class="value">¥' + fmt(targetProfit) + '</span></div>';
+
+  // 損益分岐点
+  const breakEven = fixedCost / grossMargin;
+  const safetyMargin = ((requiredSales - breakEven) / requiredSales * 100).toFixed(1);
+  html += '<div style="height:8px;"></div>';
+  html += '<div class="result-row"><span class="label">損益分岐点売上高</span><span class="value">¥' + fmt(breakEven) + '</span></div>';
+  html += '<div class="result-row"><span class="label">安全余裕率</span><span class="value">' + safetyMargin + '%</span></div>';
+
+  const el = document.getElementById('sales-result');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// ===== 税務カレンダー =====
+const taxCalendarData = {
+  1: [
+    { day: '10日', item: '源泉所得税の納付（12月分）' },
+    { day: '20日', item: '納期の特例による源泉所得税の納付（7〜12月分）' },
+    { day: '31日', item: '法定調書の提出' },
+    { day: '31日', item: '給与支払報告書の提出' },
+    { day: '31日', item: '償却資産申告書の提出' }
+  ],
+  2: [
+    { day: '10日', item: '源泉所得税の納付（1月分）' },
+    { day: '16日', item: '所得税の確定申告開始' },
+    { day: '末日', item: '固定資産税（第4期）※自治体による' }
+  ],
+  3: [
+    { day: '10日', item: '源泉所得税の納付（2月分）' },
+    { day: '15日', item: '所得税の確定申告期限・納付期限' },
+    { day: '15日', item: '個人事業者の消費税申告・納付期限' },
+    { day: '31日', item: '住民税・事業税の申告期限（個人）' }
+  ],
+  4: [
+    { day: '10日', item: '源泉所得税の納付（3月分）' },
+    { day: '30日', item: '固定資産税（第1期）※自治体による' }
+  ],
+  5: [
+    { day: '10日', item: '源泉所得税の納付（4月分）' },
+    { day: '31日', item: '法人税・法人住民税・法人事業税の申告（3月決算）' },
+    { day: '31日', item: '消費税の申告・納付（3月決算法人）' },
+    { day: '31日', item: '自動車税の納付期限' }
+  ],
+  6: [
+    { day: '10日', item: '源泉所得税の納付（5月分）' },
+    { day: '30日', item: '住民税（第1期）' }
+  ],
+  7: [
+    { day: '10日', item: '源泉所得税の納付（6月分）' },
+    { day: '10日', item: '納期の特例による源泉所得税の納付（1〜6月分）' },
+    { day: '15日', item: '所得税予定納税（第1期）' },
+    { day: '31日', item: '固定資産税（第2期）※自治体による' }
+  ],
+  8: [
+    { day: '10日', item: '源泉所得税の納付（7月分）' },
+    { day: '31日', item: '住民税（第2期）' },
+    { day: '31日', item: '個人事業税（第1期）' }
+  ],
+  9: [
+    { day: '10日', item: '源泉所得税の納付（8月分）' },
+    { day: '30日', item: '法人税 中間申告（3月決算）' }
+  ],
+  10: [
+    { day: '10日', item: '源泉所得税の納付（9月分）' },
+    { day: '31日', item: '住民税（第3期）' }
+  ],
+  11: [
+    { day: '10日', item: '源泉所得税の納付（10月分）' },
+    { day: '15日', item: '所得税予定納税（第2期）' },
+    { day: '30日', item: '個人事業税（第2期）' }
+  ],
+  12: [
+    { day: '10日', item: '源泉所得税の納付（11月分）' },
+    { day: '25日頃', item: '固定資産税（第3期）※自治体による' },
+    { day: '末日', item: '年末調整関連事務' }
+  ]
+};
+
+function showCalendar() {
+  const month = parseInt(document.getElementById('calendar-month').value);
+  let html = '';
+
+  const renderMonth = (m) => {
+    const items = taxCalendarData[m];
+    html += '<div style="margin-bottom:16px;">';
+    html += '<div style="font-weight:600; color:#1a5276; font-size:0.95rem; margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid #2980b9;">' + m + '月</div>';
+    items.forEach(item => {
+      html += '<div class="result-row"><span class="label">' + item.day + '</span><span class="value" style="font-size:0.85rem; text-align:right;">' + item.item + '</span></div>';
+    });
+    html += '</div>';
+  };
+
+  if (month === 0) {
+    // 今月から表示
+    const currentMonth = new Date().getMonth() + 1;
+    for (let i = 0; i < 12; i++) {
+      const m = ((currentMonth - 1 + i) % 12) + 1;
+      renderMonth(m);
+    }
+  } else {
+    renderMonth(month);
+  }
+
+  document.getElementById('calendar-result').innerHTML = html;
+}
+
+// ===== 耐用年数データベース =====
+const depreciationData = [
+  // 建物
+  { category: '建物', name: '鉄骨鉄筋コンクリート造・鉄筋コンクリート造（事務所用）', years: 50 },
+  { category: '建物', name: '鉄骨鉄筋コンクリート造・鉄筋コンクリート造（住宅用）', years: 47 },
+  { category: '建物', name: '鉄骨鉄筋コンクリート造・鉄筋コンクリート造（店舗用）', years: 39 },
+  { category: '建物', name: '鉄骨鉄筋コンクリート造・鉄筋コンクリート造（工場用・倉庫用）', years: 38 },
+  { category: '建物', name: '鉄骨鉄筋コンクリート造・鉄筋コンクリート造（飲食店用）', years: 34 },
+  { category: '建物', name: '金属造（骨格材4mm超）（事務所用）', years: 38 },
+  { category: '建物', name: '金属造（骨格材4mm超）（店舗用・住宅用）', years: 34 },
+  { category: '建物', name: '金属造（骨格材4mm超）（工場用・倉庫用）', years: 31 },
+  { category: '建物', name: '金属造（骨格材3mm超4mm以下）（事務所用）', years: 30 },
+  { category: '建物', name: '金属造（骨格材3mm超4mm以下）（店舗用・住宅用）', years: 27 },
+  { category: '建物', name: '金属造（骨格材3mm以下）（事務所用・店舗用・住宅用）', years: 19 },
+  { category: '建物', name: '木造・合成樹脂造（事務所用）', years: 24 },
+  { category: '建物', name: '木造・合成樹脂造（店舗用・住宅用）', years: 22 },
+  { category: '建物', name: '木造・合成樹脂造（飲食店用）', years: 20 },
+  { category: '建物', name: '木造・合成樹脂造（工場用・倉庫用）', years: 15 },
+  { category: '建物', name: '木骨モルタル造（事務所用）', years: 22 },
+  { category: '建物', name: '木骨モルタル造（店舗用・住宅用）', years: 20 },
+  { category: '建物', name: '簡易建物（プレハブ造）', years: 7 },
+  // 建物附属設備
+  { category: '建物附属設備', name: '電気設備（照明設備を含む）蓄電池電源設備', years: 6 },
+  { category: '建物附属設備', name: '電気設備（照明設備を含む）その他', years: 15 },
+  { category: '建物附属設備', name: '給排水・衛生設備、ガス設備', years: 15 },
+  { category: '建物附属設備', name: '冷暖房設備（冷凍機の出力22kW以下）', years: 13 },
+  { category: '建物附属設備', name: '冷暖房設備（その他）', years: 15 },
+  { category: '建物附属設備', name: 'エレベーター', years: 17 },
+  { category: '建物附属設備', name: 'エスカレーター', years: 15 },
+  { category: '建物附属設備', name: '消火・排煙・災害報知設備、格納式避難設備', years: 8 },
+  { category: '建物附属設備', name: 'アーケード・日よけ設備（金属造）', years: 15 },
+  { category: '建物附属設備', name: '可動間仕切り（簡易なもの）', years: 3 },
+  { category: '建物附属設備', name: '可動間仕切り（その他）', years: 15 },
+  { category: '建物附属設備', name: '内装・内部造作（賃借建物）', years: 10, note: '合理的に見積もった年数' },
+  // 構築物
+  { category: '構築物', name: 'アスファルト舗装', years: 10 },
+  { category: '構築物', name: 'コンクリート舗装', years: 15 },
+  { category: '構築物', name: 'フェンス（金属造）', years: 10 },
+  { category: '構築物', name: '看板・広告塔（金属造）', years: 20 },
+  { category: '構築物', name: '緑化施設・庭園', years: 20 },
+  { category: '構築物', name: '駐車場設備（機械式）', years: 15 },
+  // 車両運搬具
+  { category: '車両運搬具', name: '普通自動車（一般用・排気量0.66L超）', years: 6 },
+  { category: '車両運搬具', name: '普通自動車（貨物用・ダンプ式）', years: 4 },
+  { category: '車両運搬具', name: '普通自動車（貨物用・その他）', years: 5 },
+  { category: '車両運搬具', name: '小型車（排気量0.66L以下・軽自動車）', years: 4 },
+  { category: '車両運搬具', name: '二輪自動車（バイク）', years: 3 },
+  { category: '車両運搬具', name: '自転車', years: 2 },
+  { category: '車両運搬具', name: '運送事業用（小型車）', years: 3 },
+  { category: '車両運搬具', name: '運送事業用（大型乗用車）', years: 5 },
+  // 工具器具備品
+  { category: '工具器具備品', name: 'パソコン（サーバー用を除く）', years: 4 },
+  { category: '工具器具備品', name: 'サーバー用パソコン', years: 5 },
+  { category: '工具器具備品', name: 'コピー機・複合機', years: 5 },
+  { category: '工具器具備品', name: '電話設備（デジタルボタン電話等）', years: 6 },
+  { category: '工具器具備品', name: 'テレビ・ラジオ', years: 5 },
+  { category: '工具器具備品', name: '冷蔵庫・洗濯機（電気冷蔵庫・電気洗濯機）', years: 6 },
+  { category: '工具器具備品', name: 'エアコン（冷房用又は暖房用機器・出力22kW以下）', years: 6 },
+  { category: '工具器具備品', name: '事務机・事務いす・キャビネット（金属製）', years: 15 },
+  { category: '工具器具備品', name: '事務机・事務いす・キャビネット（その他）', years: 8 },
+  { category: '工具器具備品', name: '応接セット（接客業用）', years: 5 },
+  { category: '工具器具備品', name: '応接セット（その他）', years: 8 },
+  { category: '工具器具備品', name: 'カーテン・ブラインド・じゅうたん', years: 3 },
+  { category: '工具器具備品', name: '時計', years: 10 },
+  { category: '工具器具備品', name: 'カメラ・光学機器', years: 5 },
+  { category: '工具器具備品', name: '看板・ネオンサイン', years: 3 },
+  { category: '工具器具備品', name: '金庫（手提げ金庫を除く）', years: 20 },
+  { category: '工具器具備品', name: '自動販売機', years: 5 },
+  { category: '工具器具備品', name: 'レジスター・POS', years: 5 },
+  { category: '工具器具備品', name: '理容・美容機器', years: 5 },
+  { category: '工具器具備品', name: '医療機器（消毒殺菌用・手術用・光学検査用等）', years: 4 },
+  { category: '工具器具備品', name: '医療機器（レントゲン等・移動式・救急医療用）', years: 6 },
+  { category: '工具器具備品', name: '医療機器（その他）', years: 6 },
+  { category: '工具器具備品', name: 'ベッド（金属製）', years: 3 },
+  // 機械装置（主要な業種のみ）
+  { category: '機械装置', name: '食料品製造業用設備', years: 10 },
+  { category: '機械装置', name: '飲料・たばこ・飼料製造業用設備', years: 10 },
+  { category: '機械装置', name: '繊維工業用設備', years: 7 },
+  { category: '機械装置', name: '印刷業・印刷関連業用設備', years: 10 },
+  { category: '機械装置', name: '化学工業用設備', years: 8 },
+  { category: '機械装置', name: '金属製品製造業用設備', years: 10 },
+  { category: '機械装置', name: '一般産業用機械・装置製造業用設備', years: 12 },
+  { category: '機械装置', name: '電気業用設備（その他の水力発電用）', years: 20 },
+  { category: '機械装置', name: '電気業用設備（太陽光発電設備）', years: 17 },
+  { category: '機械装置', name: '小売業用設備', years: 5 },
+  { category: '機械装置', name: '飲食店業用設備', years: 8 },
+  { category: '機械装置', name: '宿泊業用設備', years: 10 },
+  { category: '機械装置', name: '洗濯業・理容業・美容業・浴場業用設備', years: 13 },
+  { category: '機械装置', name: '農業用設備', years: 7 },
+  { category: '機械装置', name: '総合工事業用設備', years: 6 },
+  // ソフトウェア
+  { category: 'ソフトウェア', name: 'ソフトウェア（自社利用・複写して販売するための原本）', years: 3 },
+  { category: 'ソフトウェア', name: 'ソフトウェア（自社利用・研究開発用）', years: 3 },
+  { category: 'ソフトウェア', name: 'ソフトウェア（自社利用・その他）', years: 5 },
+];
+
+function searchDepreciation() {
+  const keyword = document.getElementById('dep-search').value.trim().toLowerCase();
+  const category = document.getElementById('dep-category').value;
+
+  let filtered = depreciationData;
+  if (category) {
+    filtered = filtered.filter(d => d.category === category);
+  }
+  if (keyword) {
+    // 複数キーワードをスペースで分割してAND検索
+    const keywords = keyword.split(/[\s　]+/).filter(k => k);
+    filtered = filtered.filter(d => {
+      const text = (d.category + d.name).toLowerCase();
+      return keywords.every(k => text.includes(k));
+    });
+  }
+
+  let html = '';
+  if (filtered.length === 0) {
+    html = '<div style="text-align:center; padding:20px; color:#999;">該当する資産が見つかりません</div>';
+  } else {
+    html += '<div style="font-size:0.8rem; color:#888; margin-bottom:8px;">' + filtered.length + '件ヒット</div>';
+    filtered.forEach(d => {
+      html += '<div class="result-row" style="flex-wrap:wrap; gap:4px;">';
+      html += '<div><span style="display:inline-block; background:#e8f0fe; color:#1a5276; font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-right:6px;">' + d.category + '</span>';
+      html += '<span style="font-size:0.85rem;">' + d.name + '</span></div>';
+      html += '<span class="value">' + d.years + '年</span>';
+      html += '</div>';
+      if (d.note) {
+        html += '<div style="font-size:0.7rem; color:#999; padding:0 0 6px 0;">※ ' + d.note + '</div>';
+      }
+    });
+  }
+
+  document.getElementById('dep-result').innerHTML = html;
+}
+
+// ===== 税率一覧 =====
+const taxRateTables = {
+  income: {
+    title: '所得税の速算表（令和7年分以降）',
+    baseLabel: '課税所得金額',
+    brackets: [
+      { over: 0,         upto: 1950000,    rate: 5,   deduction: 0 },
+      { over: 1950000,   upto: 3300000,    rate: 10,  deduction: 97500 },
+      { over: 3300000,   upto: 6950000,    rate: 20,  deduction: 427500 },
+      { over: 6950000,   upto: 9000000,    rate: 23,  deduction: 636000 },
+      { over: 9000000,   upto: 18000000,   rate: 33,  deduction: 1536000 },
+      { over: 18000000,  upto: 40000000,   rate: 40,  deduction: 2796000 },
+      { over: 40000000,  upto: Infinity,   rate: 45,  deduction: 4796000 },
+    ],
+    note: '※ 別途、復興特別所得税（所得税額×2.1%）が加算されます\n※ 住民税は一律10%が別途課税されます'
+  },
+  'gift-general': {
+    title: '贈与税の速算表（一般贈与財産用）',
+    baseLabel: '基礎控除後の課税価格',
+    exemption: 1100000,
+    exemptionLabel: '基礎控除: 110万円',
+    brackets: [
+      { over: 0,         upto: 2000000,    rate: 10,  deduction: 0 },
+      { over: 2000000,   upto: 3000000,    rate: 15,  deduction: 100000 },
+      { over: 3000000,   upto: 4000000,    rate: 20,  deduction: 250000 },
+      { over: 4000000,   upto: 6000000,    rate: 30,  deduction: 650000 },
+      { over: 6000000,   upto: 10000000,   rate: 40,  deduction: 1250000 },
+      { over: 10000000,  upto: 15000000,   rate: 45,  deduction: 1750000 },
+      { over: 15000000,  upto: 30000000,   rate: 50,  deduction: 2500000 },
+      { over: 30000000,  upto: Infinity,   rate: 55,  deduction: 4000000 },
+    ],
+    note: '※ 基礎控除110万円を差し引いた後の金額に対して課税\n※ 一般贈与: 直系尊属以外からの贈与、または18歳未満への贈与'
+  },
+  'gift-special': {
+    title: '贈与税の速算表（特例贈与財産用）',
+    baseLabel: '基礎控除後の課税価格',
+    exemption: 1100000,
+    exemptionLabel: '基礎控除: 110万円',
+    brackets: [
+      { over: 0,         upto: 2000000,    rate: 10,  deduction: 0 },
+      { over: 2000000,   upto: 4000000,    rate: 15,  deduction: 100000 },
+      { over: 4000000,   upto: 6000000,    rate: 20,  deduction: 300000 },
+      { over: 6000000,   upto: 10000000,   rate: 30,  deduction: 900000 },
+      { over: 10000000,  upto: 15000000,   rate: 40,  deduction: 1900000 },
+      { over: 15000000,  upto: 30000000,   rate: 45,  deduction: 2650000 },
+      { over: 30000000,  upto: 45000000,   rate: 50,  deduction: 4150000 },
+      { over: 45000000,  upto: Infinity,   rate: 55,  deduction: 6400000 },
+    ],
+    note: '※ 基礎控除110万円を差し引いた後の金額に対して課税\n※ 特例贈与: 直系尊属（父母・祖父母等）から18歳以上の者への贈与'
+  },
+  inheritance: {
+    title: '相続税の速算表',
+    baseLabel: '法定相続分に応ずる取得金額',
+    brackets: [
+      { over: 0,          upto: 10000000,    rate: 10,  deduction: 0 },
+      { over: 10000000,   upto: 30000000,    rate: 15,  deduction: 500000 },
+      { over: 30000000,   upto: 50000000,    rate: 20,  deduction: 2000000 },
+      { over: 50000000,   upto: 100000000,   rate: 30,  deduction: 7000000 },
+      { over: 100000000,  upto: 200000000,   rate: 40,  deduction: 17000000 },
+      { over: 200000000,  upto: 300000000,   rate: 45,  deduction: 27000000 },
+      { over: 300000000,  upto: 600000000,   rate: 50,  deduction: 42000000 },
+      { over: 600000000,  upto: Infinity,    rate: 55,  deduction: 72000000 },
+    ],
+    note: '※ 基礎控除: 3,000万円 + 600万円 × 法定相続人の数\n※ 法定相続分に応じた各取得金額に税率を適用し、合計した後に按分します'
+  }
+};
+
+function showTaxRates() {
+  const type = document.getElementById('rate-type').value;
+  const amountStr = document.getElementById('rate-amount').value;
+  const amount = parseNum(amountStr);
+  const table = taxRateTables[type];
+
+  let html = '';
+  html += '<div style="font-weight:600; color:#1a5276; font-size:0.95rem; margin-bottom:12px;">' + table.title + '</div>';
+
+  if (table.exemptionLabel) {
+    html += '<div style="font-size:0.8rem; background:#fff3cd; padding:8px 12px; border-radius:6px; margin-bottom:12px; color:#856404;">' + table.exemptionLabel + '</div>';
+  }
+
+  // 税率テーブル
+  html += '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.8rem;">';
+  html += '<tr style="background:#1a5276; color:#fff;"><th style="padding:8px; text-align:left;">' + table.baseLabel + '</th><th style="padding:8px; text-align:center;">税率</th><th style="padding:8px; text-align:right;">控除額</th></tr>';
+
+  table.brackets.forEach((b, i) => {
+    const isTarget = amount > 0 && (type.startsWith('gift') ? (amount - (table.exemption || 0)) : amount) > b.over && (type.startsWith('gift') ? (amount - (table.exemption || 0)) : amount) <= b.upto;
+    const bg = isTarget ? 'background:#eef6ff; font-weight:600;' : (i % 2 === 0 ? 'background:#f9f9f9;' : '');
+    const overStr = b.over === 0 ? '' : fmt(b.over) + '円超';
+    const uptoStr = b.upto === Infinity ? '' : fmt(b.upto) + '円以下';
+    const rangeStr = overStr + (overStr && uptoStr ? ' ～ ' : '') + uptoStr;
+    html += '<tr style="' + bg + '">';
+    html += '<td style="padding:8px; border-bottom:1px solid #eee;">' + (rangeStr || '全額') + '</td>';
+    html += '<td style="padding:8px; text-align:center; border-bottom:1px solid #eee;">' + b.rate + '%</td>';
+    html += '<td style="padding:8px; text-align:right; border-bottom:1px solid #eee;">¥' + fmt(b.deduction) + '</td>';
+    html += '</tr>';
+  });
+  html += '</table></div>';
+
+  // 金額が入力されていれば税額計算
+  if (amount > 0) {
+    let taxableAmount = amount;
+    if (table.exemption) {
+      taxableAmount = Math.max(0, amount - table.exemption);
+    }
+
+    let applicableBracket = null;
+    for (const b of table.brackets) {
+      if (taxableAmount > b.over && taxableAmount <= b.upto) {
+        applicableBracket = b;
+        break;
+      }
+    }
+    // 最高税率超え
+    if (!applicableBracket && taxableAmount > 0) {
+      applicableBracket = table.brackets[table.brackets.length - 1];
+    }
+
+    if (applicableBracket && taxableAmount > 0) {
+      const tax = Math.floor(taxableAmount * applicableBracket.rate / 100 - applicableBracket.deduction);
+      const effectiveRate = (tax / amount * 100).toFixed(2);
+
+      html += '<div class="result" style="margin-top:12px;">';
+      if (table.exemption) {
+        html += '<div class="result-row"><span class="label">贈与額</span><span class="value">¥' + fmt(amount) + '</span></div>';
+        html += '<div class="result-row"><span class="label">基礎控除</span><span class="value">-¥' + fmt(table.exemption) + '</span></div>';
+        html += '<div class="result-row"><span class="label">課税価格</span><span class="value">¥' + fmt(taxableAmount) + '</span></div>';
+      }
+      html += '<div class="result-row"><span class="label">適用税率</span><span class="value">' + applicableBracket.rate + '%</span></div>';
+      html += '<div class="result-row"><span class="label">控除額</span><span class="value">¥' + fmt(applicableBracket.deduction) + '</span></div>';
+      html += '<div class="result-row highlight"><span class="label">税額</span><span class="value">¥' + fmt(Math.max(0, tax)) + '</span></div>';
+      html += '<div class="result-row"><span class="label">実効税率</span><span class="value">' + effectiveRate + '%</span></div>';
+
+      if (type === 'income') {
+        const reconstructionTax = Math.floor(Math.max(0, tax) * 0.021);
+        html += '<div class="result-row"><span class="label">復興特別所得税</span><span class="value">¥' + fmt(reconstructionTax) + '</span></div>';
+        html += '<div class="result-row"><span class="label">所得税＋復興税 合計</span><span class="value">¥' + fmt(Math.max(0, tax) + reconstructionTax) + '</span></div>';
+      }
+
+      html += '</div>';
+    } else if (taxableAmount <= 0 && table.exemption) {
+      html += '<div class="result" style="margin-top:12px;">';
+      html += '<div class="result-row highlight"><span class="label">税額</span><span class="value">¥0（基礎控除以下）</span></div>';
+      html += '</div>';
+    }
+  }
+
+  html += '<p class="note" style="margin-top:12px;">' + table.note.replace(/\n/g, '<br>') + '</p>';
+
+  document.getElementById('tax-rates-result').innerHTML = html;
+}
+
+// 初期表示
+showCalendar();
+searchDepreciation();
+showTaxRates();
+</script>
+
+</body>
+</html>
