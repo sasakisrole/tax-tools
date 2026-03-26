@@ -285,6 +285,19 @@ header { position: relative; }
   color: #fff;
   font-weight: 600;
 }
+.tool-guide { background:#f0f7ff; border:1px solid #d6e4f0; border-radius:8px; margin-bottom:16px; font-size:0.82rem; line-height:1.7; }
+.tool-guide summary { cursor:pointer; padding:8px 12px; font-weight:600; color:#1a5276; font-size:0.82rem; }
+.tool-guide summary:hover { background:#e8f1fb; border-radius:8px; }
+.tool-guide .guide-body { padding:4px 14px 12px; color:#555; }
+.tool-guide .guide-body dt { font-weight:600; color:#1a5276; margin-top:8px; }
+.tool-guide .guide-body dd { margin:2px 0 0 0; }
+.tool-guide .guide-body ul { padding-left:18px; margin:4px 0; }
+.about-box { grid-column:1/-1; background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.about-box summary { cursor:pointer; font-weight:600; color:#1a5276; font-size:0.95rem; }
+.about-box summary:hover { opacity:0.8; }
+.about-box .about-body { margin-top:12px; font-size:0.82rem; color:#555; line-height:1.8; }
+.about-box .about-body h3 { font-size:0.88rem; color:#1a5276; margin:12px 0 4px; }
+.about-box .about-body ul { padding-left:18px; margin:4px 0; }
 .changelog { margin-top: 20px; font-size: 0.72rem; color: #999; line-height: 1.7; }
 .changelog summary { cursor: pointer; font-weight: 500; color: #888; }
 .changelog ul { list-style: none; padding: 8px 0 0 0; margin: 0; }
@@ -395,6 +408,38 @@ header { position: relative; }
 
 <!-- ===== ホーム画面 ===== -->
 <div id="home-screen" class="home-grid">
+  <details class="about-box">
+    <summary>このツールについて</summary>
+    <div class="about-body">
+      <p>税理士・会計事務所スタッフが日常業務で使う計算を、ブラウザだけで手軽に実行できるツール集です。</p>
+      <h3>特徴</h3>
+      <ul>
+        <li>インストール不要 — ブラウザで開くだけで使えます</li>
+        <li>オフラインでも動作 — 全機能がページ内に完結しています</li>
+        <li>Enterキーで即計算 — 金額入力後Enterで実行できます</li>
+        <li>カンマ区切り対応 — 「1,000,000」のような入力もそのまま使えます</li>
+      </ul>
+      <h3>ツール一覧</h3>
+      <ul>
+        <li><strong>受取利息逆算</strong> — 通帳の入金額から仕訳用の税引前利息・源泉税を逆算</li>
+        <li><strong>必要売上計算</strong> — 目標利益を達成するために必要な売上高を計算</li>
+        <li><strong>耐用年数検索</strong> — 固定資産の法定耐用年数・償却率をキーワード検索</li>
+        <li><strong>税率一覧</strong> — 所得税・贈与税・相続税の速算表</li>
+        <li><strong>税務カレンダー</strong> — 月別の申告・納付期限一覧</li>
+        <li><strong>給与源泉税早見表</strong> — 月額表から源泉税額をハイライト表示</li>
+        <li><strong>報酬源泉計算</strong> — 税理士報酬等の源泉税を正算・逆算</li>
+        <li><strong>修繕費判定</strong> — 国税庁フローチャートに沿って修繕費か資本的支出かを判定</li>
+        <li><strong>役員報酬シミュレーション</strong> — 社保・所得税を差し引いた手取り額を概算</li>
+        <li><strong>国保シミュレーション</strong> — 大阪市の国民健康保険料を試算（軽減判定付き）</li>
+      </ul>
+      <h3>注意事項</h3>
+      <ul>
+        <li>計算結果は簡易的な概算値です。正式な申告・届出には必ず専門家の確認を受けてください</li>
+        <li>料率・税率は年度更新が必要です。各ツールに適用年度を記載しています</li>
+        <li>各ツールの入力欄の下にある「使い方」を開くと、入力項目の説明を確認できます</li>
+      </ul>
+    </div>
+  </details>
   <div class="home-card" onclick="switchTab('interest')">
     <div class="icon">🏦</div>
     <div class="title">受取利息逆算</div>
@@ -454,6 +499,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.8 (2026-03-27) 全ツールに使い方ガイドを追加、ホームに「このツールについて」を追加</li>
         <li>v1.7 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
         <li>v1.6 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
         <li>v1.5 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
@@ -472,6 +518,20 @@ header { position: relative; }
   <div class="card">
     <h2>受取利息・配当金の逆算計算（法人用）</h2>
     <p class="desc">入金額（手取額）から税引前金額・源泉所得税・復興特別所得税を逆算します</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>通帳に記帳された受取利息や配当金の入金額から、仕訳に必要な税引前金額と源泉税額を求めるときに使います。</dd>
+          <dt>入力する金額</dt>
+          <dd>通帳に記載された入金額（手取額）をそのまま入力してください。正算モードでは税引前の額面金額を入力します。</dd>
+          <dt>種類の選び方</dt>
+          <dd>預金利息 → 「受取利息」（源泉税率15.315%）、出資分配金・配当金 → 「配当金」（源泉税率20.42%）を選択してください。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div class="form-group">
       <label>種類</label>
@@ -515,6 +575,20 @@ header { position: relative; }
   <div class="card">
     <h2>必要売上シミュレーター</h2>
     <p class="desc">手元に残したい金額・粗利率・固定費から必要な売上高を計算します</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>「年間でいくら手元に残したい」という目標から、必要な売上高を逆算するときに使います。経営相談や事業計画の際に便利です。</dd>
+          <dt>法人モードと個人モード</dt>
+          <dd>法人 → 実効税率（800万境界で自動計算）を考慮して税引前利益を算出します。個人 → 税率を考慮せず、入力した金額＝必要利益として計算します。</dd>
+          <dt>粗利率</dt>
+          <dd>売上高に対する粗利（売上総利益）の割合です。卸売業なら20〜30%、サービス業なら50〜80%程度が目安です。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div class="form-group">
       <label id="sales-profit-label">手元に残したい金額（税引後利益目標）</label>
@@ -561,6 +635,20 @@ header { position: relative; }
   <div class="card">
     <h2>減価償却 耐用年数検索</h2>
     <p class="desc">資産名・種類で耐用年数を検索できます</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>固定資産を取得したとき、減価償却の耐用年数と償却率を調べるために使います。</dd>
+          <dt>検索のコツ</dt>
+          <dd>「パソコン」「車」「エアコン」など一般的な名称で検索できます。見つからない場合はカテゴリ（「器具備品」「建物」等）でも絞り込めます。</dd>
+          <dt>償却率について</dt>
+          <dd>定額法・定率法（200%）の償却率を表示しています。保証率・改定償却率も表の中に含まれています。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div class="form-group">
       <label>キーワード検索</label>
@@ -658,6 +746,18 @@ header { position: relative; }
     <h2>税率一覧表</h2>
     <p class="desc">所得税・贈与税・相続税の速算表</p>
 
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>クライアントへの説明や概算計算で、税率・控除額をさっと確認したいときに使います。</dd>
+          <dt>速算表の読み方</dt>
+          <dd>税額 ＝ 課税所得 × 税率 − 控除額。例えば所得税で課税所得500万円の場合、500万×20%−42.75万＝57.25万円です。</dd>
+        </dl>
+      </div>
+    </details>
+
     <div class="form-group">
       <label>表示する税率表</label>
       <select id="rate-type" onchange="showTaxRates()">
@@ -686,6 +786,18 @@ header { position: relative; }
     <h2>主要税務スケジュール</h2>
     <p class="desc">月別の主な税務申告・納付期限（法人：3月決算の場合）</p>
 
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>「今月の税務イベントは何がある？」を確認するときに使います。法人は3月決算ベースで表示しています。</dd>
+          <dt>決算月が異なる場合</dt>
+          <dd>3月決算以外の法人は、申告・納付月を自社の決算月に読み替えてください（例：12月決算法人の法人税申告は翌年2月末）。</dd>
+        </dl>
+      </div>
+    </details>
+
     <div class="form-group">
       <label>表示する月</label>
       <select id="calendar-month" onchange="showCalendar()">
@@ -709,6 +821,20 @@ header { position: relative; }
   <div class="card">
     <h2>給与源泉税早見表（月額表）</h2>
     <p class="desc">社会保険料等控除後の給与等の金額を入力すると、該当する税額をハイライト表示します</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>毎月の給与計算で、源泉徴収する所得税額を確認するときに使います。国税庁の月額表（甲欄）と同じデータです。</dd>
+          <dt>入力する金額</dt>
+          <dd>給与の総支給額ではなく、「社会保険料等控除後の金額」を入力してください。総支給額から健保・厚年・雇保の本人負担分を差し引いた金額です。</dd>
+          <dt>扶養親族等の数</dt>
+          <dd>源泉控除対象配偶者と控除対象扶養親族の合計人数です。本人が障害者・寡婦等に該当する場合は1人加算してください。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div class="form-group">
       <label>年度</label>
@@ -763,6 +889,20 @@ header { position: relative; }
     <h2>報酬源泉計算</h2>
     <p class="desc">報酬・料金等に対する源泉徴収税額を正算・逆算で計算します</p>
 
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>税理士・弁護士・司法書士等への報酬を支払うとき、源泉徴収する税額を計算するために使います。</dd>
+          <dt>正算と逆算</dt>
+          <dd>正算 → 税込の報酬額面から源泉税額と手取額を計算します。逆算 → 手取額（振込額）から税込の報酬額と源泉税額を逆算します。「手取り○万円になるように」と言われたときに便利です。</dd>
+          <dt>税率</dt>
+          <dd>100万円以下の部分は10.21%、100万円超の部分は20.42%（いずれも復興特別所得税込み）です。</dd>
+        </dl>
+      </div>
+    </details>
+
     <div class="form-group">
       <label>計算方法</label>
       <div class="toggle-group" id="hoshu-mode-group">
@@ -794,6 +934,22 @@ header { position: relative; }
   <div class="card">
     <h2>修繕費・資本的支出の判定フローチャート</h2>
     <p class="desc">国税庁 No.1379 に基づき、修理改良等の支出が修繕費か資本的支出かを判定します</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>建物や設備の修理・改良にかかった費用を、全額経費（修繕費）にできるか、資産計上（資本的支出）すべきかを判断するときに使います。</dd>
+          <dt>フローチャートの進め方</dt>
+          <dd>質問に「はい」「いいえ」で答えていくと、最終的な判定結果が表示されます。途中で金額の入力が必要になる場合もあります。</dd>
+          <dt>フロー全体図</dt>
+          <dd>「フロー全体図を表示」ボタンで判定ルートの全体像を確認できます。クライアントへの説明資料としても使えます。</dd>
+          <dt>注意</dt>
+          <dd>災害に起因する支出かどうかで判定ルートが変わります。最初の質問で正しく選択してください。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div style="margin-bottom:16px;">
       <button class="btn" style="background:#718096; font-size:0.85rem; padding:8px 16px;" onclick="toggleFlowOverview()">📋 フロー全体図を表示</button>
@@ -2899,6 +3055,22 @@ calcGensenSalary();
     <h2>役員報酬シミュレーション</h2>
     <p class="desc">月額報酬から社会保険料・所得税を計算し、手取り額を概算します（協会けんぽ大阪府・令和7年度）</p>
 
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>役員報酬を決めるとき（設立時・期首の改定時）に、社保・所得税を引いた手取り額と会社の総コストを確認するために使います。</dd>
+          <dt>月額報酬</dt>
+          <dd>毎月の定期同額給与の額面（税引前）を入力してください。賞与は考慮していません。</dd>
+          <dt>年齢区分</dt>
+          <dd>40〜64歳は介護保険料が上乗せされるため、健保料率が変わります。</dd>
+          <dt>前提条件</dt>
+          <dd>協会けんぽ大阪府・令和8年度料率で計算しています。組合健保の場合は料率が異なります。雇用保険は対象外（役員のため）です。</dd>
+        </dl>
+      </div>
+    </details>
+
     <div class="form-group">
       <label>役員報酬（月額・額面）</label>
       <div class="input-prefix">
@@ -2945,6 +3117,24 @@ calcGensenSalary();
   <div class="card">
     <h2>国民健康保険料シミュレーション</h2>
     <p class="desc">大阪市（大阪府統一料率）の国民健康保険料を試算します（令和7年度）</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>個人事業主のクライアントに国保料の概算を伝えたいとき、確定申告後に翌年度の保険料を見積もるときに使います。</dd>
+          <dt>総所得金額等</dt>
+          <dd>確定申告書の「合計所得金額」に近い数字です。事業所得・給与所得・不動産所得等の合計を入力してください。世帯内に複数の被保険者がいる場合は、全員分の合計です。</dd>
+          <dt>被保険者数</dt>
+          <dd>国保に加入している人数です。社保に加入している家族は含めません。世帯主が社保加入でも、国保の世帯主として均等割の判定対象になる点に注意してください。</dd>
+          <dt>給与所得者等の数</dt>
+          <dd>軽減判定に使います。給与収入55万円超、または公的年金収入が一定額超の被保険者の人数です。多くの場合は1人です。</dd>
+          <dt>軽減判定</dt>
+          <dd>世帯の総所得に応じて均等割・平等割が7割・5割・2割軽減されます。所得が基準以下であれば自動判定して適用します。</dd>
+        </dl>
+      </div>
+    </details>
 
     <div class="form-group">
       <label>世帯の総所得金額等（年額）</label>
