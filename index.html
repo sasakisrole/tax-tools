@@ -282,6 +282,11 @@ header { position: relative; }
   color: #fff;
   font-weight: 600;
 }
+.changelog { margin-top: 20px; font-size: 0.72rem; color: #999; line-height: 1.7; }
+.changelog summary { cursor: pointer; font-weight: 500; color: #888; }
+.changelog ul { list-style: none; padding: 8px 0 0 0; margin: 0; }
+.changelog li::before { content: '•'; margin-right: 6px; }
+.page-changelog { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; font-size: 0.7rem; color: #aaa; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -338,6 +343,15 @@ header { position: relative; }
     <div class="title">報酬源泉計算</div>
     <div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
   </div>
+  <div style="grid-column: 1 / -1;">
+    <details class="changelog">
+      <summary>更新履歴</summary>
+      <ul>
+        <li>v1.1 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
+        <li>v1.0 (2026-03-07) 初版：受取利息逆算・必要売上計算・耐用年数検索・税率一覧・税務カレンダー</li>
+      </ul>
+    </details>
+  </div>
 </div>
 
 <!-- ===== 受取利息逆算ツール ===== -->
@@ -379,6 +393,7 @@ header { position: relative; }
       ※ 2037年12月31日まで復興特別所得税が課されます<br>
       ※ 個人事業主の場合は事業主借で処理するため逆算不要です
     </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -427,6 +442,7 @@ header { position: relative; }
       ※ 実効税率は法人税・住民税・事業税の合計概算です<br>
       ※ 個人事業の場合は所得税率に応じて調整してください
     </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -461,6 +477,7 @@ header { position: relative; }
       ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
       ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
     </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -488,6 +505,7 @@ header { position: relative; }
     </div>
 
     <div id="tax-rates-result"></div>
+    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -511,6 +529,7 @@ header { position: relative; }
     </div>
 
     <div id="calendar-result"></div>
+    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -555,6 +574,7 @@ header { position: relative; }
     <p class="note">
       ※ 令和6年分 源泉徴収税額表（月額表）に基づく簡易版です。88,000円未満は税額0円。実際の適用は税額表原本をご確認ください。
     </p>
+    <div class="page-changelog">更新: v1.1 (2026-03-26) 新規作成</div>
   </div>
 </div>
 
@@ -586,6 +606,7 @@ header { position: relative; }
     <p class="note">
       ※ 所得税法第204条に基づく報酬・料金等（弁護士・税理士・デザイナー等）の源泉徴収税額。復興特別所得税（2.1%）を含みます。
     </p>
+    <div class="page-changelog">更新: v1.1 (2026-03-26) 新規作成</div>
   </div>
 </div>
 
