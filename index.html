@@ -478,11 +478,11 @@ header { position: relative; }
       </select>
     </div>
 
-    <div id="dep-result"></div>
-
-    <div style="text-align:right; margin-top:8px;">
-      <a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.8rem; color:#2980b9;">耐用年数を直接入力して計算 →</a>
+    <div style="margin-bottom:12px;">
+      <a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;">📐 耐用年数を直接入力して償却計算 →</a>
     </div>
+
+    <div id="dep-result"></div>
 
     <div id="dep-calc" class="card" style="display:none; margin-top:12px; border: 2px solid #2980b9;">
       <h2 id="dep-calc-title">償却計算</h2>
@@ -1116,10 +1116,9 @@ function selectForCalc(category, years, name) {
   document.getElementById('dep-calc-desc').textContent = name + '（' + category + '・耐用年数' + years + '年）';
   document.getElementById('dep-calc-life').value = years;
   document.getElementById('dep-kojin-check').checked = false;
-  document.getElementById('dep-simple-result').style.display = 'none';
-  document.getElementById('dep-detail-result').style.display = 'none';
+  document.getElementById('dep-calc-result').style.display = 'none';
   updateDepMethodInfo();
-  calcDiv.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(function(){ calcDiv.scrollIntoView({ behavior: 'smooth' }); }, 50);
 }
 
 function openDepCalcManual() {
@@ -1130,10 +1129,9 @@ function openDepCalcManual() {
   document.getElementById('dep-calc-desc').textContent = '耐用年数と取得価額を入力してください';
   document.getElementById('dep-calc-life').value = '';
   document.getElementById('dep-kojin-check').checked = false;
-  document.getElementById('dep-simple-result').style.display = 'none';
-  document.getElementById('dep-detail-result').style.display = 'none';
+  document.getElementById('dep-calc-result').style.display = 'none';
   updateDepMethodInfo();
-  calcDiv.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(function(){ calcDiv.scrollIntoView({ behavior: 'smooth' }); }, 50);
 }
 
 function toggleKojin() {
