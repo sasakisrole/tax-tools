@@ -293,6 +293,47 @@ header { position: relative; }
 #dep-calc-table td:first-child { text-align:left; white-space:nowrap; }
 #dep-calc-table tr:nth-child(even) { background:#f8fbff; }
 #dep-calc-table tr.switch-row { background:#fff3cd; }
+
+/* ===== 修繕費フローチャート ===== */
+.flow-step { background:#f8fbff; border:2px solid #d6e4f0; border-radius:12px; padding:20px; margin-bottom:16px; transition:all 0.3s ease; }
+.flow-step.answered { opacity:0.5; pointer-events:none; }
+.flow-step-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.flow-step-num { background:#1a5276; color:#fff; font-weight:700; padding:4px 12px; border-radius:20px; font-size:0.85rem; }
+.flow-ref { color:#888; font-size:0.75rem; }
+.flow-question { font-size:1.05rem; font-weight:600; color:#1a5276; margin-bottom:8px; line-height:1.6; }
+.flow-hint { font-size:0.8rem; color:#666; margin:4px 0 12px; line-height:1.5; }
+.flow-buttons { display:flex; gap:10px; flex-wrap:wrap; }
+.flow-btn { padding:10px 20px; border:2px solid #ccc; border-radius:8px; background:#fff; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.flow-btn:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.flow-btn.flow-yes { border-color:#38a169; color:#38a169; }
+.flow-btn.flow-yes:hover { background:#38a169; color:#fff; }
+.flow-btn.flow-no { border-color:#e53e3e; color:#e53e3e; }
+.flow-btn.flow-no:hover { background:#e53e3e; color:#fff; }
+.flow-btn.flow-unsure { border-color:#d69e2e; color:#d69e2e; }
+.flow-btn.flow-unsure:hover { background:#d69e2e; color:#fff; }
+.flow-btn.selected { color:#fff !important; }
+.flow-btn.flow-yes.selected { background:#38a169; }
+.flow-btn.flow-no.selected { background:#e53e3e; }
+.flow-btn.flow-unsure.selected { background:#d69e2e; }
+.flow-conditions { background:#fff; border-radius:8px; padding:12px 16px; margin:8px 0; }
+.flow-condition { font-size:0.95rem; font-weight:600; padding:4px 0; }
+.flow-or { text-align:center; color:#888; font-size:0.8rem; margin:4px 0; }
+.flow-calc-box { background:#fff; border-radius:8px; padding:16px; margin-top:12px; }
+.flow-calc-box label { display:block; font-size:0.85rem; font-weight:600; margin:8px 0 4px; color:#555; }
+.flow-calc-box label:first-child { margin-top:0; }
+.flow-result { border-radius:12px; padding:24px; margin-top:16px; text-align:center; }
+.flow-result.shuzenhi { background:#f0fff4; border:3px solid #38a169; }
+.flow-result.shihon { background:#fff5f5; border:3px solid #e53e3e; }
+.flow-result.anbun { background:#fffff0; border:3px solid #d69e2e; }
+.flow-result.jitshitsu { background:#f7fafc; border:3px solid #718096; }
+.flow-result-label { font-size:0.8rem; color:#666; margin-bottom:4px; }
+.flow-result-title { font-size:1.5rem; font-weight:700; margin-bottom:8px; }
+.flow-result.shuzenhi .flow-result-title { color:#38a169; }
+.flow-result.shihon .flow-result-title { color:#e53e3e; }
+.flow-result.anbun .flow-result-title { color:#d69e2e; }
+.flow-result.jitshitsu .flow-result-title { color:#718096; }
+.flow-result-desc { font-size:0.9rem; color:#555; line-height:1.6; }
+.flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:#888; }
 </style>
 </head>
 <body>
@@ -310,6 +351,7 @@ header { position: relative; }
   <button onclick="switchTab('tax-calendar')">税務カレンダー</button>
   <button onclick="switchTab('gensen-salary')">給与源泉税</button>
   <button onclick="switchTab('gensen-hoshu')">報酬源泉</button>
+  <button onclick="switchTab('shuzenhi')">修繕費判定</button>
 </div>
 
 <!-- ===== ホーム画面 ===== -->
@@ -349,10 +391,16 @@ header { position: relative; }
     <div class="title">報酬源泉計算</div>
     <div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
   </div>
+  <div class="home-card" onclick="switchTab('shuzenhi')">
+    <div class="icon">🔧</div>
+    <div class="title">修繕費判定</div>
+    <div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
+  </div>
   <div style="grid-column: 1 / -1;">
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.2 (2026-03-26) 修繕費判定フローチャートを追加</li>
         <li>v1.1 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
         <li>v1.0 (2026-03-07) 初版：受取利息逆算・必要売上計算・耐用年数検索・税率一覧・税務カレンダー</li>
       </ul>
@@ -685,6 +733,132 @@ header { position: relative; }
   </div>
 </div>
 
+<!-- ===== 修繕費判定フローチャート ===== -->
+<div id="tab-shuzenhi" class="tab-content">
+  <div class="card">
+    <h2>修繕費・資本的支出の判定フローチャート</h2>
+    <p class="desc">法人税基本通達 7-8-1〜7-8-5 に基づき、支出が修繕費か資本的支出かを判定します</p>
+
+    <div id="shuzenhi-flow">
+      <!-- ステップ1 -->
+      <div class="flow-step" id="flow-step-1">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q1</span>
+          <span class="flow-ref">通達 7-8-1</span>
+        </div>
+        <div class="flow-question">その支出は、<strong>通常の維持管理</strong>または<strong>原状回復</strong>のためのものですか？</div>
+        <p class="flow-hint">例：壁の塗り替え、雨漏り修理、同等部品への交換、床の張り替え（同等品）</p>
+        <div class="flow-buttons">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(1,'yes')">はい</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(1,'no')">いいえ</button>
+          <button class="flow-btn flow-unsure" onclick="flowAnswer(1,'unsure')">判断できない</button>
+        </div>
+      </div>
+
+      <!-- ステップ2 -->
+      <div class="flow-step" id="flow-step-2" style="display:none;">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q2</span>
+          <span class="flow-ref">通達 7-8-2</span>
+        </div>
+        <div class="flow-question">その支出により、資産の<strong>価値が明らかに増加</strong>するか、<strong>耐用年数が明らかに延長</strong>しますか？</div>
+        <p class="flow-hint">例：用途変更のための模様替え、エレベーター設置、耐震補強（明らかに価値増加するもの）</p>
+        <div class="flow-buttons">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(2,'yes')">はい</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(2,'no')">いいえ</button>
+          <button class="flow-btn flow-unsure" onclick="flowAnswer(2,'unsure')">判断できない</button>
+        </div>
+      </div>
+
+      <!-- ステップ3 -->
+      <div class="flow-step" id="flow-step-3" style="display:none;">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q3</span>
+          <span class="flow-ref">通達 7-8-3(1)</span>
+        </div>
+        <div class="flow-question">その支出額は <strong>20万円未満</strong> ですか？</div>
+        <div class="flow-buttons">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(3,'yes')">はい（20万円未満）</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(3,'no')">いいえ（20万円以上）</button>
+        </div>
+      </div>
+
+      <!-- ステップ4 -->
+      <div class="flow-step" id="flow-step-4" style="display:none;">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q4</span>
+          <span class="flow-ref">通達 7-8-3(2)</span>
+        </div>
+        <div class="flow-question">おおむね <strong>3年以内の周期</strong> で行われる修理・改良ですか？</div>
+        <p class="flow-hint">例：定期的な外壁塗装、機械の定期オーバーホール、車両の定期整備など</p>
+        <div class="flow-buttons">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(4,'yes')">はい</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(4,'no')">いいえ</button>
+        </div>
+      </div>
+
+      <!-- ステップ5 -->
+      <div class="flow-step" id="flow-step-5" style="display:none;">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q5</span>
+          <span class="flow-ref">通達 7-8-4</span>
+        </div>
+        <div class="flow-question">次のいずれかに該当しますか？</div>
+        <div class="flow-conditions">
+          <div class="flow-condition">① 支出額が <strong>60万円未満</strong></div>
+          <div class="flow-or">または</div>
+          <div class="flow-condition">② 支出額が前期末の<strong>取得価額の10%以下</strong></div>
+        </div>
+        <p class="flow-hint">※ 取得価額＝購入時の価額（帳簿価額・未償却残高ではありません）</p>
+        <div class="flow-buttons">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(5,'yes')">はい（いずれかに該当）</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(5,'no')">いいえ（どちらも該当しない）</button>
+        </div>
+      </div>
+
+      <!-- ステップ6 -->
+      <div class="flow-step" id="flow-step-6" style="display:none;">
+        <div class="flow-step-header">
+          <span class="flow-step-num">Q6</span>
+          <span class="flow-ref">通達 7-8-5</span>
+        </div>
+        <div class="flow-question">7:3按分の <strong>継続適用</strong> を選択しますか？</div>
+        <p class="flow-hint">支出額の30%と前期末取得価額の10%のいずれか少ない方を修繕費、残額を資本的支出とする方法です。<br>※ 一度採用したら継続して適用する必要があります。</p>
+
+        <div class="flow-calc-box" id="flow-calc-box">
+          <label>支出額（円）</label>
+          <div class="input-prefix">
+            <input type="text" id="flow-expense" inputmode="numeric" placeholder="例: 1500000">
+          </div>
+          <label>前期末の取得価額（円）</label>
+          <div class="input-prefix">
+            <input type="text" id="flow-book-value" inputmode="numeric" placeholder="例: 5000000">
+          </div>
+          <button class="btn" style="margin-top:8px;" onclick="calcAnbun()">按分を計算</button>
+          <div id="flow-anbun-result" style="display:none; margin-top:12px;"></div>
+        </div>
+
+        <div class="flow-buttons" style="margin-top:12px;">
+          <button class="flow-btn flow-yes" onclick="flowAnswer(6,'yes')">はい（按分する）</button>
+          <button class="flow-btn flow-no" onclick="flowAnswer(6,'no')">いいえ（按分しない）</button>
+        </div>
+      </div>
+
+      <!-- 結果表示 -->
+      <div class="flow-result" id="flow-result" style="display:none;"></div>
+    </div>
+
+    <button class="btn" id="flow-reset-btn" style="display:none; margin-top:16px; background:#718096;" onclick="flowReset()">最初からやり直す</button>
+
+    <p class="note" style="margin-top:24px;">
+      ※ 法人税基本通達 7-8-1〜7-8-5 に基づく判定フローです<br>
+      ※ 災害に伴う修繕は別途の取扱いがあります（通達7-8-6）<br>
+      ※ 最終判断は個別の事実関係に基づきます。判断に迷う場合は税理士にご相談ください
+    </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-26) 初版作成</div>
+  </div>
+</div>
+
 <script>
 // ===== タブ切替 =====
 function switchTab(name) {
@@ -696,7 +870,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6 };
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
@@ -2038,6 +2212,100 @@ function calcHoshu() {
 
   const el = document.getElementById('hoshu-result');
   el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// ===== 修繕費フローチャート =====
+let flowPath = [];
+
+function flowAnswer(step, answer) {
+  // 選択ボタンをハイライト
+  const stepEl = document.getElementById('flow-step-' + step);
+  stepEl.querySelectorAll('.flow-btn').forEach(b => b.classList.remove('selected'));
+  const btnMap = { yes: '.flow-yes', no: '.flow-no', unsure: '.flow-unsure' };
+  const selectedBtn = stepEl.querySelector(btnMap[answer]);
+  if (selectedBtn) selectedBtn.classList.add('selected');
+  stepEl.classList.add('answered');
+
+  // パス記録
+  const labels = {
+    1: { yes:'維持管理・原状回復→はい', no:'維持管理・原状回復→いいえ', unsure:'維持管理・原状回復→判断できない' },
+    2: { yes:'価値増加・耐用年数延長→はい', no:'価値増加・耐用年数延長→いいえ', unsure:'価値増加・耐用年数延長→判断できない' },
+    3: { yes:'20万円未満→はい', no:'20万円未満→いいえ' },
+    4: { yes:'3年以内周期→はい', no:'3年以内周期→いいえ' },
+    5: { yes:'60万円未満 or 取得価額10%以下→はい', no:'60万円未満 or 取得価額10%以下→いいえ' },
+    6: { yes:'7:3按分→適用する', no:'7:3按分→適用しない' },
+  };
+  flowPath.push(labels[step][answer]);
+
+  // フロー制御
+  if (step === 1 && answer === 'yes') return showResult('shuzenhi', '修繕費', '通常の維持管理・原状回復のための支出であるため、<strong>修繕費</strong>として処理できます。', '通達 7-8-1');
+  if (step === 1) showStep(2);
+  if (step === 2 && answer === 'yes') return showResult('shihon', '資本的支出', '資産の価値を明らかに高める、または耐用年数を明らかに延長させる支出であるため、<strong>資本的支出</strong>として処理します。', '通達 7-8-2');
+  if (step === 2) showStep(3);
+  if (step === 3 && answer === 'yes') return showResult('shuzenhi', '修繕費', '支出額が20万円未満であるため、<strong>修繕費</strong>として処理できます（少額基準）。', '通達 7-8-3(1)');
+  if (step === 3) showStep(4);
+  if (step === 4 && answer === 'yes') return showResult('shuzenhi', '修繕費', 'おおむね3年以内の周期で行われる修理・改良であるため、<strong>修繕費</strong>として処理できます。', '通達 7-8-3(2)');
+  if (step === 4) showStep(5);
+  if (step === 5 && answer === 'yes') return showResult('shuzenhi', '修繕費', '支出額が60万円未満、または前期末取得価額の10%以下であるため、<strong>修繕費</strong>として処理できます。', '通達 7-8-4');
+  if (step === 5) showStep(6);
+  if (step === 6 && answer === 'yes') return showResult('anbun', '按分処理（修繕費＋資本的支出）', '7:3按分ルールを適用します。支出額の30%と前期末取得価額の10%の<strong>いずれか少ない方</strong>を修繕費、残額を資本的支出として処理します。<br><br>※ この方法は継続適用が条件です。', '通達 7-8-5');
+  if (step === 6 && answer === 'no') return showResult('jitshitsu', '実質判定が必要', '形式基準では判定できないため、支出の<strong>実質的な内容</strong>に基づき個別に判断する必要があります。<br><br>使用可能期間の延長・価値の増加に対応する部分は資本的支出、それ以外は修繕費となります。<br><strong>税理士に相談されることをお勧めします。</strong>', '通達 7-8-6等');
+}
+
+function showStep(n) {
+  const el = document.getElementById('flow-step-' + n);
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showResult(type, title, desc, ref) {
+  const el = document.getElementById('flow-result');
+  el.className = 'flow-result ' + type;
+  el.innerHTML = '<div class="flow-result-label">判定結果（' + ref + '）</div>' +
+    '<div class="flow-result-title">' + title + '</div>' +
+    '<div class="flow-result-desc">' + desc + '</div>' +
+    '<div class="flow-path">判定経路：' + flowPath.join(' → ') + '</div>';
+  el.style.display = 'block';
+  document.getElementById('flow-reset-btn').style.display = 'inline-block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function flowReset() {
+  flowPath = [];
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('flow-step-' + i);
+    el.classList.remove('answered');
+    el.querySelectorAll('.flow-btn').forEach(b => b.classList.remove('selected'));
+    if (i > 1) el.style.display = 'none';
+  }
+  document.getElementById('flow-result').style.display = 'none';
+  document.getElementById('flow-reset-btn').style.display = 'none';
+  document.getElementById('flow-anbun-result').style.display = 'none';
+  document.getElementById('flow-expense').value = '';
+  document.getElementById('flow-book-value').value = '';
+  document.getElementById('flow-step-1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function calcAnbun() {
+  const expense = parseInt(document.getElementById('flow-expense').value.replace(/[,，]/g, ''));
+  const bookVal = parseInt(document.getElementById('flow-book-value').value.replace(/[,，]/g, ''));
+  if (isNaN(expense) || isNaN(bookVal) || expense <= 0 || bookVal <= 0) {
+    document.getElementById('flow-anbun-result').innerHTML = '<span style="color:#e53e3e;">金額を入力してください</span>';
+    document.getElementById('flow-anbun-result').style.display = 'block';
+    return;
+  }
+  const a = Math.floor(expense * 0.3);
+  const b = Math.floor(bookVal * 0.1);
+  const shuzenhi = Math.min(a, b);
+  const shihon = expense - shuzenhi;
+  const el = document.getElementById('flow-anbun-result');
+  el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;">' +
+    '<tr><td style="padding:6px 0;">支出額の30%</td><td style="text-align:right;font-weight:600;">¥' + fmt(a) + '</td></tr>' +
+    '<tr><td style="padding:6px 0;">取得価額の10%</td><td style="text-align:right;font-weight:600;">¥' + fmt(b) + '</td></tr>' +
+    '<tr style="border-top:2px solid #d69e2e;"><td style="padding:8px 0;font-weight:700;color:#38a169;">→ 修繕費</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#38a169;">¥' + fmt(shuzenhi) + '</td></tr>' +
+    '<tr><td style="padding:6px 0;font-weight:700;color:#e53e3e;">→ 資本的支出</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#e53e3e;">¥' + fmt(shihon) + '</td></tr>' +
+    '</table>';
   el.style.display = 'block';
 }
 
