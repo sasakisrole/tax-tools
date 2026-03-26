@@ -335,35 +335,48 @@ header { position: relative; }
 .flow-result-desc { font-size:0.9rem; color:#555; line-height:1.6; }
 .flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:#888; }
 
-/* フロー全体図（CSS図解） */
-.fc { background:#fff; border:1px solid #d6e4f0; border-radius:12px; padding:24px 16px; display:flex; flex-direction:column; align-items:center; }
-.fc-start { background:#1a5276; color:#fff; font-weight:700; font-size:0.85rem; padding:10px 24px; border-radius:8px; text-align:center; }
-.fc-arrow-down { width:2px; height:16px; background:#aaa; margin:0 auto; position:relative; }
-.fc-arrow-down::after { content:''; position:absolute; bottom:-4px; left:-4px; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid #aaa; }
-.fc-row { display:flex; align-items:center; gap:8px; margin:4px 0; width:100%; max-width:460px; justify-content:center; }
-.fc-diamond { background:#f7fafc; border:2px solid #1a5276; border-radius:4px; padding:8px 12px; font-size:0.78rem; font-weight:600; color:#1a5276; text-align:center; line-height:1.4; min-width:160px; transform:none; position:relative; }
-.fc-diamond::before { content:'◇'; position:absolute; top:-2px; left:4px; font-size:0.6rem; color:#1a5276; }
-.fc-diamond.fc-sm { font-size:0.72rem; min-width:120px; padding:6px 10px; }
-.fc-yes-right { font-size:0.7rem; color:#38a169; font-weight:700; white-space:nowrap; }
-.fc-yes-right::before { content:'── '; color:#ccc; }
-.fc-yes-right::after { content:' →'; }
-.fc-tag { padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.78rem; text-align:center; white-space:nowrap; }
-.fc-tag.fc-g { background:#f0fff4; color:#38a169; border:2px solid #38a169; }
-.fc-tag.fc-r { background:#fff5f5; color:#e53e3e; border:2px solid #e53e3e; }
-.fc-tag.fc-y { background:#fffff0; color:#b7791f; border:2px solid #d69e2e; font-size:0.7rem; white-space:normal; line-height:1.3; padding:5px 10px; }
-.fc-no-down { font-size:0.7rem; color:#e53e3e; font-weight:700; text-align:center; margin:2px 0; position:relative; }
-.fc-no-down::before { content:''; display:block; width:2px; height:8px; background:#ccc; margin:0 auto 2px; }
-.fc-no-down::after { content:''; display:block; width:2px; height:8px; background:#ccc; margin:2px auto 0; }
-.fc-branch-labels { display:flex; gap:40px; font-size:0.7rem; font-weight:700; margin-top:4px; }
-.fc-branch-labels span:first-child { color:#d69e2e; }
-.fc-branch-labels span:last-child { color:#718096; }
-.fc-split { display:flex; gap:12px; margin:8px 0; width:100%; max-width:460px; }
-.fc-split-col { flex:1; background:#f8fbff; border:1px solid #d6e4f0; border-radius:8px; padding:10px 8px; display:flex; flex-direction:column; align-items:center; gap:6px; }
-.fc-sub-label { font-size:0.7rem; font-weight:700; color:#fff; background:#718096; padding:2px 10px; border-radius:10px; }
-.fc-split-row { display:flex; align-items:center; gap:4px; }
-.fc-lbl { font-size:0.7rem; color:#666; font-weight:600; text-align:center; line-height:1.4; }
-.fc-final { display:flex; gap:24px; margin-top:8px; }
-.fc-final-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+/* フロー全体図（CSS図解 v3） */
+.fc { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:28px 20px 20px; max-width:520px; margin:0 auto; }
+.fc-title { background:linear-gradient(135deg, #1a5276, #2980b9); color:#fff; font-weight:700; font-size:0.88rem; padding:12px 20px; border-radius:10px; text-align:center; letter-spacing:0.5px; }
+.fc-line { width:2px; height:18px; background:linear-gradient(to bottom, #a0aec0, #cbd5e0); margin:0 auto; }
+
+/* 各判定行 */
+.fc-item { display:grid; grid-template-columns:1fr auto; align-items:center; gap:0; margin:0; }
+.fc-center { display:flex; justify-content:center; }
+.fc-q { background:#edf2f7; border:2px solid #4a90b8; border-radius:10px; padding:10px 16px; font-size:0.8rem; font-weight:600; color:#2c5282; text-align:center; line-height:1.5; width:220px; box-sizing:border-box; }
+.fc-q-sm { width:auto; min-width:0; font-size:0.75rem; padding:8px 12px; }
+.fc-right { display:flex; align-items:center; gap:6px; padding-left:8px; white-space:nowrap; }
+.fc-lbl-yes { font-size:0.72rem; color:#38a169; font-weight:700; }
+.fc-lbl-yes::before { content:''; display:inline-block; width:20px; height:2px; background:#a0d8b0; vertical-align:middle; margin-right:4px; }
+.fc-lbl-no { font-size:0.72rem; color:#c53030; font-weight:700; }
+
+/* 結果バッジ */
+.fc-badge { display:inline-block; padding:5px 14px; border-radius:20px; font-weight:700; font-size:0.75rem; text-align:center; line-height:1.4; }
+.fc-badge-g { background:#f0fff4; color:#276749; border:2px solid #68d391; }
+.fc-badge-r { background:#fff5f5; color:#c53030; border:2px solid #fc8181; }
+.fc-badge-y { background:#fffff0; color:#975a16; border:2px solid #ecc94b; white-space:normal; font-size:0.7rem; padding:4px 10px; }
+
+/* 縦コネクター（No） */
+.fc-connector { display:flex; align-items:center; justify-content:center; gap:6px; padding:0; margin:0; height:28px; position:relative; }
+.fc-connector::before { content:''; position:absolute; left:50%; transform:translateX(calc(-110px)); width:2px; height:100%; background:linear-gradient(to bottom, #feb2b2, #fc8181); }
+
+/* 分岐セクション */
+.fc-branch { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; width:100%; }
+.fc-branch-box { border-radius:12px; overflow:hidden; border:1px solid #e2e8f0; }
+.fc-branch-header { padding:6px 10px; font-size:0.72rem; font-weight:700; text-align:center; color:#fff; }
+.fc-bh-orange { background:linear-gradient(135deg, #dd6b20, #ed8936); }
+.fc-bh-gray { background:linear-gradient(135deg, #5a6778, #718096); }
+.fc-branch-body { padding:10px 8px; display:flex; flex-direction:column; align-items:center; gap:8px; background:#fafbfc; }
+.fc-branch-results { display:flex; flex-direction:column; gap:5px; align-items:center; width:100%; }
+.fc-br-item { display:flex; align-items:center; gap:4px; font-size:0.72rem; flex-wrap:wrap; justify-content:center; }
+
+/* 最終判定 */
+.fc-final-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:10px; width:100%; }
+.fc-final-box { text-align:center; }
+.fc-final-lbl { font-size:0.72rem; color:#718096; font-weight:600; margin-bottom:6px; }
+
+.fc-note { font-size:0.68rem; color:#a0aec0; margin-top:20px; text-align:center; line-height:1.7; border-top:1px solid #edf2f7; padding-top:12px; }
+.fc-note a { color:#4a90b8; }
 </style>
 </head>
 <body>
@@ -775,92 +788,139 @@ header { position: relative; }
 
     <div id="flow-overview" style="display:none; margin-bottom:20px;">
       <div class="fc">
-        <div class="fc-start">修理改良等のための支出金額</div>
-        <div class="fc-arrow-down"></div>
+        <!-- ヘッダー -->
+        <div class="fc-title">修理改良等のための支出金額</div>
+        <div class="fc-line"></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">20万円未満か</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-g">修繕費</div>
+        <!-- Q1〜Q6: メインフロー -->
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">20万円未満か</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-g">修繕費</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">おおむね3年以内の<br>周期的な支出か</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-g">修繕費</div>
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">おおむね3年以内の周期か</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-g">修繕費</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">明らかに価値を高める<br>or 耐久性を増すか</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-r">資本的支出</div>
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">明らかに価値を高める<br>or 耐久性を増すか</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-r">資本的支出</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">通常の維持管理の<br>ためのものか</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-g">修繕費</div>
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">通常の維持管理のためか</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-g">修繕費</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">災害でき損したものを<br>原状に復するためか</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-g">修繕費</div>
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">災害でき損 → 原状回復か</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-g">修繕費</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">60万円未満 or<br>取得価額の10%以下か</div>
-          <div class="fc-yes-right">はい</div>
-          <div class="fc-tag fc-g">修繕費</div>
+        <div class="fc-item">
+          <div class="fc-center">
+            <div class="fc-q">60万円未満 or<br>取得価額の10%以下か</div>
+          </div>
+          <div class="fc-right">
+            <span class="fc-lbl-yes">Yes</span>
+            <span class="fc-badge fc-badge-g">修繕費</span>
+          </div>
         </div>
-        <div class="fc-no-down">いいえ</div>
+        <div class="fc-connector"><span class="fc-lbl-no">No</span></div>
 
-        <div class="fc-row">
-          <div class="fc-diamond">災害に伴って<br>支出したものか</div>
-          <div class="fc-branch-labels"><span>はい ↙</span><span>↘ いいえ</span></div>
+        <!-- 分岐: 災害かどうか -->
+        <div class="fc-item" style="margin-bottom:0;">
+          <div class="fc-center">
+            <div class="fc-q">災害に伴って支出したものか</div>
+          </div>
         </div>
-        <div class="fc-split">
-          <div class="fc-split-col">
-            <div class="fc-sub-label">災害の場合</div>
-            <div class="fc-diamond fc-sm">割合区分を<br>採用しているか</div>
-            <div class="fc-split-row">
-              <div><span class="fc-lbl">はい →</span></div>
-              <div class="fc-tag fc-y">70%相当額<br>＝ 修繕費</div>
+
+        <div class="fc-branch">
+          <!-- 災害の場合 -->
+          <div class="fc-branch-box">
+            <div class="fc-branch-header fc-bh-orange">Yes：災害の場合</div>
+            <div class="fc-branch-body">
+              <div class="fc-q fc-q-sm">割合区分を採用しているか</div>
+              <div class="fc-branch-results">
+                <div class="fc-br-item">
+                  <span class="fc-lbl-yes">Yes →</span>
+                  <span class="fc-badge fc-badge-y">70%＝修繕費</span>
+                </div>
+                <div class="fc-br-item">
+                  <span class="fc-lbl-no">No → 実質判定へ</span>
+                </div>
+              </div>
             </div>
-            <div class="fc-lbl" style="margin:4px 0;">いいえ ↓</div>
           </div>
-          <div class="fc-split-col">
-            <div class="fc-sub-label">災害以外</div>
-            <div class="fc-diamond fc-sm">割合区分を<br>採用しているか</div>
-            <div class="fc-split-row">
-              <div><span class="fc-lbl">はい →</span></div>
-              <div class="fc-tag fc-y">30%と10%の<br>少ない方<br>＝ 修繕費(A)</div>
+          <!-- 災害以外 -->
+          <div class="fc-branch-box">
+            <div class="fc-branch-header fc-bh-gray">No：災害以外</div>
+            <div class="fc-branch-body">
+              <div class="fc-q fc-q-sm">割合区分を採用しているか</div>
+              <div class="fc-branch-results">
+                <div class="fc-br-item">
+                  <span class="fc-lbl-yes">Yes →</span>
+                  <span class="fc-badge fc-badge-y">30%/10%の<br>少ない方＝修繕費</span>
+                </div>
+                <div class="fc-br-item">
+                  <span class="fc-lbl-no">No → 実質判定へ</span>
+                </div>
+              </div>
             </div>
-            <div class="fc-lbl" style="margin:4px 0;">いいえ ↓</div>
           </div>
         </div>
 
-        <div class="fc-arrow-down"></div>
-        <div class="fc-diamond">実質により判定</div>
-        <div class="fc-final">
-          <div class="fc-final-item">
-            <div class="fc-lbl">資本的支出に<br>該当する</div>
-            <div class="fc-tag fc-r">資本的支出</div>
+        <div class="fc-line"></div>
+
+        <!-- 最終判定 -->
+        <div class="fc-center">
+          <div class="fc-q" style="background:#f7fafc; border-color:#718096;">実質により判定する</div>
+        </div>
+        <div class="fc-final-row">
+          <div class="fc-final-box">
+            <div class="fc-final-lbl">該当する</div>
+            <div class="fc-badge fc-badge-r">資本的支出</div>
           </div>
-          <div class="fc-final-item">
-            <div class="fc-lbl">資本的支出に<br>該当しない</div>
-            <div class="fc-tag fc-g">修繕費</div>
+          <div class="fc-final-box">
+            <div class="fc-final-lbl">該当しない</div>
+            <div class="fc-badge fc-badge-g">修繕費</div>
           </div>
         </div>
 
-        <p style="font-size:0.7rem; color:#888; margin-top:16px; text-align:center; line-height:1.6;">
-          ※「取得価額」＝前年末時点の固定資産の最初の取得価額＋既往の資本的支出額<br>
-          出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank" style="color:#1a5276;">国税庁 No.1379</a>
+        <p class="fc-note">
+          ※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額<br>
+          出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379</a>
         </p>
       </div>
     </div>
