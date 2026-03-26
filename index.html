@@ -412,21 +412,21 @@ header { position: relative; }
     <div class="form-group">
       <label>手元に残したい金額（税引後利益目標）</label>
       <div class="input-prefix">
-        <input type="text" id="target-profit" inputmode="numeric" placeholder="例: 5000000">
+        <input type="text" id="target-profit" inputmode="numeric" placeholder="例: 5000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
       </div>
     </div>
 
     <div class="form-group">
       <label>粗利率（売上総利益率）</label>
       <div class="input-suffix" data-suffix="%">
-        <input type="text" id="gross-margin" inputmode="decimal" placeholder="例: 40">
+        <input type="text" id="gross-margin" inputmode="decimal" placeholder="例: 40" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
       </div>
     </div>
 
     <div class="form-group">
       <label>固定費（人件費・家賃等の年間合計）</label>
       <div class="input-prefix">
-        <input type="text" id="fixed-cost" inputmode="numeric" placeholder="例: 10000000">
+        <input type="text" id="fixed-cost" inputmode="numeric" placeholder="例: 10000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
       </div>
     </div>
 
@@ -448,7 +448,7 @@ header { position: relative; }
       ※ 実効税率は法人税・住民税・事業税の合計概算です<br>
       ※ 個人事業の場合は所得税率に応じて調整してください
     </p>
-    <div class="page-changelog">更新: v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v1.1 (2026-03-26) Enterキーで計算実行対応 | v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -491,7 +491,7 @@ header { position: relative; }
       <div class="form-group">
         <label>耐用年数</label>
         <div style="display:flex; align-items:center; gap:8px;">
-          <input type="text" id="dep-calc-life" inputmode="numeric" style="width:80px;" placeholder="年数">
+          <input type="text" id="dep-calc-life" inputmode="numeric" style="width:80px;" placeholder="年数" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}">
           <span>年</span>
         </div>
       </div>
@@ -499,7 +499,7 @@ header { position: relative; }
       <div class="form-group">
         <label>取得価額（円）</label>
         <div class="input-prefix">
-          <input type="text" id="dep-calc-cost" inputmode="numeric" placeholder="例: 1,000,000" oninput="formatDepCost(this)">
+          <input type="text" id="dep-calc-cost" inputmode="numeric" placeholder="例: 1,000,000" oninput="formatDepCost(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}">
         </div>
         <div id="dep-cost-notes" style="font-size:0.78rem; color:#38a169; margin-top:4px;"></div>
       </div>
@@ -544,7 +544,7 @@ header { position: relative; }
       ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
       ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
     </p>
-    <div class="page-changelog">更新: v1.4 (2026-03-26) デフォルト複数年表示・工具データ追加 | v1.2 (2026-03-26) 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v1.5 (2026-03-26) Enterキーで計算実行対応 | v1.4 デフォルト複数年表示・工具データ追加 | v1.2 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -670,7 +670,7 @@ header { position: relative; }
     <div class="form-group">
       <label id="hoshu-input-label">報酬額（税込・消費税等区分なし）</label>
       <div class="input-prefix">
-        <input type="text" id="hoshu-amount" inputmode="numeric" placeholder="例: 1500000">
+        <input type="text" id="hoshu-amount" inputmode="numeric" placeholder="例: 1500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcHoshu();}">
       </div>
     </div>
 
@@ -681,7 +681,7 @@ header { position: relative; }
     <p class="note">
       ※ 所得税法第204条に基づく報酬・料金等（弁護士・税理士・デザイナー等）の源泉徴収税額。復興特別所得税（2.1%）を含みます。
     </p>
-    <div class="page-changelog">更新: v1.1 (2026-03-26) 新規作成</div>
+    <div class="page-changelog">更新: v1.2 (2026-03-26) Enterキーで計算実行対応 | v1.1 (2026-03-26) 新規作成</div>
   </div>
 </div>
 
