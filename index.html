@@ -389,6 +389,7 @@ header { position: relative; }
   <button onclick="switchTab('gensen-hoshu')">報酬源泉</button>
   <button onclick="switchTab('shuzenhi')">修繕費判定</button>
   <button onclick="switchTab('yakuin')">役員報酬</button>
+  <button onclick="switchTab('kokuho')">国保シミュレーション</button>
   <button onclick="switchTab('references')">参考資料</button>
 </div>
 
@@ -439,6 +440,11 @@ header { position: relative; }
     <div class="title">役員報酬シミュレーション</div>
     <div class="subtitle">社保・所得税控除後の手取りを計算</div>
   </div>
+  <div class="home-card" onclick="switchTab('kokuho')">
+    <div class="icon">🏥</div>
+    <div class="title">国保シミュレーション</div>
+    <div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
+  </div>
   <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
     <div class="icon">📚</div>
     <div class="title">参考資料</div>
@@ -448,6 +454,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.7 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
         <li>v1.6 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
         <li>v1.5 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
         <li>v1.4 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
@@ -1125,7 +1132,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, references: 9 };
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, kokuho: 9, references: 10 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
@@ -2763,6 +2770,121 @@ function calcYakuin() {
   document.getElementById('yakuin-result').style.display = 'block';
 }
 
+// ===== 国保シミュレーション =====
+function calcKokuho() {
+  var totalIncome = parseNum(document.getElementById('kokuho-income').value);
+  var members = parseInt(document.getElementById('kokuho-members').value);
+  var kaigoMembers = parseInt(document.getElementById('kokuho-kaigo').value);
+  var salaryEarners = parseInt(document.getElementById('kokuho-salary-earners').value);
+
+  // 令和7年度 大阪府統一料率
+  var RATE = {
+    iryo:   { shotoku: 0.0930, kinto: 34424, byodo: 33574, limit: 650000 },
+    shien:  { shotoku: 0.0302, kinto: 11034, byodo: 10761, limit: 240000 },
+    kaigo:  { shotoku: 0.0256, kinto: 18784, byodo: 0,     limit: 170000 }
+  };
+  var KISO_KOJO = 430000; // 基礎控除
+
+  // 算定基礎所得金額
+  var santeiKiso = Math.max(totalIncome - KISO_KOJO, 0);
+
+  // 軽減判定（世帯の総所得金額等で判定、基礎控除前）
+  var salaryAdj = (salaryEarners >= 2) ? 100000 * (salaryEarners - 1) : 0;
+  var keigen = 0; // 0=なし, 7, 5, 2
+  if (totalIncome <= 430000 + salaryAdj) {
+    keigen = 7;
+  } else if (totalIncome <= 430000 + 305000 * members + salaryAdj) {
+    keigen = 5;
+  } else if (totalIncome <= 430000 + 560000 * members + salaryAdj) {
+    keigen = 2;
+  }
+  var keigenRate = keigen === 7 ? 0.3 : keigen === 5 ? 0.5 : keigen === 2 ? 0.8 : 1.0;
+
+  // 各区分の計算
+  function calcCategory(rate, memberCount, applyByodo) {
+    var shotokuWari = Math.floor(santeiKiso * rate.shotoku);
+    var kintoWari = rate.kinto * memberCount;
+    var byodoWari = applyByodo ? rate.byodo : 0;
+    // 軽減は均等割・平等割に適用
+    var kintoAfter = Math.floor(kintoWari * keigenRate);
+    var byodoAfter = Math.floor(byodoWari * keigenRate);
+    var total = shotokuWari + kintoAfter + byodoAfter;
+    total = Math.min(total, rate.limit);
+    return {
+      shotokuWari: shotokuWari,
+      kintoWari: kintoWari,
+      kintoAfter: kintoAfter,
+      byodoWari: byodoWari,
+      byodoAfter: byodoAfter,
+      total: total
+    };
+  }
+
+  var iryo = calcCategory(RATE.iryo, members, true);
+  var shien = calcCategory(RATE.shien, members, true);
+  var kaigo = kaigoMembers > 0 ? calcCategory(RATE.kaigo, kaigoMembers, false) : null;
+
+  var grandTotal = iryo.total + shien.total + (kaigo ? kaigo.total : 0);
+  var monthly = Math.ceil(grandTotal / 12);
+
+  // 結果表示
+  var html = '';
+
+  // 軽減表示
+  if (keigen > 0) {
+    html += '<div style="background:#e8f5e9; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:0.85rem; color:#2e7d32;">';
+    html += '<strong>' + keigen + '割軽減</strong>が適用されます（均等割・平等割が' + (keigen * 10) + '%減額）';
+    html += '</div>';
+  }
+
+  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">算定基礎所得金額</div>';
+  html += '<div class="result-row"><span class="label">総所得金額等 − 基礎控除43万円</span><span class="value">¥' + fmt(santeiKiso) + '</span></div>';
+  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+
+  // 医療分
+  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">医療分（賦課限度額 65万円）</div>';
+  html += '<div class="result-row"><span class="label">所得割（9.30%）</span><span class="value">¥' + fmt(iryo.shotokuWari) + '</span></div>';
+  html += '<div class="result-row"><span class="label">均等割（34,424円×' + members + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(iryo.kintoAfter) + '</span></div>';
+  html += '<div class="result-row"><span class="label">平等割（33,574円）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(iryo.byodoAfter) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">医療分 小計</span><span class="value">¥' + fmt(iryo.total) + '</span></div>';
+  if (iryo.shotokuWari + iryo.kintoAfter + iryo.byodoAfter > RATE.iryo.limit) {
+    html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（65万円）に達しています</div>';
+  }
+  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+
+  // 後期高齢者支援金分
+  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">後期高齢者支援金分（賦課限度額 24万円）</div>';
+  html += '<div class="result-row"><span class="label">所得割（3.02%）</span><span class="value">¥' + fmt(shien.shotokuWari) + '</span></div>';
+  html += '<div class="result-row"><span class="label">均等割（11,034円×' + members + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(shien.kintoAfter) + '</span></div>';
+  html += '<div class="result-row"><span class="label">平等割（10,761円）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(shien.byodoAfter) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">支援金分 小計</span><span class="value">¥' + fmt(shien.total) + '</span></div>';
+  if (shien.shotokuWari + shien.kintoAfter + shien.byodoAfter > RATE.shien.limit) {
+    html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（24万円）に達しています</div>';
+  }
+  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+
+  // 介護分
+  if (kaigo) {
+    html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">介護分（賦課限度額 17万円）</div>';
+    html += '<div class="result-row"><span class="label">所得割（2.56%）</span><span class="value">¥' + fmt(kaigo.shotokuWari) + '</span></div>';
+    html += '<div class="result-row"><span class="label">均等割（18,784円×' + kaigoMembers + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(kaigo.kintoAfter) + '</span></div>';
+    html += '<div class="result-row highlight"><span class="label">介護分 小計</span><span class="value">¥' + fmt(kaigo.total) + '</span></div>';
+    if (kaigo.shotokuWari + kaigo.kintoAfter > RATE.kaigo.limit) {
+      html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（17万円）に達しています</div>';
+    }
+    html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+  } else {
+    html += '<div style="font-size:0.85rem; color:#888; margin-bottom:12px;">介護分：対象者なし（40〜64歳が0人）</div>';
+  }
+
+  // 合計
+  html += '<div class="result-row highlight" style="font-size:1rem;"><span class="label">年間保険料 合計</span><span class="value">¥' + fmt(grandTotal) + '</span></div>';
+  html += '<div class="result-row"><span class="label">月額概算（12分割）</span><span class="value">¥' + fmt(monthly) + '</span></div>';
+
+  document.getElementById('kokuho-result').innerHTML = html;
+  document.getElementById('kokuho-result').style.display = 'block';
+}
+
 // 初期表示
 showCalendar();
 searchDepreciation();
@@ -2815,6 +2937,69 @@ calcGensenSalary();
       ※ 賞与なし・雇用保険なしの前提です
     </p>
     <div class="page-changelog">更新: v1.1 (2026-03-26) R8料率に更新・子育て支援金追加 | v1.0 (2026-03-26) 初版作成</div>
+  </div>
+</div>
+
+<!-- ===== 国保シミュレーション ===== -->
+<div id="tab-kokuho" class="tab-content">
+  <div class="card">
+    <h2>国民健康保険料シミュレーション</h2>
+    <p class="desc">大阪市（大阪府統一料率）の国民健康保険料を試算します（令和7年度）</p>
+
+    <div class="form-group">
+      <label>世帯の総所得金額等（年額）</label>
+      <div class="input-prefix">
+        <input type="text" id="kokuho-income" inputmode="numeric" placeholder="例: 4000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcKokuho();}">
+      </div>
+      <span style="font-size:0.75rem; color:#888;">※ 事業所得・給与所得・不動産所得等の合計（世帯主＋被保険者全員分）</span>
+    </div>
+
+    <div class="form-group">
+      <label>被保険者数（世帯主を含む）</label>
+      <select id="kokuho-members">
+        <option value="1" selected>1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+        <option value="4">4人</option>
+        <option value="5">5人</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>うち40〜64歳の人数（介護分の対象）</label>
+      <select id="kokuho-kaigo">
+        <option value="0">0人</option>
+        <option value="1" selected>1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+        <option value="4">4人</option>
+        <option value="5">5人</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>給与所得者等の数</label>
+      <select id="kokuho-salary-earners">
+        <option value="0">0人</option>
+        <option value="1" selected>1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+      </select>
+      <span style="font-size:0.75rem; color:#888;">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
+    </div>
+
+    <button class="btn" onclick="calcKokuho()">計算する</button>
+
+    <div id="kokuho-result" class="result" style="display:none;"></div>
+
+    <p class="note">
+      ※ 大阪府統一保険料率（令和7年度）で計算<br>
+      ※ 医療分：所得割9.30%／均等割34,424円／平等割33,574円（限度額65万円）<br>
+      ※ 支援金分：所得割3.02%／均等割11,034円／平等割10,761円（限度額24万円）<br>
+      ※ 介護分：所得割2.56%／均等割18,784円（限度額17万円）<br>
+      ※ 7割・5割・2割軽減の自動判定付き。未就学児の均等割軽減には未対応
+    </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-27) 初版作成</div>
   </div>
 </div>
 
@@ -2883,6 +3068,15 @@ calcGensenSalary();
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a>（令和7年分：最低65万円）</li>
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+    </ul>
+
+    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">国保シミュレーション</h3>
+    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+      <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000624098.html" target="_blank">大阪市 保険料の決め方（令和7年度）</a></li>
+      <li><a href="https://www.city.osaka.lg.jp/fukushima/page/0000624311.html" target="_blank">大阪市 令和7年度国民健康保険料のお知らせ</a></li>
+      <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000369751.html" target="_blank">大阪市 保険料の軽減・減免</a></li>
+      <li>大阪府統一保険料率（令和7年度）：医療分9.30%・支援金分3.02%・介護分2.56%</li>
+      <li>軽減判定基準：7割（43万円）・5割（43万+30.5万×人数）・2割（43万+56万×人数）</li>
     </ul>
   </div>
 </div>
