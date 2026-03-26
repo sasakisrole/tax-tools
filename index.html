@@ -472,6 +472,7 @@ header { position: relative; }
         <option value="構築物">構築物</option>
         <option value="車両運搬具">車両運搬具</option>
         <option value="工具器具備品">工具器具備品</option>
+        <option value="工具">工具</option>
         <option value="機械装置">機械装置</option>
         <option value="ソフトウェア">ソフトウェア</option>
       </select>
@@ -529,43 +530,21 @@ header { position: relative; }
 
       <div id="dep-method-info" style="font-size:0.78rem; color:#666; margin-bottom:12px;"></div>
 
-      <button class="btn" onclick="calcDepSimple()">計算する</button>
+      <button class="btn" onclick="calcDepSchedule()">計算する</button>
 
-      <div id="dep-simple-result" style="display:none; margin-top:16px;"></div>
-
-      <details id="dep-detail-section" style="margin-top:16px;">
-        <summary style="cursor:pointer; font-size:0.85rem; color:#2980b9; font-weight:500;">▶ 詳細設定・複数年スケジュール</summary>
-        <div style="margin-top:12px;">
-          <div style="display:flex; gap:10px;">
-            <div class="form-group" style="flex:1;">
-              <label>取得年</label>
-              <select id="dep-calc-year"></select>
-            </div>
-            <div class="form-group" style="flex:1;">
-              <label>取得月</label>
-              <select id="dep-calc-month"></select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>事業年度の開始月</label>
-            <select id="dep-calc-fy"></select>
-          </div>
-          <button class="btn" onclick="calcDepDetail()" style="background:linear-gradient(135deg, #2c5282, #4299e1);">5年分のスケジュールを表示</button>
-          <div id="dep-detail-result" style="display:none; margin-top:16px;">
-            <div id="dep-calc-summary"></div>
-            <div style="overflow-x:auto; margin-top:12px;">
-              <table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:520px;"></table>
-            </div>
-          </div>
+      <div id="dep-calc-result" style="display:none; margin-top:16px;">
+        <div id="dep-calc-summary"></div>
+        <div style="overflow-x:auto; margin-top:12px;">
+          <table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:520px;"></table>
         </div>
-      </details>
+      </div>
     </div>
 
     <p class="note">
       ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
       ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
     </p>
-    <div class="page-changelog">更新: v1.3 (2026-03-26) 簡易/詳細モード分離・個人チェック追加 | v1.2 (2026-03-26) 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v1.4 (2026-03-26) デフォルト複数年表示・工具データ追加 | v1.2 (2026-03-26) 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -1057,6 +1036,16 @@ const depreciationData = [
   { category: '工具器具備品', name: '医療機器（レントゲン等・移動式・救急医療用）', years: 6 },
   { category: '工具器具備品', name: '医療機器（その他）', years: 6 },
   { category: '工具器具備品', name: 'ベッド（金属製）', years: 3 },
+  // 工具
+  { category: '工具', name: '金型（プレス用）', years: 2 },
+  { category: '工具', name: '金型（鋳造用）', years: 2 },
+  { category: '工具', name: '金型（鍛造用）', years: 2 },
+  { category: '工具', name: '金型（プラスチック成形用）', years: 2 },
+  { category: '工具', name: '金型（その他）', years: 3 },
+  { category: '工具', name: '治具・取付工具', years: 3 },
+  { category: '工具', name: '切削工具', years: 2 },
+  { category: '工具', name: '測定工具・検査工具', years: 5 },
+  { category: '工具', name: 'ロール（金属圧延用）', years: 4 },
   // 機械装置（主要な業種のみ）
   { category: '機械装置', name: '食料品製造業用設備', years: 10 },
   { category: '機械装置', name: '飲料・たばこ・飼料製造業用設備', years: 10 },
@@ -1187,14 +1176,7 @@ function formatDepCost(el) {
 }
 
 function initDepCalc() {
-  const ys = document.getElementById('dep-calc-year');
-  for (let y = 2012; y <= 2035; y++) ys.appendChild(new Option(y + '年', y));
-  ys.value = 2026;
-  const ms = document.getElementById('dep-calc-month');
-  for (let m = 1; m <= 12; m++) ms.appendChild(new Option(m + '月', m));
-  const fs = document.getElementById('dep-calc-fy');
-  for (let m = 1; m <= 12; m++) fs.appendChild(new Option(m + '月', m));
-  fs.value = 4;
+  // No select elements to initialize in simplified mode
 }
 
 // Declining balance rate table (200% DB, for assets acquired 2012/4/1 onwards)
@@ -1250,84 +1232,26 @@ const DB_RATE_TABLE = {
   50:{rate:0.040,revised:0.042,guarantee:0.01296}
 };
 
-// Simple calc: 1 year only
-function calcDepSimple() {
+// Unified depreciation schedule calc
+function calcDepSchedule() {
   const life = parseInt(document.getElementById('dep-calc-life').value);
   const costStr = document.getElementById('dep-calc-cost').value.replace(/[^0-9]/g, '');
   const cost = Number(costStr);
-  const months = parseInt(document.getElementById('dep-calc-months').value);
+  const firstMonths = parseInt(document.getElementById('dep-calc-months').value);
   const method = getDepMethod();
 
   if (!life || life < 2) { alert('耐用年数を2年以上で入力してください'); return; }
   if (!cost || cost <= 0) { alert('取得価額を入力してください'); return; }
-
-  let dep, rate, methodName, extraInfo = '';
-
-  if (method === 'straight') {
-    rate = Math.round((1 / life) * 1000) / 1000;
-    dep = Math.floor(Math.floor(cost * rate) * months / 12);
-    methodName = '定額法';
-  } else {
-    const tbl = DB_RATE_TABLE[life];
-    if (!tbl) { alert('この耐用年数（' + life + '年）の定率法データがありません（2〜50年に対応）'); return; }
-    rate = tbl.rate;
-    dep = Math.floor(Math.floor(cost * rate) * months / 12);
-    methodName = '定率法';
-    extraInfo = '<div style="font-size:0.78rem; color:#888; margin-top:8px;">改定償却率: ' + tbl.revised + ' / 保証率: ' + tbl.guarantee + ' / 保証額: ' + fmt(Math.floor(cost * tbl.guarantee)) + '円</div>';
-  }
-
-  const resultDiv = document.getElementById('dep-simple-result');
-  resultDiv.style.display = 'block';
-  resultDiv.innerHTML = ''
-    + '<div style="background:#eef6ff; border:2px solid #2980b9; border-radius:10px; padding:16px; text-align:center;">'
-    + '<div style="font-size:0.8rem; color:#666;">初年度償却額（' + methodName + '・償却率 ' + rate + '）</div>'
-    + '<div style="font-size:1.8rem; font-weight:700; color:#c0392b; margin:8px 0;">¥' + fmt(dep) + '</div>'
-    + '<div style="font-size:0.8rem; color:#888;">'
-    + '取得価額 ¥' + fmt(cost) + ' × 償却率 ' + rate + (months < 12 ? ' × ' + months + '/12' : '') + '</div>'
-    + '<div style="display:flex; justify-content:center; gap:20px; margin-top:12px; font-size:0.82rem;">'
-    + '<div><span style="color:#888;">期末簿価</span> <span style="font-weight:600;">¥' + fmt(cost - dep) + '</span></div>'
-    + '<div><span style="color:#888;">月額</span> <span style="font-weight:600;">¥' + fmt(Math.floor(dep / months)) + '</span></div>'
-    + '</div>'
-    + extraInfo
-    + '</div>';
-}
-
-// Detail calc: 5-year schedule
-function calcDepDetail() {
-  const life = parseInt(document.getElementById('dep-calc-life').value);
-  const costStr = document.getElementById('dep-calc-cost').value.replace(/[^0-9]/g, '');
-  const cost = Number(costStr);
-  const acqY = parseInt(document.getElementById('dep-calc-year').value);
-  const acqM = parseInt(document.getElementById('dep-calc-month').value);
-  const fyStart = parseInt(document.getElementById('dep-calc-fy').value);
-  const method = getDepMethod();
-
-  if (!life || life < 2) { alert('耐用年数を2年以上で入力してください'); return; }
-  if (!cost || cost <= 0) { alert('取得価額を入力してください'); return; }
-
-  let fyEndM = (fyStart === 1) ? 12 : fyStart - 1;
-  let fyStartY = (fyStart <= acqM) ? acqY : acqY - 1;
-  let fyEndY = (fyStart === 1) ? fyStartY : fyStartY + 1;
-
-  let firstMonths;
-  if (acqM >= fyStart) {
-    firstMonths = (fyStart === 1) ? (12 - acqM + 1) : ((fyEndY * 12 + fyEndM) - (acqY * 12 + acqM) + 1);
-  } else {
-    firstMonths = fyEndM - acqM + 1;
-  }
-  if (firstMonths > 12) firstMonths = 12;
-  if (firstMonths <= 0) firstMonths = 12;
 
   let schedule = [];
   let bookValue = cost;
   let accumulated = 0;
   const memo = 1;
-  const showYears = Math.min(life + 2, Math.max(5, life)); // Show at least 5 years or full life
+  const showYears = Math.max(5, life + 1);
 
   if (method === 'straight') {
     const rate = Math.round((1 / life) * 1000) / 1000;
     const annualFull = Math.floor(cost * rate);
-    let year = fyStartY;
 
     for (let i = 0; i < showYears; i++) {
       if (bookValue <= memo) break;
@@ -1337,21 +1261,18 @@ function calcDepDetail() {
       if (dep <= 0) break;
       accumulated += dep;
       bookValue -= dep;
-      let fyLabel = (fyStart === 1) ? (year + '年1月〜12月') : (year + '年' + fyStart + '月〜' + (year + 1) + '年' + fyEndM + '月');
-      schedule.push({ year: fyLabel, startBV: bookValue + dep, dep: dep, endBV: bookValue, accDep: accumulated, note: (i === 0 && firstMonths < 12) ? firstMonths + 'ヶ月' : '' });
-      year++;
+      schedule.push({ year: (i + 1) + '年目', startBV: bookValue + dep, dep: dep, endBV: bookValue, accDep: accumulated, note: (i === 0 && firstMonths < 12) ? firstMonths + 'ヶ月' : '' });
     }
-    showDepDetailResult(cost, life, '定額法', rate, null, null, null, schedule);
+    showDepScheduleResult(cost, life, '定額法', rate, null, null, null, schedule);
 
   } else {
     const tbl = DB_RATE_TABLE[life];
-    if (!tbl) { alert('この耐用年数（' + life + '年）の定率法データがありません'); return; }
+    if (!tbl) { alert('この耐用年数（' + life + '年）の定率法データがありません（2〜50年に対応）'); return; }
     const rate = tbl.rate;
     const revisedRate = tbl.revised;
     const guaranteeAmt = Math.floor(cost * tbl.guarantee);
     let switched = false;
     let revisedBase = 0;
-    let year = fyStartY;
 
     for (let i = 0; i < showYears; i++) {
       if (bookValue <= memo) break;
@@ -1372,35 +1293,44 @@ function calcDepDetail() {
       if (dep <= 0) break;
       accumulated += dep;
       bookValue -= dep;
-      let fyLabel = (fyStart === 1) ? (year + '年1月〜12月') : (year + '年' + fyStart + '月〜' + (year + 1) + '年' + fyEndM + '月');
-      schedule.push({ year: fyLabel, startBV: bookValue + dep, dep: dep, endBV: bookValue, accDep: accumulated, note: switched ? '改定償却' : ((i === 0 && firstMonths < 12) ? firstMonths + 'ヶ月' : '') });
-      year++;
+      schedule.push({ year: (i + 1) + '年目', startBV: bookValue + dep, dep: dep, endBV: bookValue, accDep: accumulated, note: switched ? '改定償却' : ((i === 0 && firstMonths < 12) ? firstMonths + 'ヶ月' : '') });
     }
-    showDepDetailResult(cost, life, '定率法', rate, revisedRate, tbl.guarantee, guaranteeAmt, schedule);
+    showDepScheduleResult(cost, life, '定率法', rate, revisedRate, tbl.guarantee, guaranteeAmt, schedule);
   }
 }
 
-function showDepDetailResult(cost, life, methodName, rate, revisedRate, guaranteeRate, guaranteeAmt, schedule) {
-  const resultDiv = document.getElementById('dep-detail-result');
+function showDepScheduleResult(cost, life, methodName, rate, revisedRate, guaranteeRate, guaranteeAmt, schedule) {
+  const resultDiv = document.getElementById('dep-calc-result');
   resultDiv.style.display = 'block';
 
+  // Summary
   let summaryHTML = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; margin-bottom:12px; font-size:0.85rem;">';
   summaryHTML += '<div style="color:#888;">取得価額</div><div style="font-weight:600;">' + fmt(cost) + ' 円</div>';
   summaryHTML += '<div style="color:#888;">耐用年数</div><div style="font-weight:600;">' + life + ' 年</div>';
-  summaryHTML += '<div style="color:#888;">償却方法</div><div style="font-weight:600;">' + methodName + '</div>';
-  summaryHTML += '<div style="color:#888;">償却率</div><div style="font-weight:600;">' + rate + '</div>';
+  summaryHTML += '<div style="color:#888;">償却方法</div><div style="font-weight:600;">' + methodName + '（償却率 ' + rate + '）</div>';
   if (revisedRate !== null) {
     summaryHTML += '<div style="color:#888;">改定償却率</div><div style="font-weight:600;">' + revisedRate + '</div>';
-    summaryHTML += '<div style="color:#888;">保証率</div><div style="font-weight:600;">' + guaranteeRate + '</div>';
-    summaryHTML += '<div style="color:#888;">保証額</div><div style="font-weight:600;">' + fmt(guaranteeAmt) + ' 円</div>';
+    summaryHTML += '<div style="color:#888;">保証額</div><div style="font-weight:600;">' + fmt(guaranteeAmt) + ' 円（保証率 ' + guaranteeRate + '）</div>';
   }
   summaryHTML += '</div>';
+
+  // Highlight first year
+  if (schedule.length > 0) {
+    const first = schedule[0];
+    summaryHTML += '<div style="background:#eef6ff; border:2px solid #2980b9; border-radius:10px; padding:12px; text-align:center; margin-bottom:12px;">';
+    summaryHTML += '<div style="font-size:0.8rem; color:#666;">初年度償却額</div>';
+    summaryHTML += '<div style="font-size:1.6rem; font-weight:700; color:#c0392b; margin:4px 0;">¥' + fmt(first.dep) + '</div>';
+    summaryHTML += '<div style="font-size:0.8rem; color:#888;">期末簿価 ¥' + fmt(first.endBV) + '</div>';
+    summaryHTML += '</div>';
+  }
+
   document.getElementById('dep-calc-summary').innerHTML = summaryHTML;
 
-  let tableHTML = '<thead><tr><th style="text-align:left;">年度</th><th>期首簿価</th><th>償却額</th><th>期末簿価</th><th>累計償却額</th><th>備考</th></tr></thead><tbody>';
+  // Schedule table
+  let tableHTML = '<thead><tr><th style="text-align:center;">年</th><th>期首簿価</th><th>償却額</th><th>期末簿価</th><th>累計</th><th>備考</th></tr></thead><tbody>';
   schedule.forEach(s => {
     const cls = s.note === '改定償却' ? ' class="switch-row"' : '';
-    tableHTML += '<tr' + cls + '><td>' + s.year + '</td><td style="text-align:right;">' + fmt(s.startBV) + '</td><td style="text-align:right;">' + fmt(s.dep) + '</td><td style="text-align:right;">' + fmt(s.endBV) + '</td><td style="text-align:right;">' + fmt(s.accDep) + '</td><td style="text-align:center; font-size:0.75rem;">' + s.note + '</td></tr>';
+    tableHTML += '<tr' + cls + '><td style="text-align:center;">' + s.year + '</td><td style="text-align:right;">' + fmt(s.startBV) + '</td><td style="text-align:right;">' + fmt(s.dep) + '</td><td style="text-align:right;">' + fmt(s.endBV) + '</td><td style="text-align:right;">' + fmt(s.accDep) + '</td><td style="text-align:center; font-size:0.75rem;">' + s.note + '</td></tr>';
   });
   tableHTML += '</tbody>';
   document.getElementById('dep-calc-table').innerHTML = tableHTML;
