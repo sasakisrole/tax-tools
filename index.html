@@ -582,7 +582,7 @@ header { position: relative; }
     <p class="note">
       ※ 国税庁公表の源泉徴収税額表（月額表）に基づく簡易版です。年度を切り替えて使用できます。実際の適用は税額表原本をご確認ください。
     </p>
-    <div class="page-changelog">更新: v1.2 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1 (2026-03-26) 新規作成</div>
+    <div class="page-changelog">更新: v1.3 (2026-03-26) 高額給与の税率計算対応 | v1.2 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1 (2026-03-26) 新規作成</div>
   </div>
 </div>
 
@@ -1433,6 +1433,38 @@ const gensenTables = {
   }
 };
 
+// 高額給与（税額表の範囲超）の税率計算用ブラケット
+const gensenHighBrackets = {
+  2026: {
+    ko: [
+      [740000, 790000, 0.2042, [71380, 64900, 58440, 51980, 45510, 39040, 32580, 26110]],
+      [790000, 960000, 0.23483, [81890, 75420, 68960, 62500, 56020, 49560, 43100, 36620]],
+      [960000, 1710000, 0.33693, [121820, 115340, 108880, 102420, 95940, 89480, 83020, 76540]],
+      [1710000, 3500000, 0.4084, [374520, 368040, 361580, 355120, 348640, 342180, 335720, 329240]],
+      [3500000, Infinity, 0.45945, [1125270, 1118800, 1112340, 1105880, 1099400, 1092940, 1086480, 1080000]],
+    ],
+    otsu: [
+      [740000, 1710000, 0.4084, 259200],
+      [1710000, 3500000, 0.45945, 655400],
+      [3500000, Infinity, 0.45945, 655400],
+    ]
+  },
+  2024: {
+    ko: [
+      [710000, 760000, 0.2042, [53660, 28990, 26400, 23820, 21240, 18650, 16070, 13490]],
+      [760000, 930000, 0.23483, [63870, 39190, 36600, 34020, 31430, 28850, 26260, 23680]],
+      [930000, 1680000, 0.33693, [103790, 79110, 76530, 73940, 71360, 68770, 66190, 63600]],
+      [1680000, 3470000, 0.4084, [356300, 331620, 329040, 326450, 323870, 321280, 318700, 316110]],
+      [3470000, Infinity, 0.45945, [1087300, 1062620, 1060040, 1057450, 1054870, 1052280, 1049700, 1047110]],
+    ],
+    otsu: [
+      [710000, 1680000, 0.4084, 231200],
+      [1680000, 3470000, 0.45945, 627700],
+      [3470000, Infinity, 0.45945, 627700],
+    ]
+  }
+};
+
 function setGensenKo(type) {
   gensenKoType = type;
   document.querySelectorAll('#gensen-kotype button').forEach(b => b.classList.remove('active'));
@@ -1465,6 +1497,53 @@ function calcGensenSalary() {
     }
   }
 
+  // Check if salary is above table range (high salary bracket calculation)
+  const tableMax = yearData.data[yearData.data.length - 1][1];
+  let highBracketResult = null;
+
+  if (matchIdx < 0 && salary >= tableMax && gensenHighBrackets[year]) {
+    const highData = gensenHighBrackets[year];
+    if (gensenKoType === 'kou') {
+      for (const bracket of highData.ko) {
+        if (salary >= bracket[0] && salary < bracket[1]) {
+          const excess = salary - bracket[0];
+          const baseTax = bracket[3][fuyou];
+          const excessTax = Math.floor(excess * bracket[2]);
+          const tax = baseTax + excessTax;
+          highBracketResult = {
+            tax: tax,
+            baseTax: baseTax,
+            baseAmount: bracket[0],
+            excess: excess,
+            rate: bracket[2],
+            excessTax: excessTax,
+            label: '源泉徴収税額（甲欄・扶養' + fuyou + '人）※税率計算'
+          };
+          break;
+        }
+      }
+    } else {
+      for (const bracket of highData.otsu) {
+        if (salary >= bracket[0] && salary < bracket[1]) {
+          const excess = salary - bracket[0];
+          const baseTax = bracket[3];
+          const excessTax = Math.floor(excess * bracket[2]);
+          const tax = baseTax + excessTax;
+          highBracketResult = {
+            tax: tax,
+            baseTax: baseTax,
+            baseAmount: bracket[0],
+            excess: excess,
+            rate: bracket[2],
+            excessTax: excessTax,
+            label: '源泉徴収税額（乙欄）※税率計算'
+          };
+          break;
+        }
+      }
+    }
+  }
+
   // Show result card
   if (salary > 0 && salary < yearData.zeroThreshold) {
     resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount">0 円</div><div class="label">源泉徴収税額（' + fmt(yearData.zeroThreshold) + '円未満のため非課税）</div></div>';
@@ -1481,48 +1560,69 @@ function calcGensenSalary() {
     }
     resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount">' + fmt(tax) + ' 円</div><div class="label">' + label + '</div></div>';
     resultCard.style.display = 'block';
+  } else if (highBracketResult) {
+    resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount">' + fmt(highBracketResult.tax) + ' 円</div><div class="label">' + highBracketResult.label + '</div></div>';
+    resultCard.style.display = 'block';
   } else if (salary > 0) {
-    resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount" style="font-size:1rem; color:#666;">該当する範囲がありません</div><div class="label">表の範囲外（' + fmt(yearData.data[0][0]) + '〜' + fmt(yearData.data[yearData.data.length-1][1]) + '円に対応）</div></div>';
+    resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount" style="font-size:1rem; color:#666;">該当する範囲がありません</div><div class="label">表の範囲外（' + fmt(yearData.data[0][0]) + '〜' + fmt(tableMax) + '円に対応）</div></div>';
     resultCard.style.display = 'block';
   } else {
     resultCard.style.display = 'none';
   }
 
-  // Build table - show ±5 rows around match, or first 11 rows if no match
-  let startIdx = 0;
-  let endIdx = yearData.data.length;
-  if (matchIdx >= 0) {
-    startIdx = Math.max(0, matchIdx - 5);
-    endIdx = Math.min(yearData.data.length, matchIdx + 6);
-  } else if (salary <= 0) {
-    startIdx = 0;
-    endIdx = Math.min(11, yearData.data.length);
-  }
-
-  let html = '<div class="gensen-table-wrap"><table class="gensen-table">';
-  if (gensenKoType === 'kou') {
-    html += '<tr><th>給与等の金額</th><th>0人</th><th>1人</th><th>2人</th><th>3人</th><th>4人</th><th>5人</th><th>6人</th><th>7人</th></tr>';
+  // Build table or breakdown for high brackets
+  if (highBracketResult) {
+    // Show calculation breakdown instead of table
+    const r = highBracketResult;
+    const ratePct = (r.rate * 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+    let html = '<div class="gensen-table-wrap" style="padding:16px;">';
+    html += '<div style="font-size:0.85rem; font-weight:600; color:#1a5276; margin-bottom:12px;">税率計算の内訳</div>';
+    html += '<table class="gensen-table" style="font-size:0.85rem;">';
+    html += '<tr class="gensen-highlight"><td style="text-align:left;">基準額（' + fmt(r.baseAmount) + '円）の税額</td><td style="text-align:right;">' + fmt(r.baseTax) + ' 円</td></tr>';
+    html += '<tr><td style="text-align:left;">超過額: ' + fmt(salary) + ' − ' + fmt(r.baseAmount) + ' = ' + fmt(r.excess) + '円</td><td style="text-align:right;"></td></tr>';
+    html += '<tr><td style="text-align:left;">超過分の税額: ' + fmt(r.excess) + ' × ' + ratePct + '%</td><td style="text-align:right;">' + fmt(r.excessTax) + ' 円</td></tr>';
+    html += '<tr style="font-weight:700; border-top:2px solid #1a5276;"><td style="text-align:left;">合計税額</td><td style="text-align:right;">' + fmt(r.tax) + ' 円</td></tr>';
+    html += '</table>';
+    html += '<p style="font-size:0.72rem; color:#999; margin-top:8px;">※ 税額表の範囲（〜' + fmt(tableMax) + '円）を超えるため、税率による算出式を適用しています。</p>';
+    html += '</div>';
+    tableDiv.innerHTML = html;
   } else {
-    html += '<tr><th>給与等の金額</th><th>税額</th></tr>';
-  }
-
-  for (let i = startIdx; i < endIdx; i++) {
-    const row = yearData.data[i];
-    const isMatch = i === matchIdx;
-    html += '<tr' + (isMatch ? ' class="gensen-highlight"' : '') + '>';
-    html += '<td>' + fmt(row[0]) + '〜' + fmt(row[1]) + '</td>';
-    if (gensenKoType === 'kou') {
-      for (let j = 0; j < 8; j++) {
-        html += '<td>' + fmt(row[2][j]) + '</td>';
-      }
-    } else {
-      html += '<td>' + fmt(row[3]) + '</td>';
+    // Build table - show ±5 rows around match, or first 11 rows if no match
+    let startIdx = 0;
+    let endIdx = yearData.data.length;
+    if (matchIdx >= 0) {
+      startIdx = Math.max(0, matchIdx - 5);
+      endIdx = Math.min(yearData.data.length, matchIdx + 6);
+    } else if (salary <= 0) {
+      startIdx = 0;
+      endIdx = Math.min(11, yearData.data.length);
     }
-    html += '</tr>';
-  }
-  html += '</table></div>';
 
-  tableDiv.innerHTML = html;
+    let html = '<div class="gensen-table-wrap"><table class="gensen-table">';
+    if (gensenKoType === 'kou') {
+      html += '<tr><th>給与等の金額</th><th>0人</th><th>1人</th><th>2人</th><th>3人</th><th>4人</th><th>5人</th><th>6人</th><th>7人</th></tr>';
+    } else {
+      html += '<tr><th>給与等の金額</th><th>税額</th></tr>';
+    }
+
+    for (let i = startIdx; i < endIdx; i++) {
+      const row = yearData.data[i];
+      const isMatch = i === matchIdx;
+      html += '<tr' + (isMatch ? ' class="gensen-highlight"' : '') + '>';
+      html += '<td>' + fmt(row[0]) + '〜' + fmt(row[1]) + '</td>';
+      if (gensenKoType === 'kou') {
+        for (let j = 0; j < 8; j++) {
+          html += '<td>' + fmt(row[2][j]) + '</td>';
+        }
+      } else {
+        html += '<td>' + fmt(row[3]) + '</td>';
+      }
+      html += '</tr>';
+    }
+    html += '</table></div>';
+
+    tableDiv.innerHTML = html;
+  }
 }
 
 // ===== 報酬源泉計算 =====
