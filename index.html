@@ -383,6 +383,18 @@ header { position: relative; }
   .flow-question { font-size:0.95rem; }
   .flow-btn { padding:8px 14px; font-size:0.82rem; }
 }
+/* ===== 印刷用 ===== */
+@media print {
+  header, .tab-bar, .back-btn, #home-screen, footer, .btn, .tool-guide, .page-changelog, .note { display: none !important; }
+  body { background: #fff; }
+  .tab-content.active { display: block !important; padding: 0; max-width: 100%; }
+  .card { box-shadow: none; padding: 0; }
+  .card h2 { font-size: 1.1rem; margin-bottom: 8px; }
+  .form-group { margin-bottom: 8px; }
+  .result { background: #f8f8f8 !important; border: 1px solid #ddd; }
+  .result-row { font-size: 0.9rem; }
+  @page { margin: 15mm; }
+}
 </style>
 </head>
 <body>
@@ -499,6 +511,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.9 (2026-03-27) 年度切替対応（国保・役員報酬）、印刷対応、介護人数バリデーション、ボタンID統一</li>
         <li>v1.8 (2026-03-27) 全ツールに使い方ガイドを追加、ホームに「このツールについて」を追加</li>
         <li>v1.7 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
         <li>v1.6 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
@@ -556,7 +569,7 @@ header { position: relative; }
       </select>
     </div>
 
-    <button class="btn" onclick="calcInterest()">計算する</button>
+    <button class="btn" id="btn-interest" onclick="calcInterest()">計算する</button>
 
     <div id="interest-result" class="result" style="display:none;"></div>
 
@@ -617,7 +630,7 @@ header { position: relative; }
       </label>
     </div>
 
-    <button class="btn" onclick="calcSales()">計算する</button>
+    <button class="btn" id="btn-sales" onclick="calcSales()">計算する</button>
 
     <div id="sales-result" class="result" style="display:none;"></div>
 
@@ -722,7 +735,7 @@ header { position: relative; }
 
       <div id="dep-method-info" style="font-size:0.78rem; color:#666; margin-bottom:12px;"></div>
 
-      <button class="btn" onclick="calcDepSchedule()">計算する</button>
+      <button class="btn" id="btn-dep" onclick="calcDepSchedule()">計算する</button>
 
       <div id="dep-calc-result" style="display:none; margin-top:16px;">
         <div id="dep-calc-summary"></div>
@@ -918,7 +931,7 @@ header { position: relative; }
       </div>
     </div>
 
-    <button class="btn" onclick="calcHoshu()">計算する</button>
+    <button class="btn" id="btn-hoshu" onclick="calcHoshu()">計算する</button>
 
     <div id="hoshu-result" class="result" style="display:none;"></div>
 
@@ -2807,7 +2820,36 @@ function calcAnbun() {
   el.style.display = 'block';
 }
 
-// ===== 役員報酬シミュレーション =====
+// ===== 年度別料率データ =====
+// 新年度の料率を追加するときは、各オブジェクトにキーを追加してselectにoptionを足すだけ
+
+// --- 協会けんぽ（役員報酬シミュレーション用） ---
+var KENPO_RATES = {
+  'R8': { label: '令和8年度（2026年3月分〜）', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0.0023, kisokojo: 580000 },
+  'R7': { label: '令和7年度（2025年3月分〜）', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0, kisokojo: 480000 }
+};
+
+// --- 国保料率（大阪府統一） ---
+var KOKUHO_RATES = {
+  'R7': {
+    label: '令和7年度',
+    iryo:  { shotoku: 0.0930, kinto: 34424, byodo: 33574, limit: 650000 },
+    shien: { shotoku: 0.0302, kinto: 11034, byodo: 10761, limit: 240000 },
+    kaigo: { shotoku: 0.0256, kinto: 18784, byodo: 0,     limit: 170000 },
+    kisoKojo: 430000,
+    keigen: { wari7: 430000, wari5coeff: 305000, wari2coeff: 560000, salaryAdj: 100000 }
+  },
+  'R6': {
+    label: '令和6年度',
+    iryo:  { shotoku: 0.0878, kinto: 29960, byodo: 30654, limit: 650000 },
+    shien: { shotoku: 0.0322, kinto: 10843, byodo: 10680, limit: 240000 },
+    kaigo: { shotoku: 0.0272, kinto: 16012, byodo: 5368,  limit: 170000 },
+    kisoKojo: 430000,
+    keigen: { wari7: 430000, wari5coeff: 295000, wari2coeff: 545000, salaryAdj: 100000 }
+  }
+};
+
+// --- 標準報酬月額テーブル（変更頻度が低いため共通） ---
 const HYOJUN_BOUNDS = [63000,73000,83000,93000,101000,107000,114000,122000,130000,138000,146000,155000,165000,175000,185000,195000,210000,230000,250000,270000,290000,310000,330000,350000,370000,395000,425000,455000,485000,515000,545000,575000,605000,635000,665000,695000,730000,770000,810000,855000,905000,955000,1005000,1055000,1115000,1175000,1235000,1295000,1355000,Infinity];
 const HYOJUN_STD = [58000,68000,78000,88000,98000,104000,110000,118000,126000,134000,142000,150000,160000,170000,180000,190000,200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,410000,440000,470000,500000,530000,560000,590000,620000,650000,680000,710000,750000,790000,830000,880000,930000,980000,1030000,1090000,1150000,1210000,1270000,1330000,1390000];
 
@@ -2853,10 +2895,12 @@ function calcYakuin() {
 
   const h = getHyojun(monthly);
 
-  // 保険料率（大阪府 R8・2026年3月分〜）
-  const healthRate = ageType === '40to64' ? 0.1175 : 0.1013;
-  const pensionRate = 0.183;
-  const kosodateRate = 0.0023; // 子ども・子育て支援金（R8年4月分〜）
+  // 保険料率（年度selectから取得）
+  const kenpoYear = document.getElementById('yakuin-year').value;
+  const kr = KENPO_RATES[kenpoYear];
+  const healthRate = ageType === '40to64' ? kr.healthOsaka + kr.kaigo : kr.healthOsaka;
+  const pensionRate = kr.pension;
+  const kosodateRate = kr.kosodate;
 
   // 月額保険料（折半）
   const healthTotal = Math.round(h.health * healthRate);
@@ -2883,7 +2927,7 @@ function calcYakuin() {
   const kyuyoShotoku = Math.max(annualSalary - kyuyoKojo, 0);
 
   // 所得控除
-  const kisokojo = 580000; // 基礎控除（R7・所得2350万以下）
+  const kisokojo = kr.kisokojo; // 基礎控除（年度に応じて変動）
   const haigusha = dependents >= 1 ? 380000 : 0; // 配偶者控除（簡易：1人目を配偶者とみなす）
   const fuyoKojo = dependents >= 2 ? (dependents - 1) * 380000 : 0; // 扶養控除
   const shotokuKojo = annualSocialSelf + kisokojo + haigusha + fuyoKojo;
@@ -2927,31 +2971,44 @@ function calcYakuin() {
 }
 
 // ===== 国保シミュレーション =====
+function syncKaigoMax() {
+  var members = parseInt(document.getElementById('kokuho-members').value);
+  var sel = document.getElementById('kokuho-kaigo');
+  var current = parseInt(sel.value);
+  sel.innerHTML = '';
+  for (var i = 0; i <= members; i++) {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i + '人';
+    sel.appendChild(opt);
+  }
+  sel.value = Math.min(current, members);
+}
+
 function calcKokuho() {
   var totalIncome = parseNum(document.getElementById('kokuho-income').value);
   var members = parseInt(document.getElementById('kokuho-members').value);
   var kaigoMembers = parseInt(document.getElementById('kokuho-kaigo').value);
   var salaryEarners = parseInt(document.getElementById('kokuho-salary-earners').value);
 
-  // 令和7年度 大阪府統一料率
-  var RATE = {
-    iryo:   { shotoku: 0.0930, kinto: 34424, byodo: 33574, limit: 650000 },
-    shien:  { shotoku: 0.0302, kinto: 11034, byodo: 10761, limit: 240000 },
-    kaigo:  { shotoku: 0.0256, kinto: 18784, byodo: 0,     limit: 170000 }
-  };
-  var KISO_KOJO = 430000; // 基礎控除
+  // 年度selectから料率を取得
+  var kokuhoYear = document.getElementById('kokuho-year').value;
+  var KR = KOKUHO_RATES[kokuhoYear];
+  var RATE = { iryo: KR.iryo, shien: KR.shien, kaigo: KR.kaigo };
+  var KISO_KOJO = KR.kisoKojo;
+  var KG = KR.keigen;
 
   // 算定基礎所得金額
   var santeiKiso = Math.max(totalIncome - KISO_KOJO, 0);
 
   // 軽減判定（世帯の総所得金額等で判定、基礎控除前）
-  var salaryAdj = (salaryEarners >= 2) ? 100000 * (salaryEarners - 1) : 0;
+  var salaryAdj = (salaryEarners >= 2) ? KG.salaryAdj * (salaryEarners - 1) : 0;
   var keigen = 0; // 0=なし, 7, 5, 2
-  if (totalIncome <= 430000 + salaryAdj) {
+  if (totalIncome <= KG.wari7 + salaryAdj) {
     keigen = 7;
-  } else if (totalIncome <= 430000 + 305000 * members + salaryAdj) {
+  } else if (totalIncome <= KG.wari7 + KG.wari5coeff * members + salaryAdj) {
     keigen = 5;
-  } else if (totalIncome <= 430000 + 560000 * members + salaryAdj) {
+  } else if (totalIncome <= KG.wari7 + KG.wari2coeff * members + salaryAdj) {
     keigen = 2;
   }
   var keigenRate = keigen === 7 ? 0.3 : keigen === 5 ? 0.5 : keigen === 2 ? 0.8 : 1.0;
@@ -3072,6 +3129,14 @@ calcGensenSalary();
     </details>
 
     <div class="form-group">
+      <label>適用年度</label>
+      <select id="yakuin-year">
+        <option value="R8" selected>令和8年度（2026年3月分〜）</option>
+        <option value="R7">令和7年度（2025年3月分〜）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
       <label>役員報酬（月額・額面）</label>
       <div class="input-prefix">
         <input type="text" id="yakuin-salary" inputmode="numeric" placeholder="例: 500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcYakuin();}">
@@ -3097,15 +3162,13 @@ calcGensenSalary();
       </select>
     </div>
 
-    <button class="btn" onclick="calcYakuin()">計算する</button>
+    <button class="btn" id="btn-yakuin" onclick="calcYakuin()">計算する</button>
 
     <div id="yakuin-result" class="result" style="display:none;"></div>
 
     <p class="note">
-      ※ 協会けんぽ大阪府 令和8年度（2026年3月分〜）の料率で計算<br>
-      ※ 健保料率 10.13%（介護なし）/ 11.75%（介護あり）、厚年 18.3%<br>
-      ※ 子ども・子育て支援金 0.23%（令和8年4月分〜新設・労使折半）<br>
-      ※ 所得税は令和7年分の給与所得控除・基礎控除で概算（住民税は含みません）<br>
+      ※ 協会けんぽ大阪府の料率で計算（年度は上のプルダウンで切替可能）<br>
+      ※ 所得税は給与所得控除・基礎控除で概算（住民税は含みません）<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
     <div class="page-changelog">更新: v1.1 (2026-03-26) R8料率に更新・子育て支援金追加 | v1.0 (2026-03-26) 初版作成</div>
@@ -3137,6 +3200,14 @@ calcGensenSalary();
     </details>
 
     <div class="form-group">
+      <label>適用年度</label>
+      <select id="kokuho-year">
+        <option value="R7" selected>令和7年度</option>
+        <option value="R6">令和6年度</option>
+      </select>
+    </div>
+
+    <div class="form-group">
       <label>世帯の総所得金額等（年額）</label>
       <div class="input-prefix">
         <input type="text" id="kokuho-income" inputmode="numeric" placeholder="例: 4000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcKokuho();}">
@@ -3146,7 +3217,7 @@ calcGensenSalary();
 
     <div class="form-group">
       <label>被保険者数（世帯主を含む）</label>
-      <select id="kokuho-members">
+      <select id="kokuho-members" onchange="syncKaigoMax()">
         <option value="1" selected>1人</option>
         <option value="2">2人</option>
         <option value="3">3人</option>
@@ -3160,10 +3231,6 @@ calcGensenSalary();
       <select id="kokuho-kaigo">
         <option value="0">0人</option>
         <option value="1" selected>1人</option>
-        <option value="2">2人</option>
-        <option value="3">3人</option>
-        <option value="4">4人</option>
-        <option value="5">5人</option>
       </select>
     </div>
 
@@ -3178,15 +3245,12 @@ calcGensenSalary();
       <span style="font-size:0.75rem; color:#888;">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
     </div>
 
-    <button class="btn" onclick="calcKokuho()">計算する</button>
+    <button class="btn" id="btn-kokuho" onclick="calcKokuho()">計算する</button>
 
     <div id="kokuho-result" class="result" style="display:none;"></div>
 
     <p class="note">
-      ※ 大阪府統一保険料率（令和7年度）で計算<br>
-      ※ 医療分：所得割9.30%／均等割34,424円／平等割33,574円（限度額65万円）<br>
-      ※ 支援金分：所得割3.02%／均等割11,034円／平等割10,761円（限度額24万円）<br>
-      ※ 介護分：所得割2.56%／均等割18,784円（限度額17万円）<br>
+      ※ 大阪府統一保険料率で計算（年度は上のプルダウンで切替可能）<br>
       ※ 7割・5割・2割軽減の自動判定付き。未就学児の均等割軽減には未対応
     </p>
     <div class="page-changelog">更新: v1.0 (2026-03-27) 初版作成</div>
