@@ -397,7 +397,7 @@ header { position: relative; }
   <div class="home-card" onclick="switchTab('sales')">
     <div class="icon">📊</div>
     <div class="title">必要売上計算</div>
-    <div class="subtitle">目標利益から必要売上高を算出</div>
+    <div class="subtitle">法人・個人対応。目標利益から必要売上高を算出</div>
   </div>
   <div class="home-card" onclick="switchTab('depreciation')">
     <div class="icon">🔍</div>
@@ -433,6 +433,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.4 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
         <li>v1.3 (2026-03-26) 全ツールにEnterキーで計算実行を追加。修繕費判定フローチャートを追加（国税庁No.1379準拠・災害分岐対応・全体図表示付き）</li>
         <li>v1.2 (2026-03-26) 修繕費判定フローチャートを追加</li>
         <li>v1.1 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
@@ -492,7 +493,15 @@ header { position: relative; }
     <p class="desc">手元に残したい金額・粗利率・固定費から必要な売上高を計算します</p>
 
     <div class="form-group">
-      <label>手元に残したい金額（税引後利益目標）</label>
+      <label>区分</label>
+      <select id="sales-type" onchange="toggleSalesTaxRow()">
+        <option value="corp" selected>法人</option>
+        <option value="personal">個人事業主</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label id="sales-profit-label">手元に残したい金額（税引後利益目標）</label>
       <div class="input-prefix">
         <input type="text" id="target-profit" inputmode="numeric" placeholder="例: 5000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
       </div>
@@ -512,11 +521,12 @@ header { position: relative; }
       </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="sales-tax-row">
       <label>想定実効税率</label>
       <select id="tax-rate">
+        <option value="auto" selected>自動計算（800万以下25%/超35%）</option>
         <option value="0.25">約25%（小規模・所得400万以下）</option>
-        <option value="0.30" selected>約30%（中小企業・一般的）</option>
+        <option value="0.30">約30%（中小企業・一般的）</option>
         <option value="0.34">約34%（中小企業・所得800万超）</option>
         <option value="0.37">約37%（大企業）</option>
       </select>
@@ -526,11 +536,11 @@ header { position: relative; }
 
     <div id="sales-result" class="result" style="display:none;"></div>
 
-    <p class="note">
-      ※ 実効税率は法人税・住民税・事業税の合計概算です<br>
-      ※ 個人事業の場合は所得税率に応じて調整してください
+    <p class="note" id="sales-note">
+      ※ 法人：「自動計算」は所得800万以下を25%、800万超を35%で加重計算します<br>
+      ※ 個人：税率を考慮しない単純計算です（必要売上＝（目標利益＋固定費）÷粗利率）
     </p>
-    <div class="page-changelog">更新: v1.1 (2026-03-26) Enterキーで計算実行対応 | v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v2.0 (2026-03-26) 個人モード追加・実効税率自動計算 | v1.1 Enterキー対応 | v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -1231,33 +1241,79 @@ function calcInterest() {
 }
 
 // ===== 必要売上計算 =====
+// 法人の実効税率自動計算（800万以下25%/超35%）
+function calcAutoTaxRate(preTaxProfit) {
+  const threshold = 8000000;
+  const rateLow = 0.25;
+  const rateHigh = 0.35;
+  if (preTaxProfit <= threshold) {
+    return { rate: rateLow, tax: preTaxProfit * rateLow, label: '25%（800万以下）' };
+  }
+  const taxLow = threshold * rateLow;
+  const taxHigh = (preTaxProfit - threshold) * rateHigh;
+  const totalTax = taxLow + taxHigh;
+  const effectiveRate = totalTax / preTaxProfit;
+  return { rate: effectiveRate, tax: totalTax, label: effectiveRate * 100 < 10 ? (effectiveRate * 100).toFixed(1) + '%（加重平均）' : (effectiveRate * 100).toFixed(1) + '%（加重平均）' };
+}
+
+// 個人/法人切替
+function toggleSalesTaxRow() {
+  const type = document.getElementById('sales-type').value;
+  const taxRow = document.getElementById('sales-tax-row');
+  const label = document.getElementById('sales-profit-label');
+  if (type === 'personal') {
+    taxRow.style.display = 'none';
+    label.textContent = '手元に残したい金額（目標利益）';
+  } else {
+    taxRow.style.display = 'block';
+    label.textContent = '手元に残したい金額（税引後利益目標）';
+  }
+}
+
 function calcSales() {
   const targetProfit = parseNum(document.getElementById('target-profit').value);
   const grossMarginPct = parseNum(document.getElementById('gross-margin').value);
   const fixedCost = parseNum(document.getElementById('fixed-cost').value);
-  const taxRate = parseFloat(document.getElementById('tax-rate').value);
+  const salesType = document.getElementById('sales-type').value;
 
   if (targetProfit <= 0) { alert('手元に残したい金額を入力してください'); return; }
   if (grossMarginPct <= 0 || grossMarginPct > 100) { alert('粗利率は1〜100の間で入力してください'); return; }
 
   const grossMargin = grossMarginPct / 100;
+  let preTaxProfit, taxAmount, taxLabel, requiredSales;
 
-  // 税引後利益 = 税引前利益 × (1 - 実効税率)
-  // 税引前利益 = 目標利益 / (1 - 実効税率)
-  const preTaxProfit = targetProfit / (1 - taxRate);
+  if (salesType === 'personal') {
+    // 個人：税率なし（目標利益 = 税引前利益）
+    preTaxProfit = targetProfit;
+    taxAmount = 0;
+    taxLabel = '';
+    requiredSales = (preTaxProfit + fixedCost) / grossMargin;
+  } else {
+    // 法人
+    const taxRateVal = document.getElementById('tax-rate').value;
+    if (taxRateVal === 'auto') {
+      // 自動計算：税引後→税引前を逆算（反復法）
+      // 初期値として25%で概算
+      let estimate = targetProfit / (1 - 0.25);
+      for (let i = 0; i < 20; i++) {
+        const info = calcAutoTaxRate(estimate);
+        estimate = targetProfit + info.tax;
+      }
+      preTaxProfit = estimate;
+      const info = calcAutoTaxRate(preTaxProfit);
+      taxAmount = info.tax;
+      taxLabel = info.label;
+    } else {
+      const taxRate = parseFloat(taxRateVal);
+      preTaxProfit = targetProfit / (1 - taxRate);
+      taxAmount = preTaxProfit * taxRate;
+      taxLabel = (taxRate * 100) + '%';
+    }
+    requiredSales = (preTaxProfit + fixedCost) / grossMargin;
+  }
 
-  // 税引前利益 = 売上 × 粗利率 - 固定費
-  // 売上 = (税引前利益 + 固定費) / 粗利率
-  const requiredSales = (preTaxProfit + fixedCost) / grossMargin;
-
-  // 売上原価
   const cogs = requiredSales * (1 - grossMargin);
-  // 粗利額
   const grossProfitAmount = requiredSales * grossMargin;
-  // 税額
-  const taxAmount = preTaxProfit * taxRate;
-
-  // 月次目標
   const monthlySales = requiredSales / 12;
 
   let html = '';
@@ -1267,9 +1323,14 @@ function calcSales() {
   html += '<div class="result-row"><span class="label">売上原価</span><span class="value">¥' + fmt(cogs) + '</span></div>';
   html += '<div class="result-row"><span class="label">粗利額（売上総利益）</span><span class="value">¥' + fmt(grossProfitAmount) + '</span></div>';
   html += '<div class="result-row"><span class="label">固定費</span><span class="value">¥' + fmt(fixedCost) + '</span></div>';
-  html += '<div class="result-row"><span class="label">税引前利益</span><span class="value">¥' + fmt(preTaxProfit) + '</span></div>';
-  html += '<div class="result-row"><span class="label">税額（税率 ' + (taxRate * 100) + '%）</span><span class="value">¥' + fmt(taxAmount) + '</span></div>';
-  html += '<div class="result-row"><span class="label">税引後利益</span><span class="value">¥' + fmt(targetProfit) + '</span></div>';
+
+  if (salesType === 'personal') {
+    html += '<div class="result-row"><span class="label">目標利益</span><span class="value">¥' + fmt(targetProfit) + '</span></div>';
+  } else {
+    html += '<div class="result-row"><span class="label">税引前利益</span><span class="value">¥' + fmt(preTaxProfit) + '</span></div>';
+    html += '<div class="result-row"><span class="label">税額（税率 ' + taxLabel + '）</span><span class="value">¥' + fmt(taxAmount) + '</span></div>';
+    html += '<div class="result-row"><span class="label">税引後利益</span><span class="value">¥' + fmt(targetProfit) + '</span></div>';
+  }
 
   // 損益分岐点
   const breakEven = fixedCost / grossMargin;
