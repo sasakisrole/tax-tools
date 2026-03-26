@@ -388,6 +388,7 @@ header { position: relative; }
   <button onclick="switchTab('gensen-salary')">給与源泉税</button>
   <button onclick="switchTab('gensen-hoshu')">報酬源泉</button>
   <button onclick="switchTab('shuzenhi')">修繕費判定</button>
+  <button onclick="switchTab('yakuin')">役員報酬</button>
   <button onclick="switchTab('references')">参考資料</button>
 </div>
 
@@ -433,6 +434,11 @@ header { position: relative; }
     <div class="title">修繕費判定</div>
     <div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
   </div>
+  <div class="home-card" onclick="switchTab('yakuin')">
+    <div class="icon">👔</div>
+    <div class="title">役員報酬シミュレーション</div>
+    <div class="subtitle">社保・所得税控除後の手取りを計算</div>
+  </div>
   <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
     <div class="icon">📚</div>
     <div class="title">参考資料</div>
@@ -442,6 +448,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v1.5 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
         <li>v1.4 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
         <li>v1.3 (2026-03-26) 全ツールにEnterキーで計算実行を追加。修繕費判定フローチャートを追加（国税庁No.1379準拠・災害分岐対応・全体図表示付き）</li>
         <li>v1.2 (2026-03-26) 修繕費判定フローチャートを追加</li>
@@ -1117,7 +1124,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, references: 8 };
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, references: 9 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
@@ -2636,6 +2643,119 @@ function calcAnbun() {
   el.style.display = 'block';
 }
 
+// ===== 役員報酬シミュレーション =====
+const HYOJUN_BOUNDS = [63000,73000,83000,93000,101000,107000,114000,122000,130000,138000,146000,155000,165000,175000,185000,195000,210000,230000,250000,270000,290000,310000,330000,350000,370000,395000,425000,455000,485000,515000,545000,575000,605000,635000,665000,695000,730000,770000,810000,855000,905000,955000,1005000,1055000,1115000,1175000,1235000,1295000,1355000,Infinity];
+const HYOJUN_STD = [58000,68000,78000,88000,98000,104000,110000,118000,126000,134000,142000,150000,160000,170000,180000,190000,200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,410000,440000,470000,500000,530000,560000,590000,620000,650000,680000,710000,750000,790000,830000,880000,930000,980000,1030000,1090000,1150000,1210000,1270000,1330000,1390000];
+
+function getHyojun(monthly) {
+  for (let i = 0; i < HYOJUN_BOUNDS.length; i++) {
+    if (monthly < HYOJUN_BOUNDS[i]) return { grade: i + 1, health: HYOJUN_STD[i], pension: Math.min(Math.max(HYOJUN_STD[i], 88000), 650000) };
+  }
+  return { grade: 50, health: 1390000, pension: 650000 };
+}
+
+function calcKyuyoKojo(annual) {
+  if (annual <= 1625000) return 650000;
+  if (annual <= 1800000) return annual * 0.4 - 100000;
+  if (annual <= 3600000) return annual * 0.3 + 80000;
+  if (annual <= 6600000) return annual * 0.2 + 440000;
+  if (annual <= 8500000) return annual * 0.1 + 1100000;
+  return 1950000;
+}
+
+function calcShotokuzei(taxableIncome) {
+  if (taxableIncome <= 0) return 0;
+  const brackets = [
+    [1949000, 0.05, 0],
+    [3299000, 0.10, 97500],
+    [6949000, 0.20, 427500],
+    [8999000, 0.23, 636000],
+    [17999000, 0.33, 1536000],
+    [39999000, 0.40, 2796000],
+    [Infinity, 0.45, 4796000]
+  ];
+  for (const [limit, rate, deduction] of brackets) {
+    if (taxableIncome <= limit) return Math.floor(taxableIncome * rate - deduction);
+  }
+  return 0;
+}
+
+function calcYakuin() {
+  const monthly = parseNum(document.getElementById('yakuin-salary').value);
+  const ageType = document.getElementById('yakuin-age').value;
+  const dependents = parseInt(document.getElementById('yakuin-dependents').value);
+
+  if (monthly <= 0) { alert('役員報酬（月額）を入力してください'); return; }
+
+  const h = getHyojun(monthly);
+
+  // 保険料率（大阪府 R7）
+  const healthRate = ageType === '40to64' ? 0.1192 : 0.1033;
+  const pensionRate = 0.183;
+
+  // 月額保険料（折半）
+  const healthTotal = Math.round(h.health * healthRate);
+  const healthSelf = Math.ceil(healthTotal / 2);
+  const healthComp = healthTotal - healthSelf;
+
+  const pensionTotal = Math.round(h.pension * pensionRate);
+  const pensionSelf = Math.ceil(pensionTotal / 2);
+  const pensionComp = pensionTotal - pensionSelf;
+
+  const socialSelf = healthSelf + pensionSelf;
+  const socialComp = healthComp + pensionComp;
+
+  // 年間計算
+  const annualSalary = monthly * 12;
+  const annualSocialSelf = socialSelf * 12;
+
+  // 給与所得控除
+  const kyuyoKojo = calcKyuyoKojo(annualSalary);
+  const kyuyoShotoku = Math.max(annualSalary - kyuyoKojo, 0);
+
+  // 所得控除
+  const kisokojo = 580000; // 基礎控除（R7・所得2350万以下）
+  const haigusha = dependents >= 1 ? 380000 : 0; // 配偶者控除（簡易：1人目を配偶者とみなす）
+  const fuyoKojo = dependents >= 2 ? (dependents - 1) * 380000 : 0; // 扶養控除
+  const shotokuKojo = annualSocialSelf + kisokojo + haigusha + fuyoKojo;
+  const taxableIncome = Math.max(Math.floor((kyuyoShotoku - shotokuKojo) / 1000) * 1000, 0);
+
+  // 所得税（復興税込み）
+  const incomeTaxBase = calcShotokuzei(taxableIncome);
+  const incomeTaxAnnual = Math.floor(incomeTaxBase * 1.021);
+  const incomeTaxMonthly = Math.round(incomeTaxAnnual / 12);
+
+  // 手取り
+  const takeHome = monthly - socialSelf - incomeTaxMonthly;
+
+  let html = '';
+  html += '<div style="font-size:0.78rem; color:#888; margin-bottom:8px;">標準報酬月額：第' + h.grade + '等級 ¥' + fmt(h.health) + (h.health !== h.pension ? '（厚年：¥' + fmt(h.pension) + '）' : '') + '</div>';
+
+  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:12px 0 6px;">社会保険料（月額）</div>';
+  html += '<div class="result-row"><span class="label">健康保険料' + (ageType === '40to64' ? '（介護込）' : '') + '</span><span class="value">¥' + fmt(healthSelf) + '</span></div>';
+  html += '<div class="result-row"><span class="label">厚生年金保険料</span><span class="value">¥' + fmt(pensionSelf) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">社保合計（本人負担）</span><span class="value">¥' + fmt(socialSelf) + '</span></div>';
+  html += '<div class="result-row" style="color:#888;"><span class="label">社保合計（会社負担）</span><span class="value">¥' + fmt(socialComp) + '</span></div>';
+
+  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">所得税（概算）</div>';
+  html += '<div class="result-row"><span class="label">年間報酬</span><span class="value">¥' + fmt(annualSalary) + '</span></div>';
+  html += '<div class="result-row"><span class="label">給与所得控除</span><span class="value">−¥' + fmt(kyuyoKojo) + '</span></div>';
+  html += '<div class="result-row"><span class="label">給与所得</span><span class="value">¥' + fmt(kyuyoShotoku) + '</span></div>';
+  html += '<div class="result-row"><span class="label">所得控除（基礎+社保' + (dependents > 0 ? '+扶養等' : '') + '）</span><span class="value">−¥' + fmt(shotokuKojo) + '</span></div>';
+  html += '<div class="result-row"><span class="label">課税所得</span><span class="value">¥' + fmt(taxableIncome) + '</span></div>';
+  html += '<div class="result-row highlight"><span class="label">所得税（月額概算・復興税込）</span><span class="value">¥' + fmt(incomeTaxMonthly) + '</span></div>';
+
+  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り</div>';
+  html += '<div class="result-row"><span class="label">額面</span><span class="value">¥' + fmt(monthly) + '</span></div>';
+  html += '<div class="result-row"><span class="label">社保（本人）</span><span class="value">−¥' + fmt(socialSelf) + '</span></div>';
+  html += '<div class="result-row"><span class="label">所得税</span><span class="value">−¥' + fmt(incomeTaxMonthly) + '</span></div>';
+  html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:#38a169;">¥' + fmt(takeHome) + '</span></div>';
+  html += '<div class="result-row" style="color:#888;"><span class="label">会社の総コスト（月額）</span><span class="value">¥' + fmt(monthly + socialComp) + '</span></div>';
+
+  document.getElementById('yakuin-result').innerHTML = html;
+  document.getElementById('yakuin-result').style.display = 'block';
+}
+
 // 初期表示
 showCalendar();
 searchDepreciation();
@@ -2643,6 +2763,52 @@ initDepCalc();
 showTaxRates();
 calcGensenSalary();
 </script>
+
+<!-- ===== 役員報酬シミュレーション ===== -->
+<div id="tab-yakuin" class="tab-content">
+  <div class="card">
+    <h2>役員報酬シミュレーション</h2>
+    <p class="desc">月額報酬から社会保険料・所得税を計算し、手取り額を概算します（協会けんぽ大阪府・令和7年度）</p>
+
+    <div class="form-group">
+      <label>役員報酬（月額・額面）</label>
+      <div class="input-prefix">
+        <input type="text" id="yakuin-salary" inputmode="numeric" placeholder="例: 500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcYakuin();}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>年齢区分</label>
+      <select id="yakuin-age">
+        <option value="under40">40歳未満（介護保険なし）</option>
+        <option value="40to64" selected>40〜64歳（介護保険あり）</option>
+        <option value="over65">65歳以上（介護保険なし）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>扶養親族等の数</label>
+      <select id="yakuin-dependents">
+        <option value="0" selected>0人</option>
+        <option value="1">1人</option>
+        <option value="2">2人</option>
+        <option value="3">3人</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="calcYakuin()">計算する</button>
+
+    <div id="yakuin-result" class="result" style="display:none;"></div>
+
+    <p class="note">
+      ※ 協会けんぽ大阪府 令和7年度（2025年3月分〜）の料率で計算<br>
+      ※ 健保料率 10.33%（介護なし）/ 11.92%（介護あり）、厚年 18.3%<br>
+      ※ 所得税は令和7年分の給与所得控除・基礎控除で概算（住民税は含みません）<br>
+      ※ 賞与なし・雇用保険なしの前提です
+    </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-26) 初版作成</div>
+  </div>
+</div>
 
 <div id="tab-references" class="tab-content">
   <div class="card">
@@ -2698,6 +2864,16 @@ calcGensenSalary();
     <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></li>
       <li>法人税基本通達 7-8-1〜7-8-6（修繕費と資本的支出の区分）</li>
+    </ul>
+
+    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">役員報酬シミュレーション</h3>
+    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r07/r7ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和7年3月分からの健康保険・厚生年金保険の保険料額表</a>（大阪府）</li>
+      <li>健保料率：大阪府 10.33%（介護なし）/ 11.92%（介護あり・40〜64歳）</li>
+      <li>厚生年金保険料率：18.300%（全国一律）</li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a>（令和7年分：最低65万円）</li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
     </ul>
   </div>
 </div>
