@@ -334,6 +334,18 @@ header { position: relative; }
 .flow-result.jitshitsu .flow-result-title { color:#718096; }
 .flow-result-desc { font-size:0.9rem; color:#555; line-height:1.6; }
 .flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:#888; }
+
+/* フロー全体図テーブル */
+.flow-overview-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.flow-overview-table th { background:#1a5276; color:#fff; padding:10px 8px; text-align:left; font-size:0.78rem; white-space:nowrap; }
+.flow-overview-table td { padding:10px 8px; border-bottom:1px solid #e2e8f0; vertical-align:middle; line-height:1.5; }
+.flow-overview-table tr:nth-child(even) { background:#f8fbff; }
+.flow-overview-table .center { text-align:center; font-weight:700; color:#1a5276; }
+.flow-overview-table .result-g { text-align:center; font-weight:700; color:#38a169; background:#f0fff4; }
+.flow-overview-table .result-r { text-align:center; font-weight:700; color:#e53e3e; background:#fff5f5; }
+.flow-overview-table .result-y { text-align:center; font-weight:700; color:#d69e2e; background:#fffff0; }
+.flow-overview-table .result-b { text-align:center; font-weight:700; color:#718096; background:#f7fafc; }
+.flow-overview-table .next { text-align:center; color:#888; font-size:0.78rem; }
 </style>
 </head>
 <body>
@@ -738,6 +750,68 @@ header { position: relative; }
   <div class="card">
     <h2>修繕費・資本的支出の判定フローチャート</h2>
     <p class="desc">法人税基本通達 7-8-1〜7-8-5 に基づき、支出が修繕費か資本的支出かを判定します</p>
+
+    <div style="margin-bottom:16px;">
+      <button class="btn" style="background:#718096; font-size:0.85rem; padding:8px 16px;" onclick="toggleFlowOverview()">📋 フロー全体図を表示</button>
+    </div>
+
+    <div id="flow-overview" style="display:none; margin-bottom:20px;">
+      <table class="flow-overview-table">
+        <thead>
+          <tr>
+            <th style="width:50px;">順序</th>
+            <th>判定基準</th>
+            <th style="width:90px;">根拠</th>
+            <th style="width:60px;">Yes</th>
+            <th style="width:60px;">No</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="center">Q1</td>
+            <td>通常の維持管理・原状回復のための支出か？</td>
+            <td>7-8-1</td>
+            <td class="result-g">修繕費</td>
+            <td class="next">Q2へ</td>
+          </tr>
+          <tr>
+            <td class="center">Q2</td>
+            <td>資産の価値が明らかに増加 or 耐用年数が明らかに延長するか？</td>
+            <td>7-8-2</td>
+            <td class="result-r">資本的支出</td>
+            <td class="next">Q3へ</td>
+          </tr>
+          <tr>
+            <td class="center">Q3</td>
+            <td>支出額が <strong>20万円未満</strong> か？</td>
+            <td>7-8-3(1)</td>
+            <td class="result-g">修繕費</td>
+            <td class="next">Q4へ</td>
+          </tr>
+          <tr>
+            <td class="center">Q4</td>
+            <td>おおむね <strong>3年以内の周期</strong> で行われる修理・改良か？</td>
+            <td>7-8-3(2)</td>
+            <td class="result-g">修繕費</td>
+            <td class="next">Q5へ</td>
+          </tr>
+          <tr>
+            <td class="center">Q5</td>
+            <td><strong>60万円未満</strong>、または前期末 <strong>取得価額の10%以下</strong> か？</td>
+            <td>7-8-4</td>
+            <td class="result-g">修繕費</td>
+            <td class="next">Q6へ</td>
+          </tr>
+          <tr>
+            <td class="center">Q6</td>
+            <td>7:3按分（支出額の30% vs 取得価額の10%の少ない方を修繕費）を継続適用するか？</td>
+            <td>7-8-5</td>
+            <td class="result-y">按分処理</td>
+            <td class="result-b">実質判定</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div id="shuzenhi-flow">
       <!-- ステップ1 -->
@@ -2216,6 +2290,16 @@ function calcHoshu() {
 }
 
 // ===== 修繕費フローチャート =====
+function toggleFlowOverview() {
+  const el = document.getElementById('flow-overview');
+  const btn = el.previousElementSibling.querySelector('button') || el.parentElement.querySelector('button');
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 let flowPath = [];
 
 function flowAnswer(step, answer) {
