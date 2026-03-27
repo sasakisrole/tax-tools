@@ -704,6 +704,24 @@ header { position: relative; }
         </div>
       </div>
 
+      <div class="checkbox-row" style="margin-bottom:0;">
+        <label for="dep-used-check">
+          <input type="checkbox" id="dep-used-check" onchange="toggleUsedAsset()"> 中古資産（簡便法で耐用年数を計算）
+        </label>
+      </div>
+      <div id="dep-used-section" style="display:none; background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:12px; margin-bottom:12px;">
+        <div class="form-group" style="margin-bottom:8px;">
+          <label style="font-size:0.82rem;">経過年数</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="dep-used-years" inputmode="numeric" style="width:60px;" placeholder="年" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" oninput="calcUsedLife()">
+            <span>年</span>
+            <input type="text" id="dep-used-months" inputmode="numeric" style="width:60px;" placeholder="月" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" oninput="calcUsedLife()">
+            <span>ヶ月</span>
+          </div>
+        </div>
+        <div id="dep-used-result" style="font-size:0.82rem; color:#7d6608;"></div>
+      </div>
+
       <div class="form-group">
         <label>取得価額（円）</label>
         <div class="input-prefix">
@@ -2243,14 +2261,20 @@ function searchDepreciation() {
 // === Depreciation calculator state ===
 let depSelectedCategory = '';
 
+let depOriginalLife = 0; // 法定耐用年数を保持
+
 function selectForCalc(category, years, name) {
   depSelectedCategory = category;
+  depOriginalLife = years;
   const calcDiv = document.getElementById('dep-calc');
   calcDiv.style.display = 'block';
   document.getElementById('dep-calc-title').textContent = '償却計算';
   document.getElementById('dep-calc-desc').textContent = name + '（' + category + '・耐用年数' + years + '年）';
   document.getElementById('dep-calc-life').value = years;
   document.getElementById('dep-kojin-check').checked = false;
+  document.getElementById('dep-used-check').checked = false;
+  document.getElementById('dep-used-section').style.display = 'none';
+  document.getElementById('dep-used-result').innerHTML = '';
   document.getElementById('dep-calc-result').style.display = 'none';
   updateDepMethodInfo();
   setTimeout(function(){ calcDiv.scrollIntoView({ behavior: 'smooth' }); }, 50);
@@ -2258,15 +2282,76 @@ function selectForCalc(category, years, name) {
 
 function openDepCalcManual() {
   depSelectedCategory = '';
+  depOriginalLife = 0;
   const calcDiv = document.getElementById('dep-calc');
   calcDiv.style.display = 'block';
   document.getElementById('dep-calc-title').textContent = '償却計算';
   document.getElementById('dep-calc-desc').textContent = '耐用年数と取得価額を入力してください';
   document.getElementById('dep-calc-life').value = '';
   document.getElementById('dep-kojin-check').checked = false;
+  document.getElementById('dep-used-check').checked = false;
+  document.getElementById('dep-used-section').style.display = 'none';
+  document.getElementById('dep-used-result').innerHTML = '';
   document.getElementById('dep-calc-result').style.display = 'none';
   updateDepMethodInfo();
   setTimeout(function(){ calcDiv.scrollIntoView({ behavior: 'smooth' }); }, 50);
+}
+
+function toggleUsedAsset() {
+  const checked = document.getElementById('dep-used-check').checked;
+  document.getElementById('dep-used-section').style.display = checked ? 'block' : 'none';
+  if (!checked) {
+    // チェック解除時は法定耐用年数に戻す
+    if (depOriginalLife > 0) {
+      document.getElementById('dep-calc-life').value = depOriginalLife;
+    }
+    document.getElementById('dep-used-years').value = '';
+    document.getElementById('dep-used-months').value = '';
+    document.getElementById('dep-used-result').innerHTML = '';
+  }
+}
+
+function calcUsedLife() {
+  const statutoryLife = depOriginalLife || parseInt(document.getElementById('dep-calc-life').value) || 0;
+  if (statutoryLife <= 0) {
+    document.getElementById('dep-used-result').innerHTML = '<span style="color:#e74c3c;">先に耐用年数を入力してください</span>';
+    return;
+  }
+
+  const elapsedY = parseInt(document.getElementById('dep-used-years').value) || 0;
+  const elapsedM = parseInt(document.getElementById('dep-used-months').value) || 0;
+  const elapsedTotal = elapsedY + elapsedM / 12;
+
+  if (elapsedTotal <= 0) {
+    document.getElementById('dep-used-result').innerHTML = '';
+    return;
+  }
+
+  let usedLife;
+  let formula;
+  if (elapsedTotal >= statutoryLife) {
+    // 全部経過
+    usedLife = statutoryLife * 0.2;
+    formula = '法定' + statutoryLife + '年 × 20% = ' + (statutoryLife * 0.2).toFixed(1) + '年';
+  } else {
+    // 一部経過
+    usedLife = (statutoryLife - elapsedTotal) + elapsedTotal * 0.2;
+    formula = '(' + statutoryLife + ' - ' + elapsedTotal.toFixed(1) + ') + ' + elapsedTotal.toFixed(1) + ' × 20% = ' + usedLife.toFixed(1) + '年';
+  }
+
+  // 2年未満は2年、端数切捨て
+  let result = Math.floor(usedLife);
+  if (result < 2) result = 2;
+
+  let note = '';
+  if (usedLife < 2) note = ' → 2年未満のため2年';
+  else if (usedLife !== Math.floor(usedLife)) note = ' → 端数切捨て';
+
+  document.getElementById('dep-used-result').innerHTML =
+    '<div style="margin-bottom:4px;"><b>簡便法による耐用年数: ' + result + '年</b></div>' +
+    '<div style="font-size:0.75rem; color:#999;">' + formula + note + '</div>';
+
+  document.getElementById('dep-calc-life').value = result;
 }
 
 function toggleKojin() {
