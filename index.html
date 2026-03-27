@@ -1908,19 +1908,19 @@ const depreciationData = [
   { category: '車両運搬具', name: '運送事業用、貸自動車業用又は自動車教習所用の車両及び運搬具（前掲のものを除く。）（乗合自動車）', years: 5 },
   { category: '車両運搬具', name: '運送事業用、貸自動車業用又は自動車教習所用の車両及び運搬具（前掲のものを除く。）（自転車及びリヤカー）', years: 2 },
   { category: '車両運搬具', name: '運送事業用、貸自動車業用又は自動車教習所用の車両及び運搬具（前掲のものを除く。）（被けん引車その他のもの）', years: 4 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（小型車（総排気量が〇・六六リットル以下のものをいう。））', years: 4 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（ダンプ式のもの）', years: 4 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（その他のもの）', years: 5 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（報道通信用のもの）', years: 5 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（その他のもの）', years: 6 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（二輪又は三輪自動車）', years: 3 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（自転車）', years: 2 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（金属製のもの）', years: 7 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（その他のもの）', years: 4 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（フォークリフト）', years: 4 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（金属製のもの）', years: 5 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（その他のもの）', years: 3 },
-  { category: '車両運搬具', name: '前掲のもの以外のもの（自走能力を有するもの）', years: 7 },
+  { category: '車両運搬具', name: '普通自動車 ※一般用（総排気量0.66L超）', years: 6 },
+  { category: '車両運搬具', name: '軽自動車（総排気量0.66L以下）', years: 4 },
+  { category: '車両運搬具', name: '貨物自動車（ダンプ式）', years: 4 },
+  { category: '車両運搬具', name: '貨物自動車（その他）', years: 5 },
+  { category: '車両運搬具', name: '報道通信用自動車', years: 5 },
+  { category: '車両運搬具', name: '二輪又は三輪自動車', years: 3 },
+  { category: '車両運搬具', name: '自転車', years: 2 },
+  { category: '車両運搬具', name: 'リヤカー等（金属製）', years: 7 },
+  { category: '車両運搬具', name: 'リヤカー等（その他）', years: 4 },
+  { category: '車両運搬具', name: 'フォークリフト', years: 4 },
+  { category: '車両運搬具', name: '被けん引車等（金属製）', years: 5 },
+  { category: '車両運搬具', name: '被けん引車等（その他）', years: 3 },
+  { category: '車両運搬具', name: '大型特殊自動車（自走能力を有するもの）', years: 7 },
   { category: '工具', name: '測定工具及び検査工具（電気又は電子を利用するものを含む。）', years: 5 },
   { category: '工具', name: '治具及び取付工具', years: 3 },
   { category: '工具', name: 'ロール（金属圧延用のもの）', years: 4 },
@@ -2210,7 +2210,70 @@ const depAliases = {
   'カーペット': 'カーテン',
   'じゅうたん': '繊維製品',
   'ブラインド': 'カーテン',
+  '普通自動車': '車両運搬具',
+  '乗用車': '車両運搬具',
+  '車': '車両運搬具',
+  'トラック': '貨物',
+  'バイク': '二輪',
+  'オートバイ': '二輪',
+  '机': '家具',
+  '椅子': '家具',
+  'いす': '家具',
+  'ベッド': 'ベッド',
+  'プリンター': '複写機',
+  '電話': 'デジタル',
+  '看板': '看板',
+  '金庫': '金庫',
+  '応接': '接客業用',
+  'ソファ': '接客業用',
 };
+
+// 実務でよく検索される資産のキーワード（スコア加点用）
+const depCommonKeywords = [
+  'パーソナルコンピュータ', '複写機', '冷房用又は暖房用', '自動販売機',
+  '事務所用', '住宅用', '店舗用', '飲食店用', '工場用',
+  '鉄骨鉄筋コンクリート造又は鉄筋コンクリート造', '木造又は合成樹脂造',
+  '金属造のもの（骨格材の肉厚が四ミリメートル',
+  '前掲のもの以外のもの（その他のもの）', '前掲のもの以外のもの（小型車',
+  '前掲のもの以外のもの（ダンプ式', '二輪又は三輪自動車',
+  '家具、電気機器', '看板', '金庫', '接客業用', '営業権',
+  'ソフトウエア', '電気設備', '給排水', 'エレベーター',
+  'アスファルト', 'コンクリート敷',
+  '食料品製造業', '飲食店業', '小売業', '総合工事業', '宿泊業',
+  '特許権', '商標権',
+];
+
+function calcRelevanceScore(item, keywords) {
+  const text = (item.category + item.name).toLowerCase();
+  let score = 0;
+
+  // 名前の短さ（短い＝具体的＝実務で使いやすい。ただし重み控えめ）
+  score += Math.max(0, 50 - item.name.length * 0.5);
+
+  // キーワードが名前に直接含まれるか（エイリアス経由でなく直接ヒット＝高スコア）
+  keywords.forEach(k => {
+    if (item.name.toLowerCase().includes(k)) score += 40;
+    const pos = text.indexOf(k);
+    if (pos >= 0 && pos < 20) score += 30;
+    else if (pos >= 0 && pos < 50) score += 15;
+  });
+
+  // よく使う資産リストに含まれるか
+  for (const ck of depCommonKeywords) {
+    if (item.name.includes(ck)) { score += 50; break; }
+  }
+
+  // カテゴリボーナス（実務で頻出のカテゴリ）
+  const commonCats = ['建物', '車両運搬具', '器具備品', '建物附属設備', '機械装置', '無形減価償却資産'];
+  if (commonCats.includes(item.category)) score += 10;
+
+  // 鉄道・特殊自動車など一般的でないものはスコアを下げる
+  if (item.name.includes('鉄道用又は軌道用') || item.name.includes('架空索道')) score -= 80;
+  if (item.name.includes('特殊自動車')) score -= 40;
+  if (item.name.includes('運送事業用')) score -= 30;
+
+  return score;
+}
 
 function searchDepreciation() {
   const keyword = document.getElementById('dep-search').value.trim().toLowerCase();
@@ -2235,6 +2298,13 @@ function searchDepreciation() {
         }
         return false;
       });
+    });
+
+    // スコア順にソート（名前が短い＝具体的なものほど上、よく使う資産に加点）
+    filtered.sort((a, b) => {
+      const scoreA = calcRelevanceScore(a, keywords);
+      const scoreB = calcRelevanceScore(b, keywords);
+      return scoreB - scoreA;
     });
   }
 
