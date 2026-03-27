@@ -70,6 +70,14 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
 .home-card .icon {
   font-size: 2rem;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-card .icon svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5;
 }
 .home-card .title {
   font-size: 0.95rem;
@@ -453,57 +461,57 @@ header { position: relative; }
     </div>
   </details>
   <div class="home-card" onclick="switchTab('interest')">
-    <div class="icon">🏦</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
     <div class="title">受取利息逆算</div>
     <div class="subtitle">入金額から税引前利息・源泉税を逆算</div>
   </div>
   <div class="home-card" onclick="switchTab('sales')">
-    <div class="icon">📊</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
     <div class="title">必要売上計算</div>
     <div class="subtitle">法人・個人対応。目標利益から必要売上高を算出</div>
   </div>
   <div class="home-card" onclick="switchTab('depreciation')">
-    <div class="icon">🔍</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8e44ad" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
     <div class="title">耐用年数検索</div>
     <div class="subtitle">資産の法定耐用年数を検索</div>
   </div>
   <div class="home-card" onclick="switchTab('tax-rates')">
-    <div class="icon">📋</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
     <div class="title">税率一覧</div>
     <div class="subtitle">所得税・贈与税・相続税の速算表</div>
   </div>
   <div class="home-card" onclick="switchTab('tax-calendar')">
-    <div class="icon">📅</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
     <div class="title">税務カレンダー</div>
     <div class="subtitle">月別の申告・納付期限一覧</div>
   </div>
   <div class="home-card" onclick="switchTab('gensen-salary')">
-    <div class="icon">💰</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
     <div class="title">給与源泉税早見表</div>
     <div class="subtitle">月額表・金額入力でハイライト</div>
   </div>
   <div class="home-card" onclick="switchTab('gensen-hoshu')">
-    <div class="icon">📄</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a085" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
     <div class="title">報酬源泉計算</div>
     <div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
   </div>
   <div class="home-card" onclick="switchTab('shuzenhi')">
-    <div class="icon">🔧</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg></div>
     <div class="title">修繕費判定</div>
     <div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
   </div>
   <div class="home-card" onclick="switchTab('yakuin')">
-    <div class="icon">👔</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="title">役員報酬シミュレーション</div>
     <div class="subtitle">社保・所得税控除後の手取りを計算</div>
   </div>
   <div class="home-card" onclick="switchTab('kokuho')">
-    <div class="icon">🏥</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
     <div class="title">国保シミュレーション</div>
     <div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
   </div>
   <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
-    <div class="icon">📚</div>
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
     <div class="title">参考資料</div>
     <div class="subtitle">各ツールの出典・参考URL一覧</div>
   </div>
@@ -687,7 +695,7 @@ header { position: relative; }
     </div>
 
     <div style="margin-bottom:12px;">
-      <a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;">📐 耐用年数を直接入力して償却計算 →</a>
+      <a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> 耐用年数を直接入力して償却計算 →</a>
     </div>
 
     <div id="dep-result"></div>
@@ -770,7 +778,7 @@ header { position: relative; }
       ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
       ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
     </p>
-    <div class="page-changelog">更新: v2.0 (2026-03-27) DB全量拡充(562件)・中古簡便法・検索改善 | v1.5 (2026-03-26) Enterキーで計算実行対応 | v1.4 デフォルト複数年表示・工具データ追加 | v1.2 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v2.1 (2026-03-27) 絵文字→SVGアイコンに統一 | v2.0 (2026-03-27) DB全量拡充(562件)・中古簡便法・検索改善 | v1.5 (2026-03-26) Enterキーで計算実行対応 | v1.4 デフォルト複数年表示・工具データ追加 | v1.2 償却計算機能を統合 | v1.0 (2026-03-07) 初版作成</div>
   </div>
 </div>
 
@@ -986,7 +994,7 @@ header { position: relative; }
     </details>
 
     <div style="margin-bottom:16px;">
-      <button class="btn" style="background:#718096; font-size:0.85rem; padding:8px 16px;" onclick="toggleFlowOverview()">📋 フロー全体図を表示</button>
+      <button class="btn" style="background:#718096; font-size:0.85rem; padding:8px 16px;" onclick="toggleFlowOverview()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg> フロー全体図を表示</button>
     </div>
 
     <div id="flow-overview" style="display:none; margin-bottom:20px;">
@@ -3988,7 +3996,7 @@ calcGensenSalary();
 </div>
 
 <footer style="background:#1a5276; color:rgba(255,255,255,0.7); text-align:center; padding:16px 20px; font-size:0.75rem; line-height:1.8;">
-  <p style="margin-bottom:4px;">⚠️ 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
+  <p style="margin-bottom:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
   <p>© 2026 s.role</p>
 </footer>
 
