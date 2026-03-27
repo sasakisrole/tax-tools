@@ -409,7 +409,7 @@ header { position: relative; }
 <header>
   <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
   <h1>税務ツールボックス</h1>
-  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: 2026-03-27 ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
+  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: 2026-03-27 (v2.0) ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
 </header>
 
 <div class="tab-bar" id="tab-bar" style="display:none;">
@@ -423,6 +423,7 @@ header { position: relative; }
   <button onclick="switchTab('shuzenhi')">修繕費判定</button>
   <button onclick="switchTab('yakuin')">役員報酬</button>
   <button onclick="switchTab('kokuho')">国保シミュレーション</button>
+  <button onclick="switchTab('furusato')">ふるさと納税</button>
   <button onclick="switchTab('references')">参考資料</button>
 </div>
 
@@ -451,6 +452,7 @@ header { position: relative; }
         <li><strong>修繕費判定</strong> — 国税庁フローチャートに沿って修繕費か資本的支出かを判定</li>
         <li><strong>役員報酬シミュレーション</strong> — 社保・所得税を差し引いた手取り額を概算</li>
         <li><strong>国保シミュレーション</strong> — 大阪市の国民健康保険料を試算（軽減判定付き）</li>
+        <li><strong>ふるさと納税限度額</strong> — 控除上限額シミュレーション＋クライアント向け資料印刷</li>
       </ul>
       <h3>注意事項</h3>
       <ul>
@@ -510,6 +512,11 @@ header { position: relative; }
     <div class="title">国保シミュレーション</div>
     <div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
   </div>
+  <div class="home-card" onclick="switchTab('furusato')">
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+    <div class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:#e67e22; font-weight:400;">β</span></div>
+    <div class="subtitle">控除上限額シミュレーション＋資料印刷</div>
+  </div>
   <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
     <div class="title">参考資料</div>
@@ -519,6 +526,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v2.0 (2026-03-27) ふるさと納税限度額シミュレーション追加（控除上限計算＋クライアント向け資料印刷）</li>
         <li>v1.9 (2026-03-27) 年度切替対応（国保・役員報酬）、印刷対応、介護人数バリデーション、ボタンID統一</li>
         <li>v1.8 (2026-03-27) 全ツールに使い方ガイドを追加、ホームに「このツールについて」を追加</li>
         <li>v1.7 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
@@ -1330,7 +1338,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, kokuho: 9, references: 10 };
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, kokuho: 9, furusato: 10, references: 11 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
@@ -3758,6 +3766,166 @@ function calcKokuho() {
   document.getElementById('kokuho-result').style.display = 'block';
 }
 
+// ===== ふるさと納税限度額シミュレーション =====
+function calcFurusato() {
+  var income = parseNum(document.getElementById('furusato-income').value);
+  var deduction = parseNum(document.getElementById('furusato-deduction').value);
+  var yearKey = document.getElementById('furusato-year').value;
+
+  if (income <= 0) { alert('総所得金額等を入力してください'); return; }
+  if (deduction <= 0) { alert('所得控除合計額を入力してください'); return; }
+
+  // 課税所得（1,000円未満切捨て）
+  var taxableIncome = Math.max(Math.floor((income - deduction) / 1000) * 1000, 0);
+  if (taxableIncome <= 0) {
+    alert('課税所得が0円以下のため、ふるさと納税の控除メリットがありません');
+    return;
+  }
+
+  // 所得税率テーブル（令和6年・令和7年共通）
+  var taxBrackets = [
+    { limit: 1950000, rate: 0.05 },
+    { limit: 3300000, rate: 0.10 },
+    { limit: 6950000, rate: 0.20 },
+    { limit: 9000000, rate: 0.23 },
+    { limit: 18000000, rate: 0.33 },
+    { limit: 40000000, rate: 0.40 },
+    { limit: Infinity, rate: 0.45 }
+  ];
+  var incomeTaxRate = 0.05;
+  for (var i = 0; i < taxBrackets.length; i++) {
+    if (taxableIncome <= taxBrackets[i].limit) {
+      incomeTaxRate = taxBrackets[i].rate;
+      break;
+    }
+  }
+
+  // 住民税所得割額（税率10%、調整控除2,500円を概算で控除）
+  var juuminTaxBase = Math.max(taxableIncome * 0.10 - 2500, 0);
+
+  // ふるさと納税上限額の算出
+  // 特例控除の上限 = 住民税所得割額 × 20%
+  // 特例控除 = (寄附金 - 2000) × (90% - 所得税率 × 1.021)
+  // 上限時: (限度額 - 2000) × (0.90 - 所得税率 × 1.021) = 住民税所得割額 × 0.20
+  var specialRate = 0.90 - incomeTaxRate * 1.021;
+  var limit = 0;
+  if (specialRate > 0) {
+    limit = Math.floor(juuminTaxBase * 0.20 / specialRate) + 2000;
+  }
+
+  // 所得税からの控除（参考）
+  var incomeTaxDeduction = Math.floor((limit - 2000) * incomeTaxRate * 1.021);
+  // 住民税基本分からの控除
+  var juuminBasicDeduction = Math.floor((limit - 2000) * 0.10);
+  // 住民税特例分からの控除
+  var juuminSpecialDeduction = Math.floor((limit - 2000) * specialRate);
+
+  var yearLabel = yearKey === 'R7' ? '令和7年分（2025年）' : '令和6年分（2024年）';
+
+  var html = '';
+  html += '<div class="result-row"><span class="label">対象年分</span><span class="value">' + yearLabel + '</span></div>';
+  html += '<div class="result-row"><span class="label">総所得金額等</span><span class="value">' + fmt(income) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">所得控除合計額</span><span class="value">' + fmt(deduction) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">課税所得金額</span><span class="value">' + fmt(taxableIncome) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">適用所得税率</span><span class="value">' + (incomeTaxRate * 100) + '%</span></div>';
+  html += '<div class="result-row"><span class="label">住民税所得割額（概算）</span><span class="value">' + fmt(juuminTaxBase) + ' 円</span></div>';
+  html += '<div class="result-row highlight"><span class="label">ふるさと納税 控除上限額（目安）</span><span class="value">' + fmt(limit) + ' 円</span></div>';
+  html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #e0e8f0; font-size:0.82rem; color:#666;">';
+  html += '<div style="font-weight:600; margin-bottom:6px; color:#1a5276;">控除内訳（参考）</div>';
+  html += '<div class="result-row"><span class="label">所得税からの控除（税率 × 1.021）</span><span class="value">' + fmt(incomeTaxDeduction) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">住民税からの控除（基本分 10%）</span><span class="value">' + fmt(juuminBasicDeduction) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">住民税からの控除（特例分）</span><span class="value">' + fmt(juuminSpecialDeduction) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">自己負担額</span><span class="value">2,000 円</span></div>';
+  html += '</div>';
+
+  document.getElementById('furusato-result').innerHTML = html;
+  document.getElementById('furusato-result').style.display = 'block';
+  document.getElementById('furusato-print-btn').style.display = 'block';
+
+  // 印刷用データを保持
+  window._furusatoData = {
+    clientName: document.getElementById('furusato-client').value || '',
+    yearLabel: yearLabel,
+    income: income,
+    deduction: deduction,
+    taxableIncome: taxableIncome,
+    incomeTaxRate: incomeTaxRate,
+    juuminTaxBase: juuminTaxBase,
+    limit: limit,
+    incomeTaxDeduction: incomeTaxDeduction,
+    juuminBasicDeduction: juuminBasicDeduction,
+    juuminSpecialDeduction: juuminSpecialDeduction
+  };
+}
+
+function printFurusato() {
+  var d = window._furusatoData;
+  if (!d) return;
+
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + d.clientName + '</p>' : '';
+
+  var html = '';
+  html += '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #1a5276; padding-bottom:10px; color:#1a5276;">ふるさと納税 控除上限額のご案内</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+  html += clientLine;
+  html += '<p style="font-size:0.9rem; color:#555; margin-bottom:20px;">下記の前提条件に基づき、ふるさと納税の控除上限額（自己負担2,000円で済む寄附上限額）を試算しました。</p>';
+
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.9rem;">';
+  html += '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">前提条件</th></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0; width:50%;">対象年分</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + d.yearLabel + '</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">総所得金額等</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.income) + ' 円</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">所得控除合計額</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.deduction) + ' 円</td></tr>';
+  html += '</table>';
+
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.9rem;">';
+  html += '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">計算結果</th></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0; width:50%;">課税所得金額</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.taxableIncome) + ' 円</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">適用所得税率</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + (d.incomeTaxRate * 100) + '%</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">住民税所得割額（概算）</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminTaxBase) + ' 円</td></tr>';
+  html += '<tr style="background:#fff8e1;"><td style="padding:12px; border:1px solid #d0d8e0; font-weight:600;">控除上限額（目安）</td><td style="padding:12px; border:1px solid #d0d8e0; text-align:right; font-size:1.2rem; font-weight:700; color:#c0392b;">' + fmt(d.limit) + ' 円</td></tr>';
+  html += '</table>';
+
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.85rem;">';
+  html += '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:8px 12px; color:#1a5276; border:1px solid #d0d8e0;">控除内訳（参考）</th></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">所得税からの控除</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.incomeTaxDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">住民税からの控除（基本分）</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminBasicDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">住民税からの控除（特例分）</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminSpecialDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">自己負担額</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">2,000 円</td></tr>';
+  html += '</table>';
+
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  html += '<li>上記は簡易計算による概算値です。住宅ローン控除・調整控除・住民税と所得税の控除差額等は考慮しておりません。</li>';
+  html += '<li>実際の控除上限額とは数千円〜数万円程度の差が生じる場合があります。</li>';
+  html += '<li>上限額を超えて寄附した場合、超過分は自己負担となります。余裕をもった金額での寄附をおすすめします。</li>';
+  html += '</ul>';
+  html += '</div>';
+  html += '</div>';
+
+  var printArea = document.getElementById('furusato-print-area');
+  printArea.innerHTML = html;
+
+  // 印刷用スタイルを一時的に適用
+  var style = document.createElement('style');
+  style.id = 'furusato-print-style';
+  style.textContent = '@media print { body > *:not(#furusato-print-area) { display: none !important; } #furusato-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+
+  window.print();
+
+  // 印刷後にクリーンアップ
+  setTimeout(function() {
+    printArea.style.display = 'none';
+    var ps = document.getElementById('furusato-print-style');
+    if (ps) ps.remove();
+  }, 500);
+}
+
 // 初期表示
 showCalendar();
 searchDepreciation();
@@ -3917,6 +4085,77 @@ calcGensenSalary();
   </div>
 </div>
 
+<!-- ===== ふるさと納税限度額シミュレーション ===== -->
+<div id="tab-furusato" class="tab-content">
+  <div class="card">
+    <h2>ふるさと納税 控除上限額シミュレーション <span style="font-size:0.7rem; color:#e67e22; font-weight:400;">β版</span></h2>
+    <p class="desc">自己負担2,000円で済む寄附上限額を概算します（簡易版）</p>
+
+    <details class="tool-guide">
+      <summary>使い方</summary>
+      <div class="guide-body">
+        <dl>
+          <dt>いつ使う？</dt>
+          <dd>クライアントから「ふるさと納税いくらまでできる？」と聞かれたときに使います。計算結果をそのまま印刷して資料として渡せます。</dd>
+          <dt>総所得金額等</dt>
+          <dd>確定申告書の「合計所得金額」に近い数字です。給与所得・事業所得・不動産所得等の合計を入力してください。</dd>
+          <dt>所得控除合計額</dt>
+          <dd>社会保険料控除・扶養控除・基礎控除等の合計です。確定申告書の「所得控除の額の合計額」または源泉徴収票の「所得控除の額の合計額」を入力してください。</dd>
+          <dt>資料印刷</dt>
+          <dd>計算後に「資料を印刷」ボタンを押すと、クライアント名・計算根拠・注意書き入りの資料をA4で印刷できます。</dd>
+        </dl>
+      </div>
+    </details>
+
+    <div class="form-group">
+      <label>クライアント名（印刷資料用・任意）</label>
+      <input type="text" id="furusato-client" placeholder="例: 山田太郎 様">
+    </div>
+
+    <div class="form-group">
+      <label>対象年分</label>
+      <select id="furusato-year">
+        <option value="R7" selected>令和7年分（2025年）</option>
+        <option value="R6">令和6年分（2024年）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>総所得金額等（年額）</label>
+      <div class="input-prefix">
+        <input type="text" id="furusato-income" inputmode="numeric" placeholder="例: 6000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
+      </div>
+      <span style="font-size:0.75rem; color:#888;">※ 給与所得・事業所得・不動産所得等の合計</span>
+    </div>
+
+    <div class="form-group">
+      <label>所得控除合計額</label>
+      <div class="input-prefix">
+        <input type="text" id="furusato-deduction" inputmode="numeric" placeholder="例: 1500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
+      </div>
+      <span style="font-size:0.75rem; color:#888;">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
+    </div>
+
+    <button class="btn" id="btn-furusato" onclick="calcFurusato()">計算する</button>
+
+    <div id="furusato-result" class="result" style="display:none;"></div>
+
+    <div id="furusato-print-btn" style="display:none; margin-top:12px;">
+      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printFurusato()">資料を印刷</button>
+    </div>
+
+    <p class="note">
+      ※ 簡易計算のため、住宅ローン控除・調整控除等は考慮していません<br>
+      ※ 実際の控除上限額とは数千円〜数万円の誤差が生じる場合があります<br>
+      ※ 住民税の所得控除額は所得税と異なりますが、簡易版では同額として計算しています
+    </p>
+    <div class="page-changelog">更新: v1.0 (2026-03-27) 初版作成</div>
+  </div>
+</div>
+
+<!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
+<div id="furusato-print-area" style="display:none;"></div>
+
 <div id="tab-references" class="tab-content">
   <div class="card">
     <h2>参考資料・出典一覧</h2>
@@ -3991,6 +4230,15 @@ calcGensenSalary();
       <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000369751.html" target="_blank">大阪市 保険料の軽減・減免</a></li>
       <li>大阪府統一保険料率（令和7年度）：医療分9.30%・支援金分3.02%・介護分2.56%</li>
       <li>軽減判定基準：7割（43万円）・5割（43万+30.5万×人数）・2割（43万+56万×人数）</li>
+    </ul>
+
+    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">ふるさと納税限度額</h3>
+    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+      <li><a href="https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html" target="_blank">総務省 ふるさと納税のしくみ（税金の控除について）</a></li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1155.htm" target="_blank">国税庁 No.1155 ふるさと納税（寄附金控除）</a></li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+      <li>計算式：限度額 = 住民税所得割額 × 20% ÷ (90% - 所得税率 × 1.021) + 2,000円</li>
+      <li>住民税所得割額：課税所得 × 10% - 調整控除2,500円（概算）</li>
     </ul>
   </div>
 </div>
