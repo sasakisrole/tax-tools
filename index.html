@@ -526,6 +526,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v2.2 (2026-03-29) 役員報酬：クライアント向け印刷機能追加、手取りを1年目/2年目以降に分離</li>
         <li>v2.1 (2026-03-29) 役員報酬シミュレーションに住民税（大阪市）概算を追加、手取りに反映</li>
         <li>v2.0 (2026-03-27) ふるさと納税限度額シミュレーション追加（控除上限計算＋クライアント向け資料印刷）</li>
         <li>v1.9 (2026-03-27) 年度切替対応（国保・役員報酬）、印刷対応、介護人数バリデーション、ボタンID統一</li>
@@ -3668,6 +3669,137 @@ function calcYakuin() {
 
   document.getElementById('yakuin-result').innerHTML = html;
   document.getElementById('yakuin-result').style.display = 'block';
+
+  // 印刷用データを保持
+  window._yakuinData = {
+    clientName: document.getElementById('yakuin-client-name').value.trim(),
+    yearLabel: kr.label || kenpoYear,
+    monthly: monthly,
+    annualSalary: annualSalary,
+    ageLabel: ageType === '40to64' ? '40〜64歳（介護保険あり）' : ageType === 'under40' ? '40歳未満' : '65歳以上',
+    dependents: dependents,
+    grade: h.grade, hyojunHealth: h.health, hyojunPension: h.pension,
+    healthSelf: healthSelf, pensionSelf: pensionSelf, kosodateSelf: kosodateSelf,
+    socialSelf: socialSelf, socialComp: socialComp,
+    kyuyoKojo: kyuyoKojo, kyuyoShotoku: kyuyoShotoku,
+    shotokuKojo: shotokuKojo, taxableIncome: taxableIncome,
+    incomeTaxMonthly: incomeTaxMonthly, incomeTaxAnnual: incomeTaxAnnual,
+    juminTaxableIncome: juminTaxableIncome,
+    juminShotokuWari: juminShotokuWari, juminKintoWari: juminKintoWari,
+    juminzeiAnnual: juminzeiAnnual, juminzeiMonthly: juminzeiMonthly,
+    takeHome1st: takeHome1st, takeHome2nd: takeHome2nd
+  };
+  document.getElementById('yakuin-print-btn').style.display = 'block';
+}
+
+// ===== 役員報酬 印刷 =====
+function printYakuin() {
+  var d = window._yakuinData;
+  if (!d) return;
+
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + d.clientName + '</p>' : '';
+
+  var tr = function(label, value, opts) {
+    opts = opts || {};
+    var bg = opts.highlight ? ' background:#fff8e1;' : '';
+    var fw = opts.highlight ? ' font-weight:600;' : '';
+    var fs = opts.large ? ' font-size:1.1rem; font-weight:700; color:#1a5276;' : '';
+    return '<tr style="' + bg + '"><td style="padding:8px 12px; border:1px solid #d0d8e0;' + fw + '">' + label + '</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;' + fw + fs + '">' + value + '</td></tr>';
+  };
+  var section = function(title) {
+    return '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">' + title + '</th></tr>';
+  };
+
+  var html = '';
+  html += '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #1a5276; padding-bottom:10px; color:#1a5276;">役員報酬シミュレーション</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+  html += clientLine;
+
+  // 前提条件
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('前提条件');
+  html += tr('適用年度', d.yearLabel);
+  html += tr('役員報酬（月額）', fmt(d.monthly) + ' 円');
+  html += tr('年間報酬', fmt(d.annualSalary) + ' 円');
+  html += tr('年齢区分', d.ageLabel);
+  html += tr('扶養親族等', d.dependents + '人');
+  html += tr('標準報酬月額', '第' + d.grade + '等級 ' + fmt(d.hyojunHealth) + ' 円' + (d.hyojunHealth !== d.hyojunPension ? '（厚年：' + fmt(d.hyojunPension) + ' 円）' : ''));
+  html += '</table>';
+
+  // 社会保険料
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('社会保険料（月額）');
+  html += tr('健康保険料（本人負担）', fmt(d.healthSelf) + ' 円');
+  html += tr('厚生年金保険料（本人負担）', fmt(d.pensionSelf) + ' 円');
+  html += tr('子ども・子育て支援金（本人負担）', fmt(d.kosodateSelf) + ' 円');
+  html += tr('社保等合計（本人負担）', fmt(d.socialSelf) + ' 円', {highlight: true});
+  html += tr('社保等合計（会社負担）', fmt(d.socialComp) + ' 円');
+  html += '</table>';
+
+  // 所得税
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('所得税（概算）');
+  html += tr('給与所得控除', '−' + fmt(d.kyuyoKojo) + ' 円');
+  html += tr('給与所得', fmt(d.kyuyoShotoku) + ' 円');
+  html += tr('所得控除合計', '−' + fmt(d.shotokuKojo) + ' 円');
+  html += tr('課税所得', fmt(d.taxableIncome) + ' 円');
+  html += tr('所得税（年額・復興税込）', fmt(d.incomeTaxAnnual) + ' 円', {highlight: true});
+  html += tr('所得税（月額概算）', fmt(d.incomeTaxMonthly) + ' 円');
+  html += '</table>';
+
+  // 住民税
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('住民税（翌年課税・大阪市 概算）');
+  html += tr('住民税 課税所得', fmt(d.juminTaxableIncome) + ' 円');
+  html += tr('所得割（10%）− 調整控除', fmt(d.juminShotokuWari) + ' 円');
+  html += tr('均等割', fmt(d.juminKintoWari) + ' 円');
+  html += tr('住民税 年額概算', fmt(d.juminzeiAnnual) + ' 円', {highlight: true});
+  html += tr('住民税 月額概算', fmt(d.juminzeiMonthly) + ' 円');
+  html += '</table>';
+
+  // 手取り
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('手取り概算（月額）');
+  html += tr('額面', fmt(d.monthly) + ' 円');
+  html += tr('社保（本人負担）', '−' + fmt(d.socialSelf) + ' 円');
+  html += tr('所得税', '−' + fmt(d.incomeTaxMonthly) + ' 円');
+  html += tr('1年目の手取り（住民税なし）', fmt(d.takeHome1st) + ' 円', {highlight: true, large: true});
+  html += tr('住民税', '−' + fmt(d.juminzeiMonthly) + ' 円');
+  html += tr('2年目以降の手取り（住民税あり）', fmt(d.takeHome2nd) + ' 円', {highlight: true, large: true});
+  html += '<tr style="background:#f8f8f8;"><td style="padding:8px 12px; border:1px solid #d0d8e0; color:#888;">会社の総コスト（月額）</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right; color:#888;">' + fmt(d.monthly + d.socialComp) + ' 円</td></tr>';
+  html += '</table>';
+
+  // 注意書き
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  html += '<li>上記は簡易計算による概算値です。実際の金額とは異なる場合があります。</li>';
+  html += '<li>協会けんぽ大阪府の料率で計算しています。組合健保の場合は料率が異なります。</li>';
+  html += '<li>住民税は翌年6月〜翌々年5月に特別徴収されます。ふるさと納税等の税額控除は考慮していません。</li>';
+  html += '<li>賞与なし・雇用保険なし（役員）の前提です。</li>';
+  html += '</ul>';
+  html += '</div>';
+  html += '</div>';
+
+  var printArea = document.getElementById('yakuin-print-area');
+  printArea.innerHTML = html;
+
+  var style = document.createElement('style');
+  style.id = 'yakuin-print-style';
+  style.textContent = '@media print { body > *:not(#yakuin-print-area) { display: none !important; } #yakuin-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+
+  window.print();
+
+  setTimeout(function() {
+    printArea.style.display = 'none';
+    var ps = document.getElementById('yakuin-print-style');
+    if (ps) ps.remove();
+  }, 500);
 }
 
 // ===== 国保シミュレーション =====
@@ -3989,6 +4121,11 @@ calcGensenSalary();
     </details>
 
     <div class="form-group">
+      <label>クライアント名（印刷資料用・任意）</label>
+      <input type="text" id="yakuin-client-name" placeholder="例: 株式会社○○ 代表取締役 ○○様">
+    </div>
+
+    <div class="form-group">
       <label>適用年度</label>
       <select id="yakuin-year">
         <option value="R8" selected>令和8年度（2026年3月分〜）</option>
@@ -4026,14 +4163,21 @@ calcGensenSalary();
 
     <div id="yakuin-result" class="result" style="display:none;"></div>
 
+    <div id="yakuin-print-btn" style="display:none; margin-top:12px;">
+      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printYakuin()">資料を印刷</button>
+    </div>
+
     <p class="note">
       ※ 協会けんぽ大阪府の料率で計算（年度は上のプルダウンで切替可能）<br>
-      ※ 所得税は給与所得控除・基礎控除で概算（住民税は含みません）<br>
+      ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.1 (2026-03-26) R8料率に更新・子育て支援金追加 | v1.0 (2026-03-26) 初版作成</div>
+    <div class="page-changelog">更新: v1.2 (2026-03-29) 住民税追加・印刷機能 | v1.1 (2026-03-26) R8料率に更新 | v1.0 (2026-03-26) 初版</div>
   </div>
 </div>
+
+<!-- ===== 印刷用役員報酬資料（通常時は非表示） ===== -->
+<div id="yakuin-print-area" style="display:none;"></div>
 
 <!-- ===== 国保シミュレーション ===== -->
 <div id="tab-kokuho" class="tab-content">
