@@ -3620,11 +3620,13 @@ function calcYakuin() {
   const juminShotokuWari = Math.max(Math.floor(juminTaxableIncome * 0.10) - Math.max(choseiKojo, 0), 0);
   const juminKintoWari = 5000; // 市民税3,000 + 府民税1,000 + 森林環境税1,000
   const juminzeiAnnual = juminShotokuWari + juminKintoWari;
-  const juminzeiMonthly = Math.round(juminzeiAnnual / 12);
+  // 特別徴収：7月〜翌5月は100円単位（切捨て）、6月に端数調整
+  const juminzeiJuly = Math.floor(juminzeiAnnual / 12 / 100) * 100; // 7月〜翌5月（11ヶ月）
+  const juminzeiJune = juminzeiAnnual - juminzeiJuly * 11; // 6月（端数調整）
 
-  // 手取り
+  // 手取り（7月以降の住民税で計算）
   const takeHome1st = monthly - socialSelf - incomeTaxMonthly; // 1年目（住民税なし）
-  const takeHome2nd = takeHome1st - juminzeiMonthly; // 2年目以降（住民税あり）
+  const takeHome2nd = takeHome1st - juminzeiJuly; // 2年目以降（住民税あり・7月〜）
 
   let html = '';
   html += '<div style="font-size:0.78rem; color:#888; margin-bottom:8px;">標準報酬月額：第' + h.grade + '等級 ¥' + fmt(h.health) + (h.health !== h.pension ? '（厚年：¥' + fmt(h.pension) + '）' : '') + '</div>';
@@ -3649,7 +3651,8 @@ function calcYakuin() {
   html += '<div class="result-row"><span class="label">所得割（10%）− 調整控除</span><span class="value">¥' + fmt(juminShotokuWari) + '</span></div>';
   html += '<div class="result-row"><span class="label">均等割（市3,000+府1,000+森林1,000）</span><span class="value">¥' + fmt(juminKintoWari) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">住民税 年額概算</span><span class="value">¥' + fmt(juminzeiAnnual) + '</span></div>';
-  html += '<div class="result-row"><span class="label">住民税 月額概算</span><span class="value">¥' + fmt(juminzeiMonthly) + '</span></div>';
+  html += '<div class="result-row"><span class="label">特別徴収 6月（端数調整）</span><span class="value">¥' + fmt(juminzeiJune) + '</span></div>';
+  html += '<div class="result-row"><span class="label">特別徴収 7月〜翌5月（×11回）</span><span class="value">¥' + fmt(juminzeiJuly) + '</span></div>';
   html += '<div style="font-size:0.72rem; color:#999; margin-top:4px;">※ 翌年6月〜翌々年5月に特別徴収。税額控除（ふるさと納税等）は未考慮</div>';
 
   html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り（1年目・住民税なし）</div>';
@@ -3658,11 +3661,11 @@ function calcYakuin() {
   html += '<div class="result-row"><span class="label">所得税</span><span class="value">−¥' + fmt(incomeTaxMonthly) + '</span></div>';
   html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:#38a169;">¥' + fmt(takeHome1st) + '</span></div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り（2年目以降・住民税あり）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り（2年目以降・7月〜翌5月）</div>';
   html += '<div class="result-row"><span class="label">額面</span><span class="value">¥' + fmt(monthly) + '</span></div>';
   html += '<div class="result-row"><span class="label">社保（本人）</span><span class="value">−¥' + fmt(socialSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">所得税</span><span class="value">−¥' + fmt(incomeTaxMonthly) + '</span></div>';
-  html += '<div class="result-row"><span class="label">住民税</span><span class="value">−¥' + fmt(juminzeiMonthly) + '</span></div>';
+  html += '<div class="result-row"><span class="label">住民税（7月〜翌5月）</span><span class="value">−¥' + fmt(juminzeiJuly) + '</span></div>';
   html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:#38a169;">¥' + fmt(takeHome2nd) + '</span></div>';
 
   html += '<div class="result-row" style="color:#888; margin-top:8px;"><span class="label">会社の総コスト（月額）</span><span class="value">¥' + fmt(monthly + socialComp) + '</span></div>';
@@ -3686,7 +3689,7 @@ function calcYakuin() {
     incomeTaxMonthly: incomeTaxMonthly, incomeTaxAnnual: incomeTaxAnnual,
     juminTaxableIncome: juminTaxableIncome,
     juminShotokuWari: juminShotokuWari, juminKintoWari: juminKintoWari,
-    juminzeiAnnual: juminzeiAnnual, juminzeiMonthly: juminzeiMonthly,
+    juminzeiAnnual: juminzeiAnnual, juminzeiJune: juminzeiJune, juminzeiJuly: juminzeiJuly,
     takeHome1st: takeHome1st, takeHome2nd: takeHome2nd
   };
   document.getElementById('yakuin-print-btn').style.display = 'block';
@@ -3757,7 +3760,8 @@ function printYakuin() {
   html += tr('所得割（10%）− 調整控除', fmt(d.juminShotokuWari) + ' 円');
   html += tr('均等割', fmt(d.juminKintoWari) + ' 円');
   html += tr('住民税 年額概算', fmt(d.juminzeiAnnual) + ' 円', {highlight: true});
-  html += tr('住民税 月額概算', fmt(d.juminzeiMonthly) + ' 円');
+  html += tr('特別徴収 6月（端数調整）', fmt(d.juminzeiJune) + ' 円');
+  html += tr('特別徴収 7月〜翌5月（×11回）', fmt(d.juminzeiJuly) + ' 円');
   html += '</table>';
 
   // 手取り
@@ -3767,8 +3771,8 @@ function printYakuin() {
   html += tr('社保（本人負担）', '−' + fmt(d.socialSelf) + ' 円');
   html += tr('所得税', '−' + fmt(d.incomeTaxMonthly) + ' 円');
   html += tr('1年目の手取り（住民税なし）', fmt(d.takeHome1st) + ' 円', {highlight: true, large: true});
-  html += tr('住民税', '−' + fmt(d.juminzeiMonthly) + ' 円');
-  html += tr('2年目以降の手取り（住民税あり）', fmt(d.takeHome2nd) + ' 円', {highlight: true, large: true});
+  html += tr('住民税（7月〜翌5月）', '−' + fmt(d.juminzeiJuly) + ' 円');
+  html += tr('2年目以降の手取り（7月〜翌5月）', fmt(d.takeHome2nd) + ' 円', {highlight: true, large: true});
   html += '<tr style="background:#f8f8f8;"><td style="padding:8px 12px; border:1px solid #d0d8e0; color:#888;">会社の総コスト（月額）</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right; color:#888;">' + fmt(d.monthly + d.socialComp) + ' 円</td></tr>';
   html += '</table>';
 
