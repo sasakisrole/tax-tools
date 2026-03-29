@@ -652,14 +652,21 @@ header { position: relative; }
 
     <div id="sales-result" class="result" style="display:none;"></div>
 
+    <div id="sales-print-btn" style="display:none; margin-top:12px;">
+      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printSales()">資料を印刷</button>
+    </div>
+
     <p class="note" id="sales-note">
       ※ 法人：所得800万以下を25%、800万超を35%で自動計算します<br>
       ※ 個人：税率を考慮しない単純計算です（必要売上＝（目標利益＋固定費）÷粗利率）<br>
       ※ 安全余裕率：実際の売上が損益分岐点からどれだけ余裕があるかの指標。高いほど赤字になりにくい（目安：20%以上で安全）
     </p>
-    <div class="page-changelog">更新: v2.1 (2026-03-26) UI簡素化・安全余裕率の説明追加 | v2.0 個人モード追加・実効税率自動計算 | v1.0 (2026-03-07) 初版作成</div>
+    <div class="page-changelog">更新: v2.2 (2026-03-30) 印刷機能追加 | v2.1 (2026-03-26) UI簡素化 | v2.0 個人モード | v1.0 (2026-03-07) 初版</div>
   </div>
 </div>
+
+<!-- ===== 印刷用必要売上資料（通常時は非表示） ===== -->
+<div id="sales-print-area" style="display:none;"></div>
 
 <!-- ===== 耐用年数検索 ===== -->
 <div id="tab-depreciation" class="tab-content">
@@ -1319,15 +1326,19 @@ header { position: relative; }
     </div>
 
     <button class="btn" id="flow-reset-btn" style="display:none; margin-top:16px; background:#718096;" onclick="flowReset()">最初からやり直す</button>
+    <button class="btn" id="flow-print-btn" style="display:none; margin-top:16px; margin-left:8px; background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printFlow()">判定結果を印刷</button>
 
     <p class="note" style="margin-top:24px;">
       ※ 国税庁 No.1379「修繕費とならないものの判定」に基づく判定フローです<br>
       ※ 前年末取得価額＝固定資産の最初の取得価額＋既往の資本的支出額<br>
       ※ 最終判断は個別の事実関係に基づきます。判断に迷う場合は税理士にご相談ください
     </p>
-    <div class="page-changelog">更新: v2.0 (2026-03-26) 国税庁No.1379フローに準拠・災害分岐追加 | v1.0 (2026-03-26) 初版作成</div>
+    <div class="page-changelog">更新: v2.1 (2026-03-30) 印刷機能追加 | v2.0 (2026-03-26) No.1379フロー準拠 | v1.0 (2026-03-26) 初版</div>
   </div>
 </div>
+
+<!-- ===== 印刷用修繕費判定資料（通常時は非表示） ===== -->
+<div id="flow-print-area" style="display:none;"></div>
 
 <script>
 // ===== タブ切替 =====
@@ -1544,6 +1555,17 @@ function calcSales() {
   const el = document.getElementById('sales-result');
   el.innerHTML = html;
   el.style.display = 'block';
+
+  // 印刷用データを保持
+  window._salesData = {
+    isPersonal: isPersonal, targetProfit: targetProfit,
+    grossMarginPct: grossMarginPct, fixedCost: fixedCost,
+    requiredSales: requiredSales, monthlySales: monthlySales,
+    cogs: cogs, grossProfitAmount: grossProfitAmount,
+    preTaxProfit: preTaxProfit, taxAmount: taxAmount, taxLabel: taxLabel,
+    breakEven: breakEven, safetyMargin: safetyMargin
+  };
+  document.getElementById('sales-print-btn').style.display = 'block';
 }
 
 // ===== 税務カレンダー =====
@@ -3428,6 +3450,13 @@ function showResult(type, title, desc) {
   el.style.display = 'block';
   document.getElementById('flow-reset-btn').style.display = 'inline-block';
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // 印刷用データを保持
+  window._flowData = {
+    type: type, title: title, desc: desc,
+    path: flowPath.slice()
+  };
+  document.getElementById('flow-print-btn').style.display = 'inline-block';
 }
 
 function flowReset() {
@@ -3440,6 +3469,7 @@ function flowReset() {
   });
   document.getElementById('flow-result').style.display = 'none';
   document.getElementById('flow-reset-btn').style.display = 'none';
+  document.getElementById('flow-print-btn').style.display = 'none';
   ['flow-anbun-result','flow-anbun-result-d'].forEach(function(id) {
     const el = document.getElementById(id);
     if (el) { el.style.display = 'none'; }
@@ -3932,6 +3962,235 @@ function calcKokuho() {
 
   document.getElementById('kokuho-result').innerHTML = html;
   document.getElementById('kokuho-result').style.display = 'block';
+
+  // 印刷用データを保持
+  window._kokuhoData = {
+    yearLabel: KR.label, totalIncome: totalIncome, members: members,
+    kaigoMembers: kaigoMembers, santeiKiso: santeiKiso,
+    keigen: keigen, keigenRate: keigenRate,
+    iryo: iryo, shien: shien, kaigo: kaigo,
+    grandTotal: grandTotal, monthly: monthly,
+    RATE: RATE
+  };
+  document.getElementById('kokuho-print-btn').style.display = 'block';
+}
+
+// ===== 国保 印刷 =====
+function printKokuho() {
+  var d = window._kokuhoData;
+  if (!d) return;
+
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+  var tr = function(label, value, opts) {
+    opts = opts || {};
+    var bg = opts.highlight ? ' background:#fff8e1;' : '';
+    var fw = opts.highlight ? ' font-weight:600;' : '';
+    var fs = opts.large ? ' font-size:1.1rem; font-weight:700; color:#1a5276;' : '';
+    return '<tr style="' + bg + '"><td style="padding:8px 12px; border:1px solid #d0d8e0;' + fw + '">' + label + '</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;' + fw + fs + '">' + value + '</td></tr>';
+  };
+  var section = function(title) {
+    return '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">' + title + '</th></tr>';
+  };
+
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #1a5276; padding-bottom:10px; color:#1a5276;">国民健康保険料 試算結果</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+
+  // 前提条件
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('前提条件');
+  html += tr('適用年度', d.yearLabel);
+  html += tr('世帯の総所得金額等', fmt(d.totalIncome) + ' 円');
+  html += tr('加入者数', d.members + '人');
+  html += tr('うち介護保険対象（40〜64歳）', d.kaigoMembers + '人');
+  html += tr('算定基礎所得金額', fmt(d.santeiKiso) + ' 円');
+  if (d.keigen > 0) html += tr('軽減', d.keigen + '割軽減（均等割・平等割が' + (d.keigen * 10) + '%減額）');
+  html += '</table>';
+
+  // 医療分
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('医療分（賦課限度額 65万円）');
+  html += tr('所得割', fmt(d.iryo.shotokuWari) + ' 円');
+  html += tr('均等割' + (d.keigen > 0 ? '（' + d.keigen + '割軽減後）' : ''), fmt(d.iryo.kintoAfter) + ' 円');
+  html += tr('平等割' + (d.keigen > 0 ? '（' + d.keigen + '割軽減後）' : ''), fmt(d.iryo.byodoAfter) + ' 円');
+  html += tr('医療分 小計', fmt(d.iryo.total) + ' 円', {highlight: true});
+  html += '</table>';
+
+  // 支援金分
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('後期高齢者支援金分（賦課限度額 24万円）');
+  html += tr('所得割', fmt(d.shien.shotokuWari) + ' 円');
+  html += tr('均等割' + (d.keigen > 0 ? '（' + d.keigen + '割軽減後）' : ''), fmt(d.shien.kintoAfter) + ' 円');
+  html += tr('平等割' + (d.keigen > 0 ? '（' + d.keigen + '割軽減後）' : ''), fmt(d.shien.byodoAfter) + ' 円');
+  html += tr('支援金分 小計', fmt(d.shien.total) + ' 円', {highlight: true});
+  html += '</table>';
+
+  // 介護分
+  if (d.kaigo) {
+    html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+    html += section('介護分（賦課限度額 17万円）');
+    html += tr('所得割', fmt(d.kaigo.shotokuWari) + ' 円');
+    html += tr('均等割' + (d.keigen > 0 ? '（' + d.keigen + '割軽減後）' : ''), fmt(d.kaigo.kintoAfter) + ' 円');
+    html += tr('介護分 小計', fmt(d.kaigo.total) + ' 円', {highlight: true});
+    html += '</table>';
+  }
+
+  // 合計
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('合計');
+  html += tr('年間保険料', fmt(d.grandTotal) + ' 円', {highlight: true, large: true});
+  html += tr('月額概算（12分割）', fmt(d.monthly) + ' 円');
+  html += '</table>';
+
+  // 注意書き
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  html += '<li>上記は大阪府統一保険料率に基づく概算値です。実際の保険料とは異なる場合があります。</li>';
+  html += '<li>未就学児の均等割軽減（半額）には対応しておりません。</li>';
+  html += '</ul></div></div>';
+
+  var printArea = document.getElementById('kokuho-print-area');
+  printArea.innerHTML = html;
+  var style = document.createElement('style');
+  style.id = 'kokuho-print-style';
+  style.textContent = '@media print { body > *:not(#kokuho-print-area) { display: none !important; } #kokuho-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(function() { printArea.style.display = 'none'; var ps = document.getElementById('kokuho-print-style'); if (ps) ps.remove(); }, 500);
+}
+
+// ===== 必要売上 印刷 =====
+function printSales() {
+  var d = window._salesData;
+  if (!d) return;
+
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+  var tr = function(label, value, opts) {
+    opts = opts || {};
+    var bg = opts.highlight ? ' background:#fff8e1;' : '';
+    var fw = opts.highlight ? ' font-weight:600;' : '';
+    var fs = opts.large ? ' font-size:1.1rem; font-weight:700; color:#1a5276;' : '';
+    return '<tr style="' + bg + '"><td style="padding:8px 12px; border:1px solid #d0d8e0;' + fw + '">' + label + '</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;' + fw + fs + '">' + value + '</td></tr>';
+  };
+  var section = function(title) {
+    return '<tr style="background:#f0f4f8;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">' + title + '</th></tr>';
+  };
+
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #1a5276; padding-bottom:10px; color:#1a5276;">必要売上高シミュレーション</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+
+  // 前提条件
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('前提条件');
+  html += tr('区分', d.isPersonal ? '個人事業主' : '法人');
+  html += tr('手元に残したい金額（税引後利益）', fmt(d.targetProfit) + ' 円');
+  html += tr('粗利率', d.grossMarginPct + '%');
+  html += tr('固定費（年間）', fmt(d.fixedCost) + ' 円');
+  html += '</table>';
+
+  // 計算結果
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('計算結果');
+  html += tr('必要売上高（年間）', fmt(d.requiredSales) + ' 円', {highlight: true, large: true});
+  html += tr('月間売上目標', fmt(d.monthlySales) + ' 円', {highlight: true});
+  html += '</table>';
+
+  // 内訳
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('損益内訳');
+  html += tr('売上高', fmt(d.requiredSales) + ' 円');
+  html += tr('売上原価', fmt(d.cogs) + ' 円');
+  html += tr('粗利額（売上総利益）', fmt(d.grossProfitAmount) + ' 円');
+  html += tr('固定費', fmt(d.fixedCost) + ' 円');
+  if (!d.isPersonal) {
+    html += tr('税引前利益', fmt(d.preTaxProfit) + ' 円');
+    html += tr('税額（税率 ' + d.taxLabel + '）', fmt(d.taxAmount) + ' 円');
+  }
+  html += tr(d.isPersonal ? '目標利益' : '税引後利益', fmt(d.targetProfit) + ' 円', {highlight: true});
+  html += '</table>';
+
+  // 損益分岐点
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += section('損益分岐点');
+  html += tr('損益分岐点売上高', fmt(d.breakEven) + ' 円');
+  html += tr('安全余裕率', d.safetyMargin + '%');
+  html += '</table>';
+
+  // 注意書き
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  if (d.isPersonal) {
+    html += '<li>個人事業主モードのため、所得税・住民税・事業税等は考慮していません。</li>';
+  } else {
+    html += '<li>法人税等の税率は簡易計算（800万以下25%・800万超35%）です。実際の税率とは異なる場合があります。</li>';
+  }
+  html += '<li>上記は目標利益を達成するために必要な売上高の概算です。</li>';
+  html += '</ul></div></div>';
+
+  var printArea = document.getElementById('sales-print-area');
+  printArea.innerHTML = html;
+  var style = document.createElement('style');
+  style.id = 'sales-print-style';
+  style.textContent = '@media print { body > *:not(#sales-print-area) { display: none !important; } #sales-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(function() { printArea.style.display = 'none'; var ps = document.getElementById('sales-print-style'); if (ps) ps.remove(); }, 500);
+}
+
+// ===== 修繕費判定 印刷 =====
+function printFlow() {
+  var d = window._flowData;
+  if (!d) return;
+
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+  var resultColor = d.type === 'shuzenhi' ? '#38a169' : d.type === 'shihon' ? '#e53e3e' : d.type === 'anbun' ? '#d69e2e' : '#718096';
+  var resultBg = d.type === 'shuzenhi' ? '#f0fff4' : d.type === 'shihon' ? '#fff5f5' : d.type === 'anbun' ? '#fffff0' : '#f7fafc';
+
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #1a5276; padding-bottom:10px; color:#1a5276;">修繕費・資本的支出 判定結果</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+
+  // 判定結果
+  html += '<div style="background:' + resultBg + '; border:3px solid ' + resultColor + '; border-radius:12px; padding:24px; margin:20px 0; text-align:center;">';
+  html += '<div style="font-size:0.85rem; color:#666; margin-bottom:4px;">判定結果</div>';
+  html += '<div style="font-size:1.5rem; font-weight:700; color:' + resultColor + '; margin-bottom:8px;">' + d.title + '</div>';
+  html += '<div style="font-size:0.9rem; color:#555; line-height:1.6;">' + d.desc + '</div>';
+  html += '</div>';
+
+  // 判定経路
+  html += '<table style="width:100%; border-collapse:collapse; margin-bottom:16px; font-size:0.9rem;">';
+  html += '<tr style="background:#f0f4f8;"><th style="text-align:left; padding:10px 12px; color:#1a5276; border:1px solid #d0d8e0;">判定経路</th></tr>';
+  html += '<tr><td style="padding:12px; border:1px solid #d0d8e0; line-height:2;">' + d.path.join(' → ') + '</td></tr>';
+  html += '</table>';
+
+  // 注意書き
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  html += '<li>国税庁 No.1379「修繕費とならないものの判定」に基づく判定フローです。</li>';
+  html += '<li>最終判断は個別の事実関係に基づきます。判断に迷う場合は税理士にご相談ください。</li>';
+  html += '</ul></div></div>';
+
+  var printArea = document.getElementById('flow-print-area');
+  printArea.innerHTML = html;
+  var style = document.createElement('style');
+  style.id = 'flow-print-style';
+  style.textContent = '@media print { body > *:not(#flow-print-area) { display: none !important; } #flow-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(function() { printArea.style.display = 'none'; var ps = document.getElementById('flow-print-style'); if (ps) ps.remove(); }, 500);
 }
 
 // ===== ふるさと納税限度額シミュレーション =====
@@ -4257,13 +4516,20 @@ calcGensenSalary();
 
     <div id="kokuho-result" class="result" style="display:none;"></div>
 
+    <div id="kokuho-print-btn" style="display:none; margin-top:12px;">
+      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printKokuho()">資料を印刷</button>
+    </div>
+
     <p class="note">
       ※ 大阪府統一保険料率で計算（年度は上のプルダウンで切替可能）<br>
       ※ 7割・5割・2割軽減の自動判定付き。未就学児の均等割軽減には未対応
     </p>
-    <div class="page-changelog">更新: v1.0 (2026-03-27) 初版作成</div>
+    <div class="page-changelog">更新: v1.1 (2026-03-30) 印刷機能追加 | v1.0 (2026-03-27) 初版作成</div>
   </div>
 </div>
+
+<!-- ===== 印刷用国保資料（通常時は非表示） ===== -->
+<div id="kokuho-print-area" style="display:none;"></div>
 
 <!-- ===== ふるさと納税限度額シミュレーション ===== -->
 <div id="tab-furusato" class="tab-content">
