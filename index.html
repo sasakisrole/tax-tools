@@ -409,7 +409,7 @@ header { position: relative; }
 <header>
   <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
   <h1>税務ツールボックス</h1>
-  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: 2026-03-27 (v2.0) ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
+  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: 2026-03-30 (v2.2.1) ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
 </header>
 
 <div class="tab-bar" id="tab-bar" style="display:none;">
@@ -526,6 +526,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v2.2.1 (2026-03-30) ヘッダー最終更新表示を修正、参考資料の定率法表記を250%→200%に訂正</li>
         <li>v2.2 (2026-03-29) 役員報酬：クライアント向け印刷機能追加、手取りを1年目/2年目以降に分離</li>
         <li>v2.1 (2026-03-29) 役員報酬シミュレーションに住民税（大阪市）概算を追加、手取りに反映</li>
         <li>v2.0 (2026-03-27) ふるさと納税限度額シミュレーション追加（控除上限計算＋クライアント向け資料印刷）</li>
@@ -4623,7 +4624,7 @@ calcGensenSalary();
     <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
       <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm" target="_blank">国税庁 No.2100 減価償却のあらまし</a></li>
       <li><a href="https://www.tax.metro.tokyo.lg.jp/shisan/info/hyo01_01.pdf" target="_blank">東京都主税局 耐用年数表</a></li>
-      <li>減価償却率：定額法・定率法（250%）の率表（平成24年4月以降取得分）</li>
+      <li>減価償却率：定額法・定率法（200%）の率表（平成24年4月以降取得分）</li>
     </ul>
 
     <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税率一覧</h3>
