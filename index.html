@@ -409,7 +409,7 @@ header { position: relative; }
 <header>
   <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
   <h1>税務ツールボックス</h1>
-  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: 2026-03-30 (v2.2.1) ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
+  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: <span id="header-version">-</span> ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
 </header>
 
 <div class="tab-bar" id="tab-bar" style="display:none;">
@@ -4353,6 +4353,15 @@ function printFurusato() {
     if (ps) ps.remove();
   }, 500);
 }
+
+// ヘッダーのバージョン表示をchangelogから自動取得
+(function() {
+  var first = document.querySelector('.changelog ul li');
+  if (first) {
+    var m = first.textContent.match(/^(v[\d.]+)\s+\((\d{4}-\d{2}-\d{2})\)/);
+    if (m) document.getElementById('header-version').textContent = m[2] + ' (' + m[1] + ')';
+  }
+})();
 
 // 初期表示
 showCalendar();
