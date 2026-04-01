@@ -124,6 +124,44 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 .tab-content { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
 .tab-content.active { display: block; }
+#tab-moneyflow.active, #tab-breakeven.active { max-width: 1200px; }
+.mf-layout { display: flex; flex-direction: column; gap: 16px; }
+.mf-notes-toggle { display: block; }
+.mf-notes-body { display: none; }
+.mf-notes.open .mf-notes-body { display: block; }
+.mf-notes.open .mf-notes-arrow { display: inline-block; transform: rotate(90deg); }
+@media (min-width: 900px) {
+  .mf-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+  .mf-left { grid-column: 1; grid-row: 1; }
+  .mf-right { grid-column: 2; grid-row: 1 / 3; }
+  .mf-notes { grid-column: 1; grid-row: 2; }
+  .mf-notes-toggle { display: none; }
+  .mf-notes-body { display: block; }
+}
+/* 損益分岐点レイアウト */
+.be-layout { display: flex; flex-direction: column; gap: 16px; }
+.be-notes-toggle { display: block; }
+.be-notes-body { display: none; }
+.be-notes.open .be-notes-body { display: block; }
+.be-notes.open .be-notes-arrow { display: inline-block; transform: rotate(90deg); }
+@media (min-width: 900px) {
+  .be-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+  }
+  .be-left { grid-column: 1; grid-row: 1; }
+  .be-right { grid-column: 2; grid-row: 1 / 3; }
+  .be-notes { grid-column: 1; grid-row: 2; }
+  .be-notes-toggle { display: none; }
+  .be-notes-body { display: block; }
+}
 .card {
   background: #fff;
   border-radius: 12px;
@@ -529,6 +567,8 @@ footer {
 <div class="tab-bar" id="tab-bar" style="display:none;">
   <button onclick="switchTab('walls')">各種の壁一覧</button>
   <button onclick="switchTab('furusato')">ふるさと納税</button>
+  <button onclick="switchTab('moneyflow')">マネーフロー</button>
+  <button onclick="switchTab('breakeven')">損益分岐点</button>
   <button onclick="switchTab('references')">参考資料</button>
 </div>
 
@@ -544,10 +584,31 @@ footer {
     <div class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:#e67e22; font-weight:400;">β</span></div>
     <div class="subtitle">控除上限額シミュレーション＋資料印刷</div>
   </div>
+  <div class="home-card" onclick="switchTab('moneyflow')">
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2v20h20"/><path d="M6 16l4-4 4 4 6-8"/></svg></div>
+    <div class="title">マネーフロー <span style="font-size:0.65rem; color:#27ae60; font-weight:400;">β</span></div>
+    <div class="subtitle">法人・個人の税金と手取りをサンキー図で可視化</div>
+  </div>
+  <div class="home-card" onclick="switchTab('breakeven')">
+    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+    <div class="title">損益分岐点 <span style="font-size:0.65rem; color:#e74c3c; font-weight:400;">β</span></div>
+    <div class="subtitle">売上・費用から損益分岐点をチャートで可視化</div>
+  </div>
   <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
     <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
     <div class="title">参考資料</div>
     <div class="subtitle">各ツールの出典・参考URL一覧</div>
+  </div>
+  <div style="grid-column: 1 / -1;">
+    <details class="changelog">
+      <summary>更新履歴（サイト）</summary>
+      <ul>
+        <li>v1.3.0 (2026-04-02) 損益分岐点シミュレーター追加（売上・変動費・固定費から損益分岐点を可視化）</li>
+        <li>v1.2.0 (2026-04-02) マネーフロー シミュレーター追加（法人・個人の税金と手取りをサンキー図で可視化）</li>
+        <li>v1.1.0 (2026-04-01) 壁マップ（数直線チャート）追加、壁リファレンス一覧表追加、参考資料タブ・各ツール更新履歴追加</li>
+        <li>v1.0.0 (2026-04-01) Beta Lab 新設。各種の壁一覧ツール・ふるさと納税シミュレーション（index.htmlから移動）</li>
+      </ul>
+    </details>
   </div>
 </div>
 
@@ -756,6 +817,453 @@ footer {
 <div id="furusato-print-area" style="display:none;"></div>
 </div>
 
+<!-- ===== マネーフロー シミュレーター ===== -->
+<div id="tab-moneyflow" class="tab-content">
+<div class="card">
+  <h2>法人・個人マネーフロー シミュレーター</h2>
+  <p class="desc">役員報酬の増減による税金・手取りの変化をサンキー図で可視化します</p>
+
+  <div class="mf-layout">
+    <div class="mf-left">
+      <details class="tool-guide">
+        <summary>使い方</summary>
+        <div class="guide-body">
+          <dl>
+            <dt>いつ使う？</dt>
+            <dd>法人の役員報酬を決めるとき。報酬額を変えると法人税・所得税・社会保険料がどう変わるかを直感的に把握できます。</dd>
+            <dt>何を入力する？</dt>
+            <dd>法人売上高（年間）、役員報酬（年間）、その他経費（年間）の3項目をスライダーで調整します。</dd>
+            <dt>結果の見方</dt>
+            <dd>
+              <ul>
+                <li>左から右へお金の流れを追えます</li>
+                <li>青系 = 法人のお金、赤系 = 税金・社保、緑系 = 手取り・留保</li>
+                <li>下部の3つの数字で「個人手取り」「法人内部留保」「税金・社保合計」を確認</li>
+              </ul>
+            </dd>
+            <dt>注意事項</dt>
+            <dd>簡易計算です。消費税、各種控除の詳細、均等割の端数等は省略しています。</dd>
+          </dl>
+        </div>
+      </details>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">法人売上高（年間）: <span id="mf-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
+        <input type="range" id="mf-revenue" min="500" max="10000" step="100" value="3000" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">役員報酬（年間）: <span id="mf-salary-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
+        <input type="range" id="mf-salary" min="0" max="5000" step="50" value="1200" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">その他経費（年間）: <span id="mf-expenses-val" style="font-weight:700; color:#4a235a;">300万円</span></label>
+        <input type="range" id="mf-expenses" min="0" max="5000" step="50" value="300" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
+      </div>
+
+    </div>
+
+    <div class="mf-right">
+      <div id="mf-chart" style="width:100%; min-height:400px;"></div>
+      <div id="mf-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="mf-notes">
+      <div class="mf-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
+        <span class="mf-notes-arrow">▸</span> 計算条件・注意事項
+      </div>
+      <div class="mf-notes-body note" style="margin-top:4px;">
+        ※ 税率・料率は「役員報酬シミュレーション」「必要売上計算」と同一のデータベースを使用しています。<br>
+        ※ 消費税、各種税額控除、配偶者・扶養控除、賞与等は考慮していません。<br>
+        ※ 社会保険料は協会けんぽ（大阪・令和8年度）の料率で計算。40〜64歳（介護保険あり）想定です。<br>
+        ※ 法人税等は実効税率方式（800万以下25%・超35%）で概算しています。<br>
+        ※ 役員報酬が売上高−経費を超える場合は、超過分を自動的に切り捨てます。
+      </div>
+    </div>
+  </div>
+  <div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+google.charts.load('current', { packages: ['sankey', 'corechart'] });
+google.charts.setOnLoadCallback(function() {
+  if (location.hash === '#moneyflow') updateMoneyFlow();
+  if (location.hash === '#breakeven') updateBreakeven();
+});
+var mfResizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(mfResizeTimer);
+  mfResizeTimer = setTimeout(function() {
+    if (document.getElementById('tab-moneyflow').classList.contains('active')) updateMoneyFlow();
+    if (document.getElementById('tab-breakeven').classList.contains('active')) updateBreakeven();
+  }, 200);
+});
+
+// --- 共通データ（税務ツールボックス index.html と同一） ---
+
+// 協会けんぽ料率（大阪）
+var MF_KENPO_RATES = {
+  'R8': { label: '令和8年度', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0.0023, kisokojo: 580000 },
+  'R7': { label: '令和7年度', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0, kisokojo: 480000 }
+};
+
+// 標準報酬月額テーブル
+var MF_HYOJUN_BOUNDS = [63000,73000,83000,93000,101000,107000,114000,122000,130000,138000,146000,155000,165000,175000,185000,195000,210000,230000,250000,270000,290000,310000,330000,350000,370000,395000,425000,455000,485000,515000,545000,575000,605000,635000,665000,695000,730000,770000,810000,855000,905000,955000,1005000,1055000,1115000,1175000,1235000,1295000,1355000,Infinity];
+var MF_HYOJUN_STD = [58000,68000,78000,88000,98000,104000,110000,118000,126000,134000,142000,150000,160000,170000,180000,190000,200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,410000,440000,470000,500000,530000,560000,590000,620000,650000,680000,710000,750000,790000,830000,880000,930000,980000,1030000,1090000,1150000,1210000,1270000,1330000,1390000];
+
+function mfGetHyojun(monthly) {
+  for (var i = 0; i < MF_HYOJUN_BOUNDS.length; i++) {
+    if (monthly < MF_HYOJUN_BOUNDS[i]) return { health: MF_HYOJUN_STD[i], pension: Math.min(Math.max(MF_HYOJUN_STD[i], 88000), 650000) };
+  }
+  return { health: 1390000, pension: 650000 };
+}
+
+// 給与所得控除（円単位）
+function mfCalcKyuyoKojo(annual) {
+  if (annual <= 1625000) return 650000;
+  if (annual <= 1800000) return annual * 0.4 - 100000;
+  if (annual <= 3600000) return annual * 0.3 + 80000;
+  if (annual <= 6600000) return annual * 0.2 + 440000;
+  if (annual <= 8500000) return annual * 0.1 + 1100000;
+  return 1950000;
+}
+
+// 所得税（速算表、復興税なし）
+function mfCalcShotokuzei(taxableIncome) {
+  if (taxableIncome <= 0) return 0;
+  var brackets = [
+    [1949000, 0.05, 0],
+    [3299000, 0.10, 97500],
+    [6949000, 0.20, 427500],
+    [8999000, 0.23, 636000],
+    [17999000, 0.33, 1536000],
+    [39999000, 0.40, 2796000],
+    [Infinity, 0.45, 4796000]
+  ];
+  for (var i = 0; i < brackets.length; i++) {
+    if (taxableIncome <= brackets[i][0]) return Math.floor(taxableIncome * brackets[i][1] - brackets[i][2]);
+  }
+  return 0;
+}
+
+// 法人実効税率（800万以下25% / 超35%）— 必要売上計算と同一
+function mfCalcCorpTax(preTaxProfit) {
+  var threshold = 8000000;
+  var rateLow = 0.25;
+  var rateHigh = 0.35;
+  if (preTaxProfit <= 0) return 0;
+  if (preTaxProfit <= threshold) return Math.round(preTaxProfit * rateLow);
+  return Math.round(threshold * rateLow + (preTaxProfit - threshold) * rateHigh);
+}
+
+function calcMoneyFlow(revenueMan, salaryMan, expensesMan) {
+  // 入力は万円、内部は円で計算
+  var revenue = revenueMan * 10000;
+  var salary = salaryMan * 10000;
+  var expenses = expensesMan * 10000;
+
+  var maxSalary = Math.max(0, revenue - expenses);
+  if (salary > maxSalary) salary = maxSalary;
+  var corpIncome = revenue - salary - expenses;
+  if (corpIncome < 0) corpIncome = 0;
+
+  // --- 法人税等（実効税率方式） ---
+  var totalCorpTax = mfCalcCorpTax(corpIncome);
+  var corpRetained = corpIncome - totalCorpTax;
+  if (corpRetained < 0) corpRetained = 0;
+
+  // --- 個人側（役員報酬シミュレーションと同一ロジック） ---
+  var kr = MF_KENPO_RATES['R8']; // 最新年度
+  var monthly = Math.round(salary / 12);
+  var h = mfGetHyojun(monthly);
+
+  // 社会保険料（40〜64歳・介護保険あり想定）
+  var healthRate = kr.healthOsaka + kr.kaigo;
+  var healthTotal = Math.round(h.health * healthRate);
+  var healthSelf = Math.ceil(healthTotal / 2);
+  var healthComp = healthTotal - healthSelf;
+
+  var pensionTotal = Math.round(h.pension * kr.pension);
+  var pensionSelf = Math.ceil(pensionTotal / 2);
+  var pensionComp = pensionTotal - pensionSelf;
+
+  var kosodateTotal = Math.round(h.health * kr.kosodate);
+  var kosodateSelf = Math.ceil(kosodateTotal / 2);
+  var kosodateComp = kosodateTotal - kosodateSelf;
+
+  var socialSelf = (healthSelf + pensionSelf + kosodateSelf) * 12;
+  var socialComp = (healthComp + pensionComp + kosodateComp) * 12;
+
+  // 給与所得控除
+  var kyuyoKojo = mfCalcKyuyoKojo(salary);
+  var kyuyoShotoku = Math.max(salary - kyuyoKojo, 0);
+
+  // 所得控除（基礎控除 + 社保控除）
+  var kisokojo = kr.kisokojo;
+  var shotokuKojo = socialSelf + kisokojo;
+  var taxableIncome = Math.max(Math.floor((kyuyoShotoku - shotokuKojo) / 1000) * 1000, 0);
+
+  // 所得税（復興税込み）
+  var incomeTaxBase = mfCalcShotokuzei(taxableIncome);
+  var incomeTax = Math.floor(incomeTaxBase * 1.021);
+
+  // 住民税（基礎控除43万、所得割10%、均等割5,000円）
+  var juminKisoKojo = 430000;
+  var juminShotokuKojo = socialSelf + juminKisoKojo;
+  var juminTaxableIncome = Math.max(Math.floor((kyuyoShotoku - juminShotokuKojo) / 1000) * 1000, 0);
+  var juminShotokuWari = Math.max(Math.floor(juminTaxableIncome * 0.10), 0);
+  var juminKintoWari = 5000;
+  var residentTax = juminShotokuWari + juminKintoWari;
+
+  var personalTakeHome = salary - socialSelf - incomeTax - residentTax;
+  if (personalTakeHome < 0) personalTakeHome = 0;
+
+  var totalTax = totalCorpTax + socialSelf + socialComp + incomeTax + residentTax;
+
+  // 万円に変換して返却（表示用）
+  function toMan(v) { return Math.round(v / 10000); }
+  return {
+    revenue: revenueMan,
+    salary: Math.round(salary / 10000),
+    expenses: expensesMan,
+    corpIncome: toMan(corpIncome),
+    totalCorpTax: toMan(totalCorpTax),
+    corpRetained: toMan(corpRetained),
+    socialIns: toMan(socialSelf),
+    companySocialIns: toMan(socialComp),
+    incomeTax: toMan(incomeTax),
+    residentTax: toMan(residentTax),
+    personalTakeHome: toMan(personalTakeHome),
+    totalTax: toMan(totalTax)
+  };
+}
+
+function updateMoneyFlow() {
+  var revenue = parseInt(document.getElementById('mf-revenue').value);
+  var salary = parseInt(document.getElementById('mf-salary').value);
+  var expenses = parseInt(document.getElementById('mf-expenses').value);
+
+  // スライダー値を表示
+  document.getElementById('mf-revenue-val').textContent = revenue.toLocaleString() + '万円';
+  document.getElementById('mf-salary-val').textContent = salary.toLocaleString() + '万円';
+  document.getElementById('mf-expenses-val').textContent = expenses.toLocaleString() + '万円';
+
+  var d = calcMoneyFlow(revenue, salary, expenses);
+
+  // サンキー図データ
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'From');
+  data.addColumn('string', 'To');
+  data.addColumn('number', 'Amount');
+
+  var rows = [];
+
+  // 売上 → 法人
+  if (d.corpIncome + d.companySocialIns > 0) rows.push(['売上 ' + revenue + '万', '法人', d.corpIncome + d.companySocialIns]);
+  if (d.salary > 0) rows.push(['売上 ' + revenue + '万', '役員報酬', d.salary]);
+  if (d.expenses > 0) rows.push(['売上 ' + revenue + '万', 'その他経費', d.expenses]);
+
+  // 法人 → 各税・留保
+  if (d.totalCorpTax > 0) rows.push(['法人', '法人税等', d.totalCorpTax]);
+  if (d.companySocialIns > 0) rows.push(['法人', '社保(会社)', d.companySocialIns]);
+  if (d.corpRetained > 0) rows.push(['法人', '内部留保', d.corpRetained]);
+
+  // 役員報酬 → 個人税・手取り
+  if (d.socialIns > 0) rows.push(['役員報酬', '社保(個人)', d.socialIns]);
+  if (d.incomeTax > 0) rows.push(['役員報酬', '所得税', d.incomeTax]);
+  if (d.residentTax > 0) rows.push(['役員報酬', '住民税', d.residentTax]);
+  if (d.personalTakeHome > 0) rows.push(['役員報酬', '個人手取り', d.personalTakeHome]);
+
+  if (rows.length === 0) {
+    rows.push(['売上 ' + revenue + '万', 'その他経費', Math.max(d.expenses, 1)]);
+  }
+  data.addRows(rows);
+
+  var options = {
+    height: 400,
+    sankey: {
+      node: {
+        label: { fontSize: 13, color: '#333' },
+        nodePadding: 16,
+        width: 12,
+        colors: ['#3498db', '#5dade2', '#bdc3c7', '#e74c3c', '#f39c12', '#27ae60', '#f39c12', '#e74c3c', '#e74c3c', '#27ae60']
+      },
+      link: {
+        colorMode: 'gradient'
+      },
+      iterations: 0
+    },
+    tooltip: { isHtml: true }
+  };
+
+  var chart = new google.visualization.Sankey(document.getElementById('mf-chart'));
+  chart.draw(data, options);
+
+  // サマリー
+  var sumHtml = '';
+  sumHtml += '<div style="flex:1; min-width:120px; background:#eaf6ff; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">個人手取り (NET)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#2980b9;">' + d.personalTakeHome.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:120px; background:#eafaf1; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">内部留保 (PROFIT)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#27ae60;">' + d.corpRetained.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:120px; background:#fef5f5; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">税・社保合計 (TAX)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#e74c3c;">' + d.totalTax.toLocaleString() + '万円</div></div>';
+  document.getElementById('mf-summary').innerHTML = sumHtml;
+}
+</script>
+
+<!-- ===== 損益分岐点シミュレーター ===== -->
+<div id="tab-breakeven" class="tab-content">
+<div class="card">
+  <h2>損益分岐点シミュレーター</h2>
+  <p class="desc">売上高・変動費・固定費から損益分岐点をリアルタイムで可視化します</p>
+
+  <div class="be-layout">
+    <div class="be-left">
+      <details class="tool-guide">
+        <summary>使い方</summary>
+        <div class="guide-body">
+          <dl>
+            <dt>いつ使う？</dt>
+            <dd>「あといくら売れば黒字になるか？」を確認したいとき。価格変更や経費削減の影響もシミュレーションできます。</dd>
+            <dt>何を入力する？</dt>
+            <dd>売上高（年間）、売上原価・変動費（年間）、販管費・固定費（年間）の3項目をスライダーで調整します。</dd>
+            <dt>結果の見方</dt>
+            <dd>
+              <ul>
+                <li>青い線 = 売上高、赤い線 = 総費用（固定費＋変動費）</li>
+                <li>2本の線が交わる点が損益分岐点（BEP）</li>
+                <li>交点より右側の領域が利益、左側が損失</li>
+                <li>限界利益率が高いほど損益分岐点は低くなります</li>
+              </ul>
+            </dd>
+          </dl>
+        </div>
+      </details>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">売上高（年間）: <span id="be-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
+        <input type="range" id="be-revenue" min="100" max="20000" step="100" value="3000" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">売上原価・変動費（年間）: <span id="be-variable-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
+        <input type="range" id="be-variable" min="0" max="15000" step="50" value="1200" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.85rem; font-weight:500; color:#555;">販管費・固定費（年間）: <span id="be-fixed-val" style="font-weight:700; color:#4a235a;">800万円</span></label>
+        <input type="range" id="be-fixed" min="0" max="10000" step="50" value="800" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
+      </div>
+
+    </div>
+
+    <div class="be-right">
+      <div id="be-chart" style="width:100%; min-height:400px;"></div>
+      <div id="be-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="be-notes">
+      <div class="be-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
+        <span class="be-notes-arrow">▸</span> 計算条件・注意事項
+      </div>
+      <div class="be-notes-body note" style="margin-top:4px;">
+        ※ 変動費率 = 変動費 ÷ 売上高。売上高がゼロの場合は0%として計算します。<br>
+        ※ 損益分岐点売上高 = 固定費 ÷ 限界利益率（限界利益率 = 1 − 変動費率）。<br>
+        ※ 限界利益率が0%以下の場合、固定費を回収できないため損益分岐点は算出できません。<br>
+        ※ 税金（法人税等）は考慮していません。税引前の営業利益ベースの分析です。
+      </div>
+    </div>
+  </div>
+  <div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
+</div>
+</div>
+
+<script>
+// ===== 損益分岐点シミュレーター =====
+function updateBreakeven() {
+  var revenue = parseInt(document.getElementById('be-revenue').value);
+  var variable = parseInt(document.getElementById('be-variable').value);
+  var fixed = parseInt(document.getElementById('be-fixed').value);
+
+  document.getElementById('be-revenue-val').textContent = revenue.toLocaleString() + '万円';
+  document.getElementById('be-variable-val').textContent = variable.toLocaleString() + '万円';
+  document.getElementById('be-fixed-val').textContent = fixed.toLocaleString() + '万円';
+
+  // 計算
+  var variableRate = revenue > 0 ? variable / revenue : 0;
+  var marginalRate = 1 - variableRate; // 限界利益率
+  var operatingProfit = revenue - variable - fixed;
+  var bep = marginalRate > 0 ? Math.round(fixed / marginalRate) : null; // 損益分岐点売上高
+
+  // チャート用データ生成
+  var maxX = Math.max(revenue, bep || 0, fixed + variable) * 1.3;
+  maxX = Math.max(maxX, 100);
+  var steps = 50;
+  var stepSize = maxX / steps;
+
+  var rows = [];
+  for (var i = 0; i <= steps; i++) {
+    var x = Math.round(stepSize * i);
+    rows.push([x, x, fixed + x * variableRate]);
+  }
+
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', '売上高（万円）');
+  data.addColumn('number', '売上高');
+  data.addColumn('number', '総費用');
+  data.addRows(rows);
+
+  var options = {
+    height: 400,
+    legend: { position: 'top', textStyle: { fontSize: 12 } },
+    hAxis: {
+      title: '売上高（万円）',
+      format: '#,##0',
+      titleTextStyle: { fontSize: 12, color: '#666' },
+      textStyle: { fontSize: 11 },
+      gridlines: { color: '#eee' }
+    },
+    vAxis: {
+      title: '金額（万円）',
+      format: '#,##0',
+      titleTextStyle: { fontSize: 12, color: '#666' },
+      textStyle: { fontSize: 11 },
+      gridlines: { color: '#eee' },
+      minValue: 0
+    },
+    series: {
+      0: { color: '#3498db', lineWidth: 3 },
+      1: { color: '#e74c3c', lineWidth: 3 }
+    },
+    chartArea: { left: 70, right: 20, top: 40, bottom: 50, width: '100%' },
+    tooltip: { trigger: 'both' },
+    crosshair: { trigger: 'focus', orientation: 'vertical', color: '#999', opacity: 0.3 }
+  };
+
+  var chartEl = document.getElementById('be-chart');
+  var chart = new google.visualization.LineChart(chartEl);
+  chart.draw(data, options);
+
+  // サマリー
+  var sumHtml = '';
+  sumHtml += '<div style="flex:1; min-width:100px; background:#fef9e7; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">営業利益</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:' + (operatingProfit >= 0 ? '#27ae60' : '#e74c3c') + ';">' + operatingProfit.toLocaleString() + '万円</div></div>';
+
+  sumHtml += '<div style="flex:1; min-width:100px; background:#fef5f5; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">損益分岐点売上</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#e67e22;">' + (bep !== null ? bep.toLocaleString() + '万円' : '算出不可') + '</div></div>';
+
+  sumHtml += '<div style="flex:1; min-width:100px; background:#eaf6ff; border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:#666;">限界利益率</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#3498db;">' + (marginalRate * 100).toFixed(1) + '%</div></div>';
+
+  document.getElementById('be-summary').innerHTML = sumHtml;
+}
+</script>
+
 <!-- ===== 参考資料 ===== -->
 <div id="tab-references" class="tab-content">
   <div class="card">
@@ -784,17 +1292,26 @@ footer {
       <li>計算式: 限度額 = 住民税所得割額 × 20% ÷ (90% - 所得税率 × 1.021) + 2,000円</li>
       <li>住民税所得割額: 課税所得 × 10% - 調整控除2,500円（概算）</li>
     </ul>
-  </div>
-</div>
 
-<div style="max-width:600px; margin:0 auto; padding:0 20px;">
-  <details class="changelog">
-    <summary>更新履歴（サイト）</summary>
-    <ul>
-      <li>v1.1.0 (2026-04-01) 壁マップ（数直線チャート）追加、壁リファレンス一覧表追加、参考資料タブ・各ツール更新履歴追加</li>
-      <li>v1.0.0 (2026-04-01) Beta Lab 新設。各種の壁一覧ツール・ふるさと納税シミュレーション（index.htmlから移動）</li>
+    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">マネーフロー シミュレーター</h3>
+    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+      <li><a href="https://x.com/shikajiro/status/2039252859796291878" target="_blank">@shikajiro「欲しいツールはgeminiに作ってもらえる」（着想元）</a></li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a></li>
+      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r06/r6ryougakuhyou3gatukara/" target="_blank">協会けんぽ 都道府県別保険料額表</a></li>
+      <li>社会保険料: 標準報酬月額テーブル（50等級）・協会けんぽ大阪R8料率（介護保険込み）</li>
+      <li>法人税等: 実効税率方式（800万以下25%・超35%）— 「必要売上計算」と同一ロジック</li>
+      <li>所得税・住民税・給与所得控除: 「役員報酬シミュレーション」と同一ロジック</li>
     </ul>
-  </details>
+
+    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">損益分岐点シミュレーター</h3>
+    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+      <li><a href="https://x.com/ecogrammer/status/2039312139366875557" target="_blank">@ecogrammer 損益分岐点シミュレーター（着想元）</a></li>
+      <li>損益分岐点売上高 = 固定費 ÷ 限界利益率</li>
+      <li>限界利益率 = 1 − 変動費率（変動費率 = 変動費 ÷ 売上高）</li>
+      <li>税引前の営業利益ベース。法人税等は考慮していません。</li>
+    </ul>
+  </div>
 </div>
 
 <footer>
@@ -807,6 +1324,8 @@ footer {
 function switchTab(name) {
   showTab(name);
   history.pushState({ tab: name }, '', '#' + name);
+  if (name === 'moneyflow' && typeof updateMoneyFlow === 'function') updateMoneyFlow();
+  if (name === 'breakeven' && typeof updateBreakeven === 'function') updateBreakeven();
 }
 
 function showTab(name) {
@@ -817,7 +1336,7 @@ function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  var tabs = { walls: 0, furusato: 1, references: 2 };
+  var tabs = { walls: 0, furusato: 1, moneyflow: 2, breakeven: 3, references: 4 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
