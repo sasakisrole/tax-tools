@@ -421,6 +421,14 @@ footer {
   </details>
 
   <div class="form-group">
+    <label for="wall-year">対象年分</label>
+    <select id="wall-year" onchange="updateWallNote()">
+      <option value="R8" selected>令和8年分（2026年）</option>
+      <option value="R7">令和7年分（2025年）</option>
+    </select>
+  </div>
+
+  <div class="form-group">
     <label for="annual-income">パート・アルバイトの年収（給与収入）</label>
     <div class="input-suffix" data-suffix="万円">
       <input type="text" id="annual-income" placeholder="例: 120" inputmode="numeric" onkeydown="if(event.key==='Enter')calcWalls()">
@@ -468,12 +476,19 @@ footer {
     </div>
   </div>
 
-  <div class="note">
-    ※ 令和7年分（2025年分）の税制に基づく概算です。基礎控除58万円・給与所得控除最低65万円で計算しています。<br>
+  <div id="wall-print-btn" style="display:none; margin-top:12px;">
+    <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printWalls()">壁一覧を印刷</button>
+  </div>
+
+  <div class="note" id="wall-note">
+    ※ 令和8年分（2026年分）の税制改正大綱に基づく概算です。基礎控除95万円（本則62万+上乗せ）・給与所得控除最低74万円（本則69万+特例5万）で計算しています。<br>
     ※ 社会保険の壁は健康保険組合・協会けんぽの運用により判定が異なる場合があります。<br>
     ※ 住民税の非課税基準は自治体により異なります（大阪市の場合で表示）。
   </div>
 </div>
+
+<!-- ===== 印刷用壁一覧資料（通常時は非表示） ===== -->
+<div id="wall-print-area" style="display:none;"></div>
 
 </div>
 
@@ -600,113 +615,184 @@ window.addEventListener('popstate', function(e) {
   }
 })();
 
-// ===== 各種の壁 定義 =====
+// ===== 各種の壁 定義（年度別） =====
 // 金額は万円単位
-const WALLS = {
-  tax: [
-    {
-      amount: 100,
-      name: '100万の壁',
-      detail: '住民税（所得割）が発生する。給与収入100万円を超えると住民税の所得割がかかる（大阪市の場合）。',
-      impact_over: '住民税の所得割が発生（税率10%）',
-      impact_safe: '住民税の所得割なし',
-      color: '#42a5f5',
-      note: '非課税基準は自治体により異なる（93万〜100万）'
-    },
-    {
-      amount: 123,
-      name: '123万の壁（旧103万）',
-      detail: '所得税が発生する。令和7年分から基礎控除58万円＋給与所得控除65万円＝123万円が非課税ライン。',
-      impact_over: '所得税が発生（税率5%〜）',
-      impact_safe: '所得税なし',
-      color: '#5c6bc0',
-      note: '令和6年分までは103万円（基礎控除48万＋給与所得控除55万）'
-    }
-  ],
-  insurance: [
-    {
-      amount: 106,
-      name: '106万の壁',
-      detail: '勤務先の社会保険に加入する要件の一つ（月額8.8万円以上）。従業員51人以上の企業で、週20時間以上勤務等の要件を全て満たす場合。',
-      impact_over: '健康保険・厚生年金に加入 → 手取り減だが将来の年金は増加',
-      impact_safe: '社保加入の収入要件に該当しない',
-      color: '#ff7043',
-      note: '従業員51人以上の企業が対象（2024年10月〜）',
-      condition: 'large'
-    },
-    {
-      amount: 130,
-      name: '130万の壁',
-      detail: '世帯主の社会保険の扶養（被扶養者）から外れる。年収130万円以上（60歳以上・障害者は180万円）で、自分で国保・国民年金に加入するか、勤務先の社保に加入する必要がある。',
-      impact_over: '社保の扶養から外れる → 自分で保険料を負担（年間約20〜30万円）',
-      impact_safe: '社保の扶養内（保険料負担なし）',
-      color: '#ef5350',
-      note: '月108,334円以上が継続する見込みで判定'
-    }
-  ],
-  spouse: [
-    {
-      amount: 150,
-      name: '150万の壁',
-      detail: '配偶者特別控除が満額（38万円）を受けられる上限。150万円を超えると段階的に控除額が減少していく。',
-      impact_over: '配偶者特別控除が段階的に減少 → 世帯主の税負担が増加',
-      impact_safe: '配偶者（特別）控除38万円を満額適用',
-      color: '#ab47bc',
-      note: '世帯主の合計所得1,000万円以下が前提'
-    },
-    {
-      amount: 201,
-      name: '201万の壁',
-      detail: '配偶者特別控除がゼロになるライン（正確には201.6万円）。これを超えると世帯主側の控除が完全になくなる。',
-      impact_over: '配偶者特別控除なし（世帯主の控除ゼロ）',
-      impact_safe: '配偶者特別控除あり（金額は収入により段階的）',
-      color: '#8e24aa',
-      note: '正確には給与収入201.6万円未満まで控除あり'
-    }
-  ]
+const WALLS_BY_YEAR = {
+  R7: {
+    label: '令和7年分（2025年）',
+    tax: [
+      {
+        amount: 100, name: '100万の壁',
+        detail: '住民税（所得割）が発生する。給与収入100万円を超えると住民税の所得割がかかる（大阪市の場合）。',
+        impact_over: '住民税の所得割が発生（税率10%）',
+        impact_safe: '住民税の所得割なし',
+        color: '#42a5f5',
+        note: '非課税基準は自治体により異なる（93万〜100万）'
+      },
+      {
+        amount: 123, name: '123万の壁（旧103万）',
+        detail: '所得税が発生する。基礎控除58万円＋給与所得控除65万円＝123万円が非課税ライン。',
+        impact_over: '所得税が発生（税率5%〜）',
+        impact_safe: '所得税なし',
+        color: '#5c6bc0',
+        note: '令和6年分までは103万円（基礎控除48万＋給与所得控除55万）'
+      }
+    ],
+    insurance: [
+      {
+        amount: 106, name: '106万の壁',
+        detail: '勤務先の社会保険に加入する要件の一つ（月額8.8万円以上）。従業員51人以上の企業で、週20時間以上勤務等の要件を全て満たす場合。',
+        impact_over: '健康保険・厚生年金に加入 → 手取り減だが将来の年金は増加',
+        impact_safe: '社保加入の収入要件に該当しない',
+        color: '#ff7043',
+        note: '従業員51人以上の企業が対象（2024年10月〜）',
+        condition: 'large'
+      },
+      {
+        amount: 130, name: '130万の壁',
+        detail: '世帯主の社会保険の扶養（被扶養者）から外れる。年収130万円以上（60歳以上・障害者は180万円）で、自分で国保・国民年金に加入するか、勤務先の社保に加入する必要がある。',
+        impact_over: '社保の扶養から外れる → 自分で保険料を負担（年間約20〜30万円）',
+        impact_safe: '社保の扶養内（保険料負担なし）',
+        color: '#ef5350',
+        note: '月108,334円以上が継続する見込みで判定'
+      }
+    ],
+    spouse: [
+      {
+        amount: 150, name: '150万の壁',
+        detail: '配偶者特別控除が満額（38万円）を受けられる上限。150万円を超えると段階的に控除額が減少していく。',
+        impact_over: '配偶者特別控除が段階的に減少 → 世帯主の税負担が増加',
+        impact_safe: '配偶者（特別）控除38万円を満額適用',
+        color: '#ab47bc',
+        note: '世帯主の合計所得1,000万円以下が前提'
+      },
+      {
+        amount: 201, name: '201万の壁',
+        detail: '配偶者特別控除がゼロになるライン（正確には201.6万円）。これを超えると世帯主側の控除が完全になくなる。',
+        impact_over: '配偶者特別控除なし（世帯主の控除ゼロ）',
+        impact_safe: '配偶者特別控除あり（金額は収入により段階的）',
+        color: '#8e24aa',
+        note: '正確には給与収入201.6万円未満まで控除あり'
+      }
+    ]
+  },
+  R8: {
+    label: '令和8年分（2026年）',
+    tax: [
+      {
+        amount: 100, name: '100万の壁',
+        detail: '住民税（所得割）が発生する。給与収入100万円を超えると住民税の所得割がかかる（大阪市の場合）。',
+        impact_over: '住民税の所得割が発生（税率10%）',
+        impact_safe: '住民税の所得割なし',
+        color: '#42a5f5',
+        note: '非課税基準は自治体により異なる（93万〜100万）。住民税の基礎控除引上げは今後の動向に注意'
+      },
+      {
+        amount: 178, name: '178万の壁（旧123万/103万）',
+        detail: '所得税が発生する。基礎控除95万円（本則62万＋上乗せ33万）＋給与所得控除74万円（本則69万＋特例5万）＝169万円に加え、所得税の非課税枠が実質178万円に。',
+        impact_over: '所得税が発生（税率5%〜）',
+        impact_safe: '所得税なし',
+        color: '#5c6bc0',
+        note: '令和8年度税制改正大綱に基づく。上乗せ分は合計所得655万円以下が対象'
+      }
+    ],
+    insurance: [
+      {
+        amount: 106, name: '106万の壁',
+        detail: '勤務先の社会保険に加入する要件の一つ（月額8.8万円以上）。ただし2026年10月に賃金要件（月額8.8万円）は撤廃予定。週20時間以上等の他の要件は存続。',
+        impact_over: '健康保険・厚生年金に加入 → 手取り減だが将来の年金は増加',
+        impact_safe: '社保加入の収入要件に該当しない',
+        color: '#ff7043',
+        note: '2026年10月に賃金要件撤廃予定。撤廃後は週20時間以上等の要件のみで判定',
+        condition: 'large'
+      },
+      {
+        amount: 130, name: '130万の壁',
+        detail: '世帯主の社会保険の扶養（被扶養者）から外れる。2026年4月から「労働契約書ベース」での判定に変更。契約上の基本給等が130万円未満なら、残業代等で一時的に超えてもOKに。',
+        impact_over: '社保の扶養から外れる → 自分で保険料を負担（年間約20〜30万円）',
+        impact_safe: '社保の扶養内（保険料負担なし）',
+        color: '#ef5350',
+        note: '2026年4月〜 労働契約書ベースで判定。残業代等の一時的超過は扶養維持可'
+      }
+    ],
+    spouse: [
+      {
+        amount: 160, name: '160万の壁（旧150万）',
+        detail: '配偶者特別控除が満額（38万円）を受けられる上限。令和8年分から150万円→160万円に引上げ。160万円を超えると段階的に控除額が減少。',
+        impact_over: '配偶者特別控除が段階的に減少 → 世帯主の税負担が増加',
+        impact_safe: '配偶者（特別）控除38万円を満額適用',
+        color: '#ab47bc',
+        note: '世帯主の合計所得1,000万円以下が前提。令和7年分までは150万円'
+      },
+      {
+        amount: 201, name: '201万の壁',
+        detail: '配偶者特別控除がゼロになるライン（正確には201.6万円）。これを超えると世帯主側の控除が完全になくなる。',
+        impact_over: '配偶者特別控除なし（世帯主の控除ゼロ）',
+        impact_safe: '配偶者特別控除あり（金額は収入により段階的）',
+        color: '#8e24aa',
+        note: '正確には給与収入201.6万円未満まで控除あり'
+      }
+    ]
+  }
 };
+
+function getWalls() {
+  var yearKey = document.getElementById('wall-year').value;
+  return WALLS_BY_YEAR[yearKey];
+}
+
+function updateWallNote() {
+  var yearKey = document.getElementById('wall-year').value;
+  var noteEl = document.getElementById('wall-note');
+  if (yearKey === 'R8') {
+    noteEl.innerHTML = '※ 令和8年度税制改正大綱に基づく概算です。基礎控除95万円（本則62万+上乗せ33万）・給与所得控除最低74万円（本則69万+特例5万）で計算。<br>※ 上乗せ分は合計所得655万円以下が対象。高所得者は金額が異なります。<br>※ 社会保険の106万要件は2026年10月撤廃予定、130万判定は2026年4月から労働契約書ベースに変更。<br>※ 住民税の非課税基準は自治体により異なります（大阪市の場合で表示）。';
+  } else {
+    noteEl.innerHTML = '※ 令和7年分（2025年分）の税制に基づく概算です。基礎控除58万円・給与所得控除最低65万円で計算しています。<br>※ 社会保険の壁は健康保険組合・協会けんぽの運用により判定が異なる場合があります。<br>※ 住民税の非課税基準は自治体により異なります（大阪市の場合で表示）。';
+  }
+  // Re-calculate if result is visible
+  if (document.getElementById('wall-result').style.display !== 'none') calcWalls();
+}
 
 function parseAmount(str) {
   return parseFloat(str.replace(/[,、]/g, ''));
 }
 
 function calcWalls() {
-  const input = document.getElementById('annual-income').value.trim();
-  const income = parseAmount(input);
+  var input = document.getElementById('annual-income').value.trim();
+  var income = parseAmount(input);
   if (isNaN(income) || income < 0) {
     alert('年収を正しく入力してください');
     return;
   }
 
-  const employerSize = document.getElementById('employer-size').value;
-  const resultDiv = document.getElementById('wall-result');
+  var walls = getWalls();
+  var employerSize = document.getElementById('employer-size').value;
+  var resultDiv = document.getElementById('wall-result');
   resultDiv.style.display = 'block';
+  document.getElementById('wall-print-btn').style.display = 'block';
 
-  // Summary
   document.getElementById('income-display').textContent = income + ' 万円';
 
-  // Find the nearest wall
-  const allWalls = [...WALLS.tax, ...WALLS.insurance, ...WALLS.spouse]
-    .filter(w => !w.condition || w.condition === employerSize);
+  var allWalls = [].concat(walls.tax, walls.insurance, walls.spouse)
+    .filter(function(w) { return !w.condition || w.condition === employerSize; });
 
-  const exceededWalls = allWalls.filter(w => income >= w.amount);
-  const nextWall = allWalls.filter(w => income < w.amount).sort((a, b) => a.amount - b.amount)[0];
+  var exceededWalls = allWalls.filter(function(w) { return income >= w.amount; });
+  var nextWall = allWalls.filter(function(w) { return income < w.amount; }).sort(function(a, b) { return a.amount - b.amount; })[0];
 
-  let summaryText = '';
+  var summaryText = '';
   if (exceededWalls.length === 0) {
     summaryText = '全ての壁の手前です';
   } else if (nextWall) {
-    const margin = nextWall.amount - income;
+    var margin = nextWall.amount - income;
     summaryText = exceededWalls.length + '個の壁を超過中 / 次の壁（' + nextWall.name + '）まであと ' + margin.toFixed(1) + ' 万円';
   } else {
     summaryText = '全ての壁を超過しています';
   }
   document.getElementById('summary-text').textContent = summaryText;
 
-  // Render each section
-  renderWallSection('walls-tax', WALLS.tax, income, employerSize);
-  renderWallSection('walls-insurance', WALLS.insurance, income, employerSize);
-  renderWallSection('walls-spouse', WALLS.spouse, income, employerSize);
+  renderWallSection('walls-tax', walls.tax, income, employerSize);
+  renderWallSection('walls-insurance', walls.insurance, income, employerSize);
+  renderWallSection('walls-spouse', walls.spouse, income, employerSize);
 }
 
 // ===== 数値フォーマット =====
@@ -749,6 +835,86 @@ function renderWallSection(containerId, walls, income, employerSize) {
 
     container.appendChild(div);
   });
+}
+
+// ===== 壁一覧 印刷 =====
+function printWalls() {
+  var walls = getWalls();
+  var employerSize = document.getElementById('employer-size').value;
+  var income = parseAmount(document.getElementById('annual-income').value.trim());
+  var today = new Date();
+  var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+
+  var allSections = [
+    { title: '本人の税金', items: walls.tax },
+    { title: '社会保険', items: walls.insurance },
+    { title: '配偶者控除・配偶者特別控除（世帯主側の控除）', items: walls.spouse }
+  ];
+
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:30px; color:#333; line-height:1.7;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #4a235a; padding-bottom:10px; color:#4a235a;">年収の壁 一覧表</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+  html += '<p style="font-size:0.9rem; color:#555; margin-bottom:6px;"><strong>対象年分:</strong> ' + walls.label + '</p>';
+  if (!isNaN(income) && income > 0) {
+    html += '<p style="font-size:0.9rem; color:#555; margin-bottom:16px;"><strong>判定対象年収:</strong> ' + income + ' 万円</p>';
+  }
+
+  allSections.forEach(function(section) {
+    html += '<h2 style="font-size:1rem; color:#4a235a; margin:20px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">' + section.title + '</h2>';
+    html += '<table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-bottom:12px;">';
+    html += '<tr style="background:#f5f0f7;"><th style="text-align:left; padding:8px; border:1px solid #d0d8e0; width:15%;">金額</th><th style="text-align:left; padding:8px; border:1px solid #d0d8e0; width:20%;">壁の名称</th><th style="text-align:left; padding:8px; border:1px solid #d0d8e0;">内容</th>';
+    if (!isNaN(income) && income > 0) html += '<th style="text-align:center; padding:8px; border:1px solid #d0d8e0; width:12%;">判定</th>';
+    html += '</tr>';
+
+    section.items.forEach(function(w) {
+      if (w.condition && w.condition !== employerSize) return;
+      var exceeded = !isNaN(income) && income > 0 && income >= w.amount;
+      var statusText = '';
+      var statusBg = '';
+      if (!isNaN(income) && income > 0) {
+        if (exceeded) { statusText = '超過'; statusBg = '#ffcdd2'; }
+        else if (w.amount - income <= 5) { statusText = '注意'; statusBg = '#fff9c4'; }
+        else { statusText = 'OK'; statusBg = '#dcedc8'; }
+      }
+      html += '<tr>';
+      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-weight:600; white-space:nowrap;">' + w.amount + '万円</td>';
+      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-weight:600;">' + w.name + '</td>';
+      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-size:0.8rem;">' + w.detail;
+      if (w.note) html += '<br><span style="color:#888; font-size:0.75rem;">' + w.note + '</span>';
+      html += '</td>';
+      if (!isNaN(income) && income > 0) {
+        html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; text-align:center; font-weight:600; background:' + statusBg + ';">' + statusText + '</td>';
+      }
+      html += '</tr>';
+    });
+    html += '</table>';
+  });
+
+  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8; margin-top:20px;">';
+  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<ul style="padding-left:18px; margin:0;">';
+  html += '<li>上記は概算値です。社会保険の判定は勤務先・健保組合の運用により異なる場合があります。</li>';
+  html += '<li>配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下であることが前提です。</li>';
+  html += '<li>住民税の非課税基準は自治体により異なります。</li>';
+  if (walls === WALLS_BY_YEAR.R8) {
+    html += '<li>令和8年度税制改正大綱に基づく情報です。法案成立前の内容を含みます。</li>';
+  }
+  html += '</ul></div></div>';
+
+  var printArea = document.getElementById('wall-print-area');
+  printArea.innerHTML = html;
+
+  var style = document.createElement('style');
+  style.id = 'wall-print-style';
+  style.textContent = '@media print { body > *:not(#wall-print-area) { display: none !important; } #wall-print-area { display: block !important; } }';
+  document.head.appendChild(style);
+  printArea.style.display = 'block';
+  window.print();
+  setTimeout(function() {
+    printArea.style.display = 'none';
+    var ps = document.getElementById('wall-print-style');
+    if (ps) ps.remove();
+  }, 500);
 }
 
 // ===== ふるさと納税限度額シミュレーション =====
