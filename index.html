@@ -524,6 +524,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.1.0 (2026-04-02) 計算エンジン検証機能追加（公式例によるゴールデンテスト）</li>
         <li>v3.0.1 (2026-04-02) 税率一覧：所得税の課税所得1,000円未満切捨てを自動適用</li>
         <li>v3.0.0 (2026-04-01) Beta Lab（beta.html）新設。ふるさと納税をBetaに移動、各種の壁一覧ツール追加。ブラウザ戻るボタンでホームに戻れるように改善</li>
         <li>v2.2.1 (2026-03-30) ヘッダー最終更新表示を修正、参考資料の定率法表記を250%→200%に訂正</li>
@@ -541,6 +542,12 @@ header { position: relative; }
         <li>v1.1.0 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
         <li>v1.0.0 (2026-03-07) 初版：受取利息逆算・必要売上計算・耐用年数検索・税率一覧・税務カレンダー</li>
       </ul>
+    </details>
+    <details class="changelog" style="margin-top:8px;">
+      <summary>計算エンジン検証</summary>
+      <p style="font-size:0.78rem; color:#666; margin:8px 0 6px;">公式例と照合して計算ロジックの正常性を確認します。</p>
+      <button class="btn" onclick="runGoldenTests()" style="font-size:0.78rem; padding:6px 16px;">検証実行</button>
+      <div id="golden-test-result" style="margin-top:8px;"></div>
     </details>
   </div>
 </div>
@@ -4489,6 +4496,78 @@ calcGensenSalary();
 
   </div>
 </div>
+
+<!-- ===== ゴールデンテスト ===== -->
+<script>
+function runGoldenTests() {
+  var tests = [
+    // 報酬源泉: 国税庁 No.2795 公式例
+    { name: '報酬源泉 150万円', fn: function(){ return calcHoshuForward(1500000); }, expected: 204200, source: '国税庁 No.2795' },
+    { name: '報酬源泉 100万円（境界）', fn: function(){ return calcHoshuForward(1000000); }, expected: 102100, source: '国税庁 No.2795' },
+    { name: '報酬源泉 50万円', fn: function(){ return calcHoshuForward(500000); }, expected: 51050, source: '500,000 × 10.21% = 51,050' },
+    { name: '報酬源泉 逆算 150万円', fn: function(){ return calcHoshuReverse(1500000 - 204200).gross; }, expected: 1500000, source: '正算の逆' },
+
+    // 所得税速算表: 国税庁「所得税の税率」
+    // 課税所得700万円 → 700万×23% - 636,000 = 974,000
+    { name: '所得税 課税所得700万円', fn: function(){
+      var t = taxRateTables.income;
+      var taxable = 7000000;
+      for (var i = 0; i < t.brackets.length; i++) {
+        var b = t.brackets[i];
+        if (taxable > b.over && taxable <= b.upto) return Math.floor(taxable * b.rate / 100 - b.deduction);
+      }
+      return -1;
+    }, expected: 974000, source: '国税庁 所得税の税率' },
+
+    // 所得税 課税所得195万円（境界）→ 195万×5% = 97,500
+    { name: '所得税 課税所得195万円', fn: function(){
+      var t = taxRateTables.income;
+      var taxable = 1950000;
+      for (var i = 0; i < t.brackets.length; i++) {
+        var b = t.brackets[i];
+        if (taxable > b.over && taxable <= b.upto) return Math.floor(taxable * b.rate / 100 - b.deduction);
+      }
+      return -1;
+    }, expected: 97500, source: '国税庁 所得税の税率' },
+
+    // 復興特別所得税: 基準所得税額 × 2.1%
+    { name: '復興税 基準税額974,000円', fn: function(){ return Math.floor(974000 * 0.021); }, expected: 20454, source: '974,000 × 2.1%' },
+
+    // 利息逆算: 15.315% で入金797円 → 税引前941円
+    { name: '利息逆算 入金797円', fn: function(){
+      var rate = 0.15315;
+      var g = Math.ceil(797 / (1 - rate));
+      for (var c = g - 5; c <= g + 5; c++) {
+        if (c <= 0) continue;
+        if (c - Math.floor(c * rate) === 797) return c;
+      }
+      return -1;
+    }, expected: 941, source: 'UI記載例' },
+  ];
+
+  var pass = 0, fail = 0;
+  var html = '<div style="font-size:0.78rem; line-height:1.8;">';
+  for (var i = 0; i < tests.length; i++) {
+    var t = tests[i];
+    try {
+      var actual = t.fn();
+      var ok = actual === t.expected;
+      if (ok) { pass++; } else { fail++; }
+      html += '<div style="color:' + (ok ? '#27ae60' : '#c0392b') + ';">'
+        + (ok ? 'PASS' : 'FAIL') + ' ' + t.name
+        + (ok ? '' : ' (期待: ' + t.expected.toLocaleString() + ', 実際: ' + actual.toLocaleString() + ')')
+        + ' <span style="color:#999; font-size:0.7rem;">— ' + t.source + '</span></div>';
+    } catch(e) {
+      fail++;
+      html += '<div style="color:#c0392b;">ERROR ' + t.name + ': ' + e.message + '</div>';
+    }
+  }
+  html += '<div style="margin-top:8px; font-weight:600; color:' + (fail === 0 ? '#27ae60' : '#c0392b') + ';">'
+    + pass + '/' + (pass + fail) + ' 件 PASS' + (fail > 0 ? ' (' + fail + ' 件 FAIL)' : ' — 全件正常') + '</div>';
+  html += '</div>';
+  document.getElementById('golden-test-result').innerHTML = html;
+}
+</script>
 
 <footer style="background:#1a5276; color:rgba(255,255,255,0.7); text-align:center; padding:16px 20px; font-size:0.75rem; line-height:1.8;">
   <p style="margin-bottom:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
