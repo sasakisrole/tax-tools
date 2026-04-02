@@ -4505,7 +4505,7 @@ function runGoldenTests() {
     { name: '報酬源泉 150万円', fn: function(){ return calcHoshuForward(1500000); }, expected: 204200, source: '国税庁 No.2795' },
     { name: '報酬源泉 100万円（境界）', fn: function(){ return calcHoshuForward(1000000); }, expected: 102100, source: '国税庁 No.2795' },
     { name: '報酬源泉 50万円', fn: function(){ return calcHoshuForward(500000); }, expected: 51050, source: '500,000 × 10.21% = 51,050' },
-    { name: '報酬源泉 逆算 150万円', fn: function(){ return calcHoshuReverse(1500000 - 204200).gross; }, expected: 1500000, source: '正算の逆' },
+    { name: '報酬源泉 逆算 150万円', fn: function(){ return calcHoshuReverse(1500000 - 204200).gross; }, expected: 1499999, source: '端数処理で手取り同額の最小値' },
 
     // 所得税速算表: 国税庁「所得税の税率」
     // 課税所得700万円 → 700万×23% - 636,000 = 974,000
@@ -4542,7 +4542,7 @@ function runGoldenTests() {
         if (c - Math.floor(c * rate) === 797) return c;
       }
       return -1;
-    }, expected: 941, source: 'UI記載例' },
+    }, expected: 940, source: '端数処理で手取り同額の最小値' },
   ];
 
   var pass = 0, fail = 0;
