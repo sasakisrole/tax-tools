@@ -524,6 +524,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.0.1 (2026-04-02) 税率一覧：所得税の課税所得1,000円未満切捨てを自動適用</li>
         <li>v3.0.0 (2026-04-01) Beta Lab（beta.html）新設。ふるさと納税をBetaに移動、各種の壁一覧ツール追加。ブラウザ戻るボタンでホームに戻れるように改善</li>
         <li>v2.2.1 (2026-03-30) ヘッダー最終更新表示を修正、参考資料の定率法表記を250%→200%に訂正</li>
         <li>v2.2.0 (2026-03-29) 役員報酬：クライアント向け印刷機能追加、手取りを1年目/2年目以降に分離</li>
@@ -938,7 +939,7 @@ header { position: relative; }
     <p class="note">
       ※ 国税庁公表の源泉徴収税額表（月額表）に基づく簡易版です。年度を切り替えて使用できます。実際の適用は税額表原本をご確認ください。
     </p>
-    <div class="page-changelog">更新: v1.3.0 (2026-03-26) 高額給与の税率計算対応 | v1.2.0 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1.0 (2026-03-26) 新規作成</div>
+    <div class="page-changelog">更新: v1.4.0 (2026-04-02) 所得税の課税所得1,000円未満切捨てを自動適用 | v1.3.0 (2026-03-26) 高額給与の税率計算対応 | v1.2.0 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1.0 (2026-03-26) 新規作成</div>
   </div>
 </div>
 
@@ -2794,6 +2795,10 @@ function showTaxRates() {
     let taxableAmount = amount;
     if (table.exemption) {
       taxableAmount = Math.max(0, amount - table.exemption);
+    }
+    // 所得税は課税所得の1,000円未満切捨て（国税庁規定）
+    if (type === 'income') {
+      taxableAmount = Math.floor(taxableAmount / 1000) * 1000;
     }
 
     let applicableBracket = null;

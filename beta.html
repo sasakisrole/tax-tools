@@ -929,7 +929,7 @@ function mfCalcKyuyoKojo(annual) {
   return 1950000;
 }
 
-// 所得税（速算表、復興税なし）
+// 所得税（速算表・基準税額）※復興税は呼び出し元で加算
 function mfCalcShotokuzei(taxableIncome) {
   if (taxableIncome <= 0) return 0;
   var brackets = [
