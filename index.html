@@ -524,6 +524,8 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.3.0 (2026-04-07) 役員報酬：ふるさと納税シミュレーションへのリンク追加</li>
+        <li>v3.2.0 (2026-04-07) 役員報酬：計算結果をlocalStorageに保存し、beta.htmlのふるさと納税シミュレーションと連携</li>
         <li>v3.1.0 (2026-04-02) 計算エンジン検証機能追加（公式例によるゴールデンテスト）</li>
         <li>v3.0.1 (2026-04-02) 税率一覧：所得税の課税所得1,000円未満切捨てを自動適用</li>
         <li>v3.0.0 (2026-04-01) Beta Lab（beta.html）新設。ふるさと納税をBetaに移動、各種の壁一覧ツール追加。ブラウザ戻るボタンでホームに戻れるように改善</li>
@@ -3760,6 +3762,16 @@ function calcYakuin() {
     juminzeiAnnual: juminzeiAnnual, juminzeiJune: juminzeiJune, juminzeiJuly: juminzeiJuly,
     takeHome1st: takeHome1st, takeHome2nd: takeHome2nd
   };
+  // ふるさと納税シミュレーション連携用にlocalStorageへ保存
+  try {
+    localStorage.setItem('yakuin_furusato', JSON.stringify({
+      clientName: document.getElementById('yakuin-client-name').value.trim(),
+      monthly: monthly,
+      kyuyoShotoku: kyuyoShotoku,
+      shotokuKojo: shotokuKojo,
+      savedAt: new Date().toLocaleString('ja-JP')
+    }));
+  } catch(e) {}
   document.getElementById('yakuin-print-btn').style.display = 'block';
 }
 
@@ -4315,6 +4327,7 @@ calcGensenSalary();
 
     <div id="yakuin-print-btn" style="display:none; margin-top:12px;">
       <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printYakuin()">資料を印刷</button>
+      <a href="beta.html#furusato" style="display:inline-block; margin-left:12px; font-size:0.85rem; color:#7d6b9e; text-decoration:none; vertical-align:middle;">ふるさと納税の限度額も試算する →</a>
     </div>
 
     <p class="note">
@@ -4322,7 +4335,7 @@ calcGensenSalary();
       ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
+    <div class="page-changelog">更新: v1.4.0 (2026-04-07) ふるさと納税シミュレーションへのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
   </div>
 </div>
 

@@ -603,6 +603,8 @@ footer {
     <details class="changelog">
       <summary>更新履歴（サイト）</summary>
       <ul>
+        <li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
+        <li>v1.5.0 (2026-04-07) ふるさと納税：役員報酬シミュレーション（index.html）との連携ボタン追加</li>
         <li>v1.4.0 (2026-04-02) 106万の壁の施行時期表現を「見込み」に修正、ふるさと納税・マネーフローに誤差方向の注記追加</li>
         <li>v1.3.0 (2026-04-02) 損益分岐点シミュレーター追加（売上・変動費・固定費から損益分岐点を可視化）</li>
         <li>v1.2.0 (2026-04-02) マネーフロー シミュレーター追加（法人・個人の税金と手取りをサンキー図で可視化）</li>
@@ -782,6 +784,14 @@ footer {
     </select>
   </div>
 
+  <div id="furusato-import-area" style="margin-bottom:12px;">
+    <div style="margin-bottom:8px; font-size:0.85rem; color:#555;">
+      <a href="index.html#yakuin" style="color:#7d6b9e; text-decoration:none;">役員報酬シミュレーションの金額をもとに計算する →</a>
+    </div>
+    <button class="btn" style="background:linear-gradient(135deg,#7d6b9e,#a084ca); font-size:0.85rem; padding:8px 16px;" onclick="importFromYakuin()">役員報酬シミュレーションの数値を取り込む</button>
+    <div id="furusato-import-msg" style="display:none; margin-top:6px; font-size:0.8rem; color:#7d6b9e;"></div>
+  </div>
+
   <div class="form-group">
     <label>総所得金額等（年額）</label>
     <div class="input-prefix">
@@ -812,7 +822,7 @@ footer {
     ※ 住民税の所得控除額は所得税と異なりますが、簡易版では同額として計算しています<br>
     ※ 誤差の傾向: 住宅ローン控除がある場合は上限額が<strong>過大</strong>に算出されます。住民税の所得控除差（生命保険料控除等）がある場合は<strong>過小</strong>になる傾向があります
   </p>
-  <div class="page-changelog">更新: v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
+  <div class="page-changelog">更新: v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
 </div>
 
 <!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
@@ -1854,6 +1864,32 @@ function printWalls() {
     var ps = document.getElementById('wall-print-style');
     if (ps) ps.remove();
   }, 500);
+}
+
+// ===== 役員報酬シミュレーション連携 =====
+function importFromYakuin() {
+  var msg = document.getElementById('furusato-import-msg');
+  try {
+    var raw = localStorage.getItem('yakuin_furusato');
+    if (!raw) {
+      msg.style.display = 'block';
+      msg.style.color = '#c0392b';
+      msg.textContent = '役員報酬シミュレーションのデータが見つかりません。先にindex.htmlで計算してください。';
+      return;
+    }
+    var d = JSON.parse(raw);
+    document.getElementById('furusato-income').value = d.kyuyoShotoku;
+    document.getElementById('furusato-deduction').value = d.shotokuKojo;
+    if (d.clientName) document.getElementById('furusato-client').value = d.clientName;
+    msg.style.display = 'block';
+    msg.style.color = '#7d6b9e';
+    var label = d.clientName ? d.clientName + '　' : '';
+    msg.textContent = label + '月額' + d.monthly.toLocaleString() + '円　取込日時: ' + d.savedAt;
+  } catch(e) {
+    msg.style.display = 'block';
+    msg.style.color = '#c0392b';
+    msg.textContent = 'データの読み込みに失敗しました。';
+  }
 }
 
 // ===== ふるさと納税限度額シミュレーション =====
