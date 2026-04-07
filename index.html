@@ -524,6 +524,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.5.0 (2026-04-07) 令和8年税制改正対応：給与所得控除+9万（R8/R9特例）・基礎控除104万（本則62万+時限42万）</li>
         <li>v3.4.0 (2026-04-07) 役員報酬：住民税所得割をlocalStorageに追加保存（ふるさと納税精度向上）</li>
         <li>v3.3.0 (2026-04-07) 役員報酬：ふるさと納税シミュレーションへのリンク追加</li>
         <li>v3.2.0 (2026-04-07) 役員報酬：計算結果をlocalStorageに保存し、beta.htmlのふるさと納税シミュレーションと連携</li>
@@ -3566,7 +3567,7 @@ function calcAnbun() {
 
 // --- 協会けんぽ（役員報酬シミュレーション用） ---
 var KENPO_RATES = {
-  'R8': { label: '令和8年度（2026年3月分〜）', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0.0023, kisokojo: 580000 },
+  'R8': { label: '令和8年度（2026年3月分〜）', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0.0023, kisokojo: 1040000 }, // R8/R9特例: 本則62万+時限42万=104万
   'R7': { label: '令和7年度（2025年3月分〜）', healthOsaka: 0.1013, kaigo: 0.0162, pension: 0.183, kosodate: 0, kisokojo: 480000 }
 };
 
@@ -3601,13 +3602,15 @@ function getHyojun(monthly) {
   return { grade: 50, health: 1390000, pension: 650000 };
 }
 
-function calcKyuyoKojo(annual) {
-  if (annual <= 1625000) return 650000;
-  if (annual <= 1800000) return annual * 0.4 - 100000;
-  if (annual <= 3600000) return annual * 0.3 + 80000;
-  if (annual <= 6600000) return annual * 0.2 + 440000;
-  if (annual <= 8500000) return annual * 0.1 + 1100000;
-  return 1950000;
+function calcKyuyoKojo(annual, year) {
+  // R8/R9特例: 給与所得控除を一律+9万（本則+4万+時限措置+5万）
+  var adj = (year === 'R8') ? 90000 : 0;
+  if (annual <= 1625000) return 650000 + adj;
+  if (annual <= 1800000) return annual * 0.4 - 100000 + adj;
+  if (annual <= 3600000) return annual * 0.3 + 80000 + adj;
+  if (annual <= 6600000) return annual * 0.2 + 440000 + adj;
+  if (annual <= 8500000) return annual * 0.1 + 1100000 + adj;
+  return 1950000 + adj;
 }
 
 function calcShotokuzei(taxableIncome) {
@@ -3663,8 +3666,8 @@ function calcYakuin() {
   const annualSalary = monthly * 12;
   const annualSocialSelf = socialSelf * 12;
 
-  // 給与所得控除
-  const kyuyoKojo = calcKyuyoKojo(annualSalary);
+  // 給与所得控除（R8は+9万の特例あり）
+  const kyuyoKojo = calcKyuyoKojo(annualSalary, kenpoYear);
   const kyuyoShotoku = Math.max(annualSalary - kyuyoKojo, 0);
 
   // 所得控除
@@ -4337,7 +4340,7 @@ calcGensenSalary();
       ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.5.0 (2026-04-07) 住民税所得割をlocalStorageに追加保存 | v1.4.0 (2026-04-07) ふるさと納税へのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
+    <div class="page-changelog">更新: v1.6.0 (2026-04-07) R8税制改正対応（給与所得控除+9万・基礎控除104万） | v1.5.0 (2026-04-07) 住民税所得割をlocalStorageに追加保存 | v1.4.0 (2026-04-07) ふるさと納税へのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
   </div>
 </div>
 

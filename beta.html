@@ -603,6 +603,7 @@ footer {
     <details class="changelog">
       <summary>更新履歴（サイト）</summary>
       <ul>
+        <li>v1.8.0 (2026-04-07) ふるさと納税：令和8年分を年度選択に追加（R8デフォルト）</li>
         <li>v1.7.0 (2026-04-07) ふるさと納税：住民税所得割額の直接入力対応・役員報酬連携時は実額を自動セット</li>
         <li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
         <li>v1.5.0 (2026-04-07) ふるさと納税：役員報酬シミュレーション（index.html）との連携ボタン追加</li>
@@ -780,7 +781,8 @@ footer {
   <div class="form-group">
     <label>対象年分</label>
     <select id="furusato-year">
-      <option value="R7" selected>令和7年分（2025年）</option>
+      <option value="R8" selected>令和8年分（2026年）</option>
+      <option value="R7">令和7年分（2025年）</option>
       <option value="R6">令和6年分（2024年）</option>
     </select>
   </div>
@@ -830,7 +832,7 @@ footer {
     ※ 住民税所得割額を入力した場合は実額ベースで計算。未入力の場合は概算（課税所得×10%−2,500円）で計算します<br>
     ※ 住民税所得割額が未入力の場合、住民税の所得控除差（生命保険料控除等）により上限額が<strong>過小</strong>になる傾向があります
   </p>
-  <div class="page-changelog">更新: v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
+  <div class="page-changelog">更新: v1.4.0 (2026-04-07) 令和8年分を年度選択に追加（R8デフォルト） | v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
 </div>
 
 <!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
@@ -1917,7 +1919,7 @@ function calcFurusato() {
     return;
   }
 
-  // 所得税率テーブル（令和6年・令和7年共通）
+  // 所得税率テーブル（令和6年〜令和8年共通・税率自体は変更なし）
   var taxBrackets = [
     { limit: 1950000, rate: 0.05 },
     { limit: 3300000, rate: 0.10 },
@@ -1963,7 +1965,7 @@ function calcFurusato() {
   // 住民税特例分からの控除
   var juuminSpecialDeduction = Math.floor((limit - 2000) * specialRate);
 
-  var yearLabel = yearKey === 'R7' ? '令和7年分（2025年）' : '令和6年分（2024年）';
+  var yearLabel = yearKey === 'R8' ? '令和8年分（2026年）' : yearKey === 'R7' ? '令和7年分（2025年）' : '令和6年分（2024年）';
 
   var html = '';
   html += '<div class="result-row"><span class="label">対象年分</span><span class="value">' + yearLabel + '</span></div>';
