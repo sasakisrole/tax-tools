@@ -603,6 +603,7 @@ footer {
     <details class="changelog">
       <summary>更新履歴（サイト）</summary>
       <ul>
+        <li>v1.9.0 (2026-04-07) ふるさと納税：R8+概算モード時に住民税基礎控除差の警告を追加</li>
         <li>v1.8.0 (2026-04-07) ふるさと納税：令和8年分を年度選択に追加（R8デフォルト）</li>
         <li>v1.7.0 (2026-04-07) ふるさと納税：住民税所得割額の直接入力対応・役員報酬連携時は実額を自動セット</li>
         <li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
@@ -832,7 +833,7 @@ footer {
     ※ 住民税所得割額を入力した場合は実額ベースで計算。未入力の場合は概算（課税所得×10%−2,500円）で計算します<br>
     ※ 住民税所得割額が未入力の場合、住民税の所得控除差（生命保険料控除等）により上限額が<strong>過小</strong>になる傾向があります
   </p>
-  <div class="page-changelog">更新: v1.4.0 (2026-04-07) 令和8年分を年度選択に追加（R8デフォルト） | v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
+  <div class="page-changelog">更新: v1.5.0 (2026-04-07) R8+概算時の住民税基礎控除差警告 | v1.4.0 (2026-04-07) 令和8年分を年度選択に追加（R8デフォルト） | v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
 </div>
 
 <!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
@@ -1975,6 +1976,9 @@ function calcFurusato() {
   html += '<div class="result-row"><span class="label">適用所得税率</span><span class="value">' + (incomeTaxRate * 100) + '%</span></div>';
   html += '<div class="result-row"><span class="label">住民税所得割額' + (juuminMode === 'exact' ? '' : '（概算）') + '</span><span class="value">' + fmt(juuminTaxBase) + ' 円' + (juuminMode === 'exact' ? ' <span style="font-size:0.75rem; color:#27ae60;">実額</span>' : ' <span style="font-size:0.75rem; color:#e67e22;">概算</span>') + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">ふるさと納税 控除上限額（目安）</span><span class="value">' + fmt(limit) + ' 円</span></div>';
+  // R8+概算モード時の警告
+  if (yearKey === 'R8' && juuminMode === 'approx') {
+    html += '<div style="margin-top:8px; padding:8px 10px; background:#fff3cd; border:1px solid #f5c542; border-radius:4px; font-size:0.78rem; color:#856404;">⚠️ R8（令和8年）は所得税の基礎控除（104万）と住民税の基礎控除（43万）の差が61万と大きく、住民税所得割の概算誤差が広がります。より正確な上限額を知るには「住民税所得割額」を直接入力してください。</div>';
   html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #e0e8f0; font-size:0.82rem; color:#666;">';
   html += '<div style="font-weight:600; margin-bottom:6px; color:#4a235a;">控除内訳（参考）</div>';
   html += '<div class="result-row"><span class="label">所得税からの控除（税率 × 1.021）</span><span class="value">' + fmt(incomeTaxDeduction) + ' 円</span></div>';

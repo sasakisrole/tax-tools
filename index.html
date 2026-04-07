@@ -524,6 +524,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.7.0 (2026-04-07) ゴールデンテストに給与所得控除・基礎控除・178万の壁のケースを追加（R7/R8全パターン）</li>
         <li>v3.6.0 (2026-04-07) 基礎控除を所得額ベースで逓減計算（R8: 2,400万超・4,890万超で段階的減少）</li>
         <li>v3.5.0 (2026-04-07) 令和8年税制改正対応：給与所得控除+9万（R8/R9特例）・基礎控除104万（本則62万+時限42万）</li>
         <li>v3.4.0 (2026-04-07) 役員報酬：住民税所得割をlocalStorageに追加保存（ふるさと納税精度向上）</li>
@@ -4572,6 +4573,37 @@ function runGoldenTests() {
 
     // 復興特別所得税: 基準所得税額 × 2.1%
     { name: '復興税 基準税額974,000円', fn: function(){ return Math.floor(974000 * 0.021); }, expected: 20454, source: '974,000 × 2.1%' },
+
+    // 給与所得控除 calcKyuyoKojo（R7）
+    { name: '給与所得控除 R7 年収162.5万以下', fn: function(){ return calcKyuyoKojo(1625000, 'R7'); }, expected: 650000, source: '最低保障65万' },
+    { name: '給与所得控除 R7 年収600万', fn: function(){ return calcKyuyoKojo(6000000, 'R7'); }, expected: 1640000, source: '600万×20%+44万' },
+    { name: '給与所得控除 R7 年収850万超', fn: function(){ return calcKyuyoKojo(9000000, 'R7'); }, expected: 1950000, source: '上限195万' },
+
+    // 給与所得控除 calcKyuyoKojo（R8: +9万）
+    { name: '給与所得控除 R8 年収162.5万以下', fn: function(){ return calcKyuyoKojo(1625000, 'R8'); }, expected: 740000, source: '最低保障74万（65+9万）' },
+    { name: '給与所得控除 R8 年収600万', fn: function(){ return calcKyuyoKojo(6000000, 'R8'); }, expected: 1730000, source: '600万×20%+53万（44+9万）' },
+    { name: '給与所得控除 R8 年収850万超', fn: function(){ return calcKyuyoKojo(9000000, 'R8'); }, expected: 2040000, source: '上限204万（195+9万）' },
+
+    // 基礎控除 calcKisoKojo（R7）
+    { name: '基礎控除 R7 所得2,400万以下', fn: function(){ return calcKisoKojo(24000000, 'R7'); }, expected: 480000, source: '48万（通常）' },
+    { name: '基礎控除 R7 所得2,400万超', fn: function(){ return calcKisoKojo(24000001, 'R7'); }, expected: 320000, source: '32万（逓減1段）' },
+    { name: '基礎控除 R7 所得2,450万超', fn: function(){ return calcKisoKojo(24500001, 'R7'); }, expected: 160000, source: '16万（逓減2段）' },
+    { name: '基礎控除 R7 所得2,500万超', fn: function(){ return calcKisoKojo(25000001, 'R7'); }, expected: 0, source: '0円（消失）' },
+
+    // 基礎控除 calcKisoKojo（R8）
+    { name: '基礎控除 R8 所得2,400万以下', fn: function(){ return calcKisoKojo(24000000, 'R8'); }, expected: 1040000, source: '104万（本則62+時限42万）' },
+    { name: '基礎控除 R8 所得2,400万超', fn: function(){ return calcKisoKojo(24000001, 'R8'); }, expected: 840000, source: '84万（本則42+時限42万）' },
+    { name: '基礎控除 R8 所得2,450万超', fn: function(){ return calcKisoKojo(24500001, 'R8'); }, expected: 630000, source: '63万（本則21+時限42万）' },
+    { name: '基礎控除 R8 所得2,500万超', fn: function(){ return calcKisoKojo(25000001, 'R8'); }, expected: 420000, source: '42万（本則0+時限42万）' },
+    { name: '基礎控除 R8 所得4,890万超', fn: function(){ return calcKisoKojo(48900001, 'R8'); }, expected: 0, source: '0円（時限も消失）' },
+
+    // 178万の壁チェック（R8 最低控除ブラケット・社保なし）
+    { name: '178万の壁 R8 年収162万', fn: function(){
+      var kojo = calcKyuyoKojo(1620000, 'R8');
+      var shotoku = 1620000 - kojo;
+      var kiso = calcKisoKojo(shotoku, 'R8');
+      return Math.max(Math.floor((shotoku - kiso) / 1000) * 1000, 0);
+    }, expected: 0, source: '給与所得控除74万+基礎控除104万で課税所得ゼロ' },
 
     // 利息逆算: 15.315% で入金797円 → 税引前941円
     { name: '利息逆算 入金797円', fn: function(){
