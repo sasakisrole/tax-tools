@@ -603,6 +603,7 @@ footer {
     <details class="changelog">
       <summary>更新履歴（サイト）</summary>
       <ul>
+        <li>v1.7.0 (2026-04-07) ふるさと納税：住民税所得割額の直接入力対応・役員報酬連携時は実額を自動セット</li>
         <li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
         <li>v1.5.0 (2026-04-07) ふるさと納税：役員報酬シミュレーション（index.html）との連携ボタン追加</li>
         <li>v1.4.0 (2026-04-02) 106万の壁の施行時期表現を「見込み」に修正、ふるさと納税・マネーフローに誤差方向の注記追加</li>
@@ -808,6 +809,14 @@ footer {
     <span style="font-size:0.75rem; color:#888;">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
   </div>
 
+  <div class="form-group">
+    <label>住民税所得割額（任意・入力すると精度が上がります）</label>
+    <div class="input-prefix">
+      <input type="text" id="furusato-jumin-shotokuwari" inputmode="numeric" placeholder="例: 280000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
+    </div>
+    <span style="font-size:0.75rem; color:#888;">※ 特別徴収税額決定通知書の「所得割」欄 or 役員報酬シミュレーションから自動取込</span>
+  </div>
+
   <button class="btn" id="btn-furusato" onclick="calcFurusato()">計算する</button>
 
   <div id="furusato-result" class="result" style="display:none;"></div>
@@ -817,12 +826,11 @@ footer {
   </div>
 
   <p class="note">
-    ※ 簡易計算のため、住宅ローン控除・調整控除等は考慮していません<br>
-    ※ 実際の控除上限額とは数千円〜数万円の誤差が生じる場合があります<br>
-    ※ 住民税の所得控除額は所得税と異なりますが、簡易版では同額として計算しています<br>
-    ※ 誤差の傾向: 住宅ローン控除がある場合は上限額が<strong>過大</strong>に算出されます。住民税の所得控除差（生命保険料控除等）がある場合は<strong>過小</strong>になる傾向があります
+    ※ 住宅ローン控除は考慮していません。該当する場合は上限額が<strong>過大</strong>に算出されます<br>
+    ※ 住民税所得割額を入力した場合は実額ベースで計算。未入力の場合は概算（課税所得×10%−2,500円）で計算します<br>
+    ※ 住民税所得割額が未入力の場合、住民税の所得控除差（生命保険料控除等）により上限額が<strong>過小</strong>になる傾向があります
   </p>
-  <div class="page-changelog">更新: v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
+  <div class="page-changelog">更新: v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
 </div>
 
 <!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
@@ -1880,6 +1888,7 @@ function importFromYakuin() {
     var d = JSON.parse(raw);
     document.getElementById('furusato-income').value = d.kyuyoShotoku;
     document.getElementById('furusato-deduction').value = d.shotokuKojo;
+    if (d.juminShotokuWari) document.getElementById('furusato-jumin-shotokuwari').value = d.juminShotokuWari;
     if (d.clientName) document.getElementById('furusato-client').value = d.clientName;
     msg.style.display = 'block';
     msg.style.color = '#7d6b9e';
@@ -1926,8 +1935,16 @@ function calcFurusato() {
     }
   }
 
-  // 住民税所得割額（税率10%、調整控除2,500円を概算で控除）
-  var juuminTaxBase = Math.max(taxableIncome * 0.10 - 2500, 0);
+  // 住民税所得割額：直接入力があれば優先、なければ概算
+  var juuminInputRaw = parseNum(document.getElementById('furusato-jumin-shotokuwari').value);
+  var juuminTaxBase, juuminMode;
+  if (juuminInputRaw > 0) {
+    juuminTaxBase = juuminInputRaw;
+    juuminMode = 'exact'; // 実額入力
+  } else {
+    juuminTaxBase = Math.max(taxableIncome * 0.10 - 2500, 0);
+    juuminMode = 'approx'; // 概算
+  }
 
   // ふるさと納税上限額の算出
   // 特例控除の上限 = 住民税所得割額 × 20%
@@ -1954,7 +1971,7 @@ function calcFurusato() {
   html += '<div class="result-row"><span class="label">所得控除合計額</span><span class="value">' + fmt(deduction) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">課税所得金額</span><span class="value">' + fmt(taxableIncome) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">適用所得税率</span><span class="value">' + (incomeTaxRate * 100) + '%</span></div>';
-  html += '<div class="result-row"><span class="label">住民税所得割額（概算）</span><span class="value">' + fmt(juuminTaxBase) + ' 円</span></div>';
+  html += '<div class="result-row"><span class="label">住民税所得割額' + (juuminMode === 'exact' ? '' : '（概算）') + '</span><span class="value">' + fmt(juuminTaxBase) + ' 円' + (juuminMode === 'exact' ? ' <span style="font-size:0.75rem; color:#27ae60;">実額</span>' : ' <span style="font-size:0.75rem; color:#e67e22;">概算</span>') + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">ふるさと納税 控除上限額（目安）</span><span class="value">' + fmt(limit) + ' 円</span></div>';
   html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #e0e8f0; font-size:0.82rem; color:#666;">';
   html += '<div style="font-weight:600; margin-bottom:6px; color:#4a235a;">控除内訳（参考）</div>';
@@ -1977,6 +1994,7 @@ function calcFurusato() {
     taxableIncome: taxableIncome,
     incomeTaxRate: incomeTaxRate,
     juuminTaxBase: juuminTaxBase,
+    juuminMode: juuminMode,
     limit: limit,
     incomeTaxDeduction: incomeTaxDeduction,
     juuminBasicDeduction: juuminBasicDeduction,
@@ -2010,7 +2028,7 @@ function printFurusato() {
   html += '<tr style="background:#f5f0f7;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#4a235a; border:1px solid #d0d8e0;">計算結果</th></tr>';
   html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0; width:50%;">課税所得金額</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.taxableIncome) + ' 円</td></tr>';
   html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">適用所得税率</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + (d.incomeTaxRate * 100) + '%</td></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">住民税所得割額（概算）</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminTaxBase) + ' 円</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">住民税所得割額' + (d.juuminMode === 'exact' ? '' : '（概算）') + '</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminTaxBase) + ' 円</td></tr>';
   html += '<tr style="background:#fff8e1;"><td style="padding:12px; border:1px solid #d0d8e0; font-weight:600;">控除上限額（目安）</td><td style="padding:12px; border:1px solid #d0d8e0; text-align:right; font-size:1.2rem; font-weight:700; color:#c0392b;">' + fmt(d.limit) + ' 円</td></tr>';
   html += '</table>';
 

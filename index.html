@@ -524,6 +524,7 @@ header { position: relative; }
     <details class="changelog">
       <summary>更新履歴</summary>
       <ul>
+        <li>v3.4.0 (2026-04-07) 役員報酬：住民税所得割をlocalStorageに追加保存（ふるさと納税精度向上）</li>
         <li>v3.3.0 (2026-04-07) 役員報酬：ふるさと納税シミュレーションへのリンク追加</li>
         <li>v3.2.0 (2026-04-07) 役員報酬：計算結果をlocalStorageに保存し、beta.htmlのふるさと納税シミュレーションと連携</li>
         <li>v3.1.0 (2026-04-02) 計算エンジン検証機能追加（公式例によるゴールデンテスト）</li>
@@ -3769,6 +3770,7 @@ function calcYakuin() {
       monthly: monthly,
       kyuyoShotoku: kyuyoShotoku,
       shotokuKojo: shotokuKojo,
+      juminShotokuWari: juminShotokuWari,
       savedAt: new Date().toLocaleString('ja-JP')
     }));
   } catch(e) {}
@@ -4335,7 +4337,7 @@ calcGensenSalary();
       ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.4.0 (2026-04-07) ふるさと納税シミュレーションへのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
+    <div class="page-changelog">更新: v1.5.0 (2026-04-07) 住民税所得割をlocalStorageに追加保存 | v1.4.0 (2026-04-07) ふるさと納税へのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
   </div>
 </div>
 
