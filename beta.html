@@ -1984,6 +1984,7 @@ function calcFurusato() {
   // R8+概算モード時の注記
   if (yearKey === 'R8' && juuminMode === 'approx') {
     html += '<div style="margin-top:8px; padding:8px 10px; background:#e8f4fd; border:1px solid #aed6f1; border-radius:4px; font-size:0.78rem; color:#1a5276;">ℹ️ R8は所得税の基礎控除（104万）と住民税（43万）の差61万を自動補正して住民税所得割を推計しています。生命保険料控除等の住民税固有の控除差は未反映のため、「住民税所得割額」を直接入力するとさらに精度が上がります。</div>';
+  }
   html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #e0e8f0; font-size:0.82rem; color:#666;">';
   html += '<div style="font-weight:600; margin-bottom:6px; color:#4a235a;">控除内訳（参考）</div>';
   html += '<div class="result-row"><span class="label">所得税からの控除（税率 × 1.021）</span><span class="value">' + fmt(incomeTaxDeduction) + ' 円</span></div>';
