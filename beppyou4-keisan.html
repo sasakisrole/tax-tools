@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="portal:title" content="別表4 所得金額計算">
+<meta name="portal:desc" content="税引後利益と加減算項目入力で別表4の流れに沿って所得金額を即時計算。クライアント別localStorage保存対応">
+<meta name="portal:tag" content="法人税,別表4,決算">
+<meta name="portal:section" content="tools">
+<meta name="portal:created" content="2026-05-03">
+<meta name="portal:updated" content="2026-05-03">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>別表4 所得金額計算</title>
+<style>
+:root {
+  --navy: #1e3a5f;
+  --blue: #1a5276;
+  --sky: #2980b9;
+  --accent: #0f766e;
+  --danger: #b42318;
+  --warning: #b7791f;
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface-soft: #f8fbff;
+  --line: #d9e2ec;
+  --text: #263238;
+  --muted: #667085;
+  --input-bg: #ffffff;
+  --shadow: 0 2px 8px rgba(17, 24, 39, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy: #16263f;
+    --blue: #1f5f85;
+    --sky: #3b9ad5;
+    --accent: #2dd4bf;
+    --danger: #ff8a80;
+    --warning: #f7c948;
+    --bg: #101820;
+    --surface: #17212b;
+    --surface-soft: #1d2b38;
+    --line: #2f4357;
+    --text: #eef4f8;
+    --muted: #a8b3bf;
+    --input-bg: #111a23;
+    --shadow: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", Meiryo, sans-serif;
+  line-height: 1.6;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+header {
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  color: #fff;
+  padding: 18px 20px;
+  position: relative;
+}
+
+.header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: 96px;
+}
+
+.back-link {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  gap: 6px;
+  left: 20px;
+  padding: 8px 10px;
+  position: absolute;
+  text-decoration: none;
+  top: 18px;
+}
+
+h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.header-note {
+  font-size: 0.78rem;
+  margin-top: 4px;
+  opacity: 0.82;
+}
+
+main {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 20px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.panel-header {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.panel-title {
+  color: var(--blue);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.panel-body {
+  padding: 16px;
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+.field-row {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(190px, 1fr) minmax(180px, 0.7fr);
+}
+
+label {
+  color: var(--muted);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.money-input,
+.label-input,
+select {
+  background: var(--input-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  min-height: 40px;
+  outline: none;
+  padding: 9px 10px;
+  width: 100%;
+}
+
+.money-input {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.money-input:focus,
+.label-input:focus,
+select:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.18);
+}
+
+.section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-head {
+  align-items: center;
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.section-title {
+  color: var(--blue);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.section-body {
+  padding: 12px;
+}
+
+.row-list {
+  display: grid;
+  gap: 8px;
+}
+
+.adjust-row {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(150px, 0.95fr) minmax(180px, 1.1fr) minmax(120px, 0.7fr) 38px;
+}
+
+.icon-btn,
+.text-btn {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 38px;
+}
+
+.icon-btn:hover,
+.text-btn:hover {
+  border-color: var(--sky);
+}
+
+.text-btn {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--blue);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  border-color: transparent;
+  color: #fff;
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.subtotal {
+  align-items: center;
+  background: var(--surface-soft);
+  border-radius: 8px;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.86rem;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+
+.subtotal strong {
+  color: var(--blue);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-panel {
+  align-self: start;
+  position: sticky;
+  top: 14px;
+}
+
+.result-main {
+  background: linear-gradient(135deg, rgba(26, 82, 118, 0.1), rgba(41, 128, 185, 0.14));
+  border: 1px solid rgba(41, 128, 185, 0.28);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.result-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.result-amount {
+  color: var(--blue);
+  font-size: 1.9rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.result-amount.negative {
+  color: var(--danger);
+}
+
+.calc-table {
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  width: 100%;
+}
+
+.calc-table th,
+.calc-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px 6px;
+}
+
+.calc-table th {
+  color: var(--muted);
+  font-weight: 700;
+  text-align: left;
+  width: 58%;
+}
+
+.calc-table td {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+.calc-table tr.total-row th,
+.calc-table tr.total-row td {
+  color: var(--blue);
+  font-size: 0.95rem;
+}
+
+.calc-table tr.income-row th,
+.calc-table tr.income-row td {
+  border-bottom: 0;
+  color: var(--danger);
+  font-size: 1.02rem;
+}
+
+.action-bar {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 14px;
+}
+
+.save-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 90px 90px;
+}
+
+.status {
+  color: var(--muted);
+  font-size: 0.76rem;
+  min-height: 1.3em;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.print-title {
+  display: none;
+}
+
+svg {
+  flex: 0 0 auto;
+  height: 16px;
+  stroke-width: 2;
+  width: 16px;
+}
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  .result-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    padding-top: 60px;
+  }
+
+  .header-inner {
+    padding-left: 0;
+  }
+
+  .field-row,
+  .adjust-row,
+  .save-grid,
+  .action-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .icon-btn {
+    width: 100%;
+  }
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: A4;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  header,
+  .no-print,
+  .section-head button,
+  .action-bar,
+  .save-grid,
+  .status,
+  .note {
+    display: none !important;
+  }
+
+  main {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .print-title {
+    border-bottom: 2px solid #111;
+    display: block;
+    font-size: 15pt;
+    font-weight: 700;
+    margin-bottom: 8mm;
+    padding-bottom: 2mm;
+    text-align: center;
+  }
+
+  .panel {
+    border: 1px solid #999;
+    box-shadow: none;
+    break-inside: avoid;
+    margin-bottom: 5mm;
+  }
+
+  .panel-header {
+    padding: 3mm 4mm;
+  }
+
+  .panel-body {
+    padding: 4mm;
+  }
+
+  .result-panel {
+    position: static;
+  }
+
+  .money-input,
+  .label-input,
+  select {
+    border: 0;
+    min-height: auto;
+    padding: 0;
+  }
+
+  .adjust-row {
+    grid-template-columns: 1fr 1fr 35mm;
+  }
+
+  .adjust-row .icon-btn {
+    display: none;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="beta.html" style="display:inline-block; color:#fff; opacity:0.85; text-decoration:none; font-size:0.8rem; margin-bottom:6px;">← Beta Lab</a>
+    <h1>別表4 所得金額計算 <span style="font-size:0.9rem; font-weight:400; opacity:0.85;">β（試験中）</span></h1>
+    <p class="header-note">税引後利益と加減算項目から、別表4の流れに沿って所得金額を計算します。<br/>※ 計算ロジックは未検証のため、結果は必ずご確認ください。</p>
+  </div>
+</header>
+
+<main>
+  <div class="print-title">別表4 所得金額計算</div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div class="panel-title">入力</div>
+      <button class="text-btn no-print" type="button" onclick="clearAll()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+        クリア
+      </button>
+    </div>
+    <div class="panel-body stack">
+      <div class="field-row">
+        <div>
+          <label for="current-profit">当期利益又は当期欠損の額</label>
+          <input class="money-input" id="current-profit" inputmode="numeric" placeholder="例: 5,000,000 / -2,000,000" type="text">
+        </div>
+        <div>
+          <label for="loss-carryforward">欠損金又は災害損失金等の当期控除額</label>
+          <input class="money-input" id="loss-carryforward" inputmode="numeric" placeholder="例: 0" type="text">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">加算</div>
+          <button class="text-btn no-print" type="button" onclick="addRow('additions')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            加算項目を追加
+          </button>
+        </div>
+        <div class="section-body">
+          <div class="row-list" id="additions-list"></div>
+          <div class="subtotal"><span>加算 小計</span><strong id="addition-total">0円</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">減算</div>
+          <button class="text-btn no-print" type="button" onclick="addRow('subtractions')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            減算項目を追加
+          </button>
+        </div>
+        <div class="section-body">
+          <div class="row-list" id="subtractions-list"></div>
+          <div class="subtotal"><span>減算 小計</span><strong id="subtraction-total">0円</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">仮計後 加算項目</div>
+          <button class="text-btn no-print" type="button" onclick="addRow('afterTentative')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            仮計後加算を追加
+          </button>
+        </div>
+        <div class="section-body">
+          <div class="row-list" id="afterTentative-list"></div>
+          <div class="subtotal"><span>仮計後 加算 小計</span><strong id="after-total">0円</strong></div>
+        </div>
+      </div>
+
+      <div class="section no-print">
+        <div class="section-head">
+          <div class="section-title">保存・読込</div>
+          <button class="text-btn primary" type="button" onclick="saveCurrent()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8"></path><path d="M7 3v5h8"></path></svg>
+            名前を付けて保存
+          </button>
+        </div>
+        <div class="section-body">
+          <div class="save-grid">
+            <select id="saved-select" onchange="loadSelected()">
+              <option value="">保存済みデータを選択</option>
+            </select>
+            <button class="text-btn" type="button" onclick="loadSelected()">読込</button>
+            <button class="text-btn danger" type="button" onclick="deleteSelected()">削除</button>
+          </div>
+          <div class="status" id="storage-status"></div>
+        </div>
+      </div>
+
+      <p class="note">計算結果は概算確認用です。申告書・届出書への反映前に、必ず税理士等の専門家に確認してください。</p>
+    </div>
+  </section>
+
+  <aside class="panel result-panel">
+    <div class="panel-header">
+      <div class="panel-title">結果</div>
+    </div>
+    <div class="panel-body">
+      <div class="result-main">
+        <div class="result-label">所得金額</div>
+        <div class="result-amount" id="income-amount">0円</div>
+      </div>
+      <table class="calc-table" aria-label="計算過程">
+        <tbody>
+          <tr><th>① 当期利益又は当期欠損</th><td id="r-current">0円</td></tr>
+          <tr><th>② 加算合計</th><td id="r-additions">0円</td></tr>
+          <tr><th>③ 減算合計</th><td id="r-subtractions">0円</td></tr>
+          <tr><th>④ 仮計（①＋②－③）</th><td id="r-tentative">0円</td></tr>
+          <tr><th>⑤ 仮計後 加算合計</th><td id="r-after">0円</td></tr>
+          <tr class="total-row"><th>⑥ 合計（④＋⑤）</th><td id="r-total">0円</td></tr>
+          <tr><th>⑦ 欠損金等の当期控除額</th><td id="r-loss">0円</td></tr>
+          <tr class="income-row"><th>⑧ 所得金額（⑥－⑦）</th><td id="r-income">0円</td></tr>
+        </tbody>
+      </table>
+      <div class="action-bar no-print">
+        <button class="text-btn" type="button" onclick="copyResult()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect height="14" rx="2" ry="2" width="14" x="8" y="8"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+          結果をコピー
+        </button>
+        <button class="text-btn" type="button" onclick="window.print()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+          印刷
+        </button>
+      </div>
+      <div class="status no-print" id="copy-status"></div>
+    </div>
+  </aside>
+</main>
+
+<script>
+const STORAGE_KEY = "beppyou4_savedSets";
+
+const presets = {
+  additions: [
+    ["loss_corporate_tax", "損金経理をした法人税及び地方法人税"],
+    ["loss_local_tax", "損金経理をした道府県民税及び市町村民税"],
+    ["tax_reserve", "損金経理をした納税充当金"],
+    ["penalty_tax", "損金経理をした附帯税、加算金、延滞金及び過怠税"],
+    ["depreciation_excess", "減価償却の償却超過額"],
+    ["officer_salary", "役員給与の損金不算入額"],
+    ["entertainment", "交際費等の損金不算入額"],
+    ["batch_asset_excess", "一括償却資産限度超過額"],
+    ["allowance_excess", "引当金繰入限度超過額"],
+    ["tax_adjustment_debit", "法人税等調整額（借方）"],
+    ["asset_retirement", "資産除去債務関連"],
+    ["custom", "その他（カスタム入力）"]
+  ],
+  subtractions: [
+    ["depreciation_acceptance", "減価償却超過額の当期認容額"],
+    ["business_tax_from_reserve", "納税充当金から支出した事業税等の金額"],
+    ["dividend_exclusion", "受取配当等の益金不算入額"],
+    ["batch_asset_acceptance", "一括償却資産当期認容額"],
+    ["allowance_acceptance", "引当金当期認容額"],
+    ["interim_tax_refund", "法人税等の中間納付額及び過誤納に係る還付金額"],
+    ["withholding_refund", "所得税額等及び欠損金の繰戻しによる還付金額等"],
+    ["tax_adjustment_credit", "法人税等調整額（貸方）"],
+    ["custom", "その他（カスタム入力）"]
+  ],
+  afterTentative: [
+    ["donation", "寄附金の損金不算入額"],
+    ["withholding_tax", "法人税額から控除される所得税額"],
+    ["foreign_tax_credit", "税額控除の対象となる外国法人税の額"],
+    ["custom", "その他（カスタム入力）"]
+  ]
+};
+
+const lists = {
+  additions: document.getElementById("additions-list"),
+  subtractions: document.getElementById("subtractions-list"),
+  afterTentative: document.getElementById("afterTentative-list")
+};
+
+function iconTrash() {
+  return '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>';
+}
+
+function makePresetOptions(kind, selected) {
+  let html = '<option value="">項目選択</option>';
+  presets[kind].forEach(function(item) {
+    const key = item[0];
+    const label = item[1];
+    html += '<option value="' + escapeHtml(key) + '"' + (key === selected ? " selected" : "") + ">" + escapeHtml(label) + "</option>";
+  });
+  return html;
+}
+
+function addRow(kind, presetKey, label, amount) {
+  const row = document.createElement("div");
+  row.className = "adjust-row";
+  row.dataset.kind = kind;
+  row.innerHTML =
+    '<select class="preset-select" aria-label="項目">' + makePresetOptions(kind, presetKey || "") + "</select>" +
+    '<input class="label-input" type="text" placeholder="項目名">' +
+    '<input class="money-input amount-input" inputmode="numeric" type="text" placeholder="0">' +
+    '<button class="icon-btn danger no-print" type="button" title="行を削除" aria-label="行を削除">' + iconTrash() + "</button>";
+  lists[kind].appendChild(row);
+
+  const select = row.querySelector(".preset-select");
+  const labelInput = row.querySelector(".label-input");
+  const amountInput = row.querySelector(".amount-input");
+
+  labelInput.value = label || getPresetLabel(kind, presetKey) || "";
+  amountInput.value = amount || "";
+  if (amountInput.value) formatInput(amountInput);
+
+  select.addEventListener("change", function() {
+    const nextLabel = getPresetLabel(kind, select.value);
+    labelInput.value = select.value === "custom" ? "" : nextLabel;
+    labelInput.focus();
+    updateResults();
+  });
+  labelInput.addEventListener("input", updateResults);
+  bindMoneyInput(amountInput);
+  row.querySelector("button").addEventListener("click", function() {
+    row.remove();
+    updateResults();
+  });
+  updateResults();
+}
+
+function getPresetLabel(kind, key) {
+  const found = presets[kind].find(function(item) { return item[0] === key; });
+  return found ? found[1] : "";
+}
+
+function bindMoneyInput(input) {
+  input.addEventListener("input", function() {
+    input.value = normalizeMoneyText(input.value, false);
+    updateResults();
+  });
+  input.addEventListener("focus", function() {
+    input.value = stripDecorations(input.value);
+    input.select();
+  });
+  input.addEventListener("blur", function() {
+    formatInput(input);
+    updateResults();
+  });
+}
+
+function normalizeMoneyText(value, finalMode) {
+  let text = String(value || "").replace(/[０-９]/g, function(ch) {
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  });
+  text = text.replace(/[，、\s円]/g, "");
+  text = text.replace(/[－ー―]/g, "-").replace(/[△▲]/g, "-");
+  text = text.replace(/[^0-9-]/g, "");
+  const negative = text.indexOf("-") >= 0;
+  text = text.replace(/-/g, "");
+  if (!text) return negative && !finalMode ? "-" : "";
+  text = text.replace(/^0+(?=\d)/, "");
+  return negative ? "-" + text : text;
+}
+
+function stripDecorations(value) {
+  return normalizeMoneyText(value, false);
+}
+
+function parseMoney(value) {
+  const text = normalizeMoneyText(value, true);
+  if (!text || text === "-") return 0;
+  const num = Number(text);
+  return Number.isFinite(num) ? Math.trunc(num) : 0;
+}
+
+function formatInput(input) {
+  const value = parseMoney(input.value);
+  input.value = value === 0 ? "" : formatNumber(value);
+}
+
+function formatNumber(value) {
+  const num = Math.trunc(Number(value) || 0);
+  if (num < 0) return "△" + Math.abs(num).toLocaleString("ja-JP");
+  return num.toLocaleString("ja-JP");
+}
+
+function formatYen(value) {
+  return formatNumber(value) + "円";
+}
+
+function getRows(kind) {
+  return Array.from(lists[kind].querySelectorAll(".adjust-row")).map(function(row) {
+    return {
+      preset: row.querySelector(".preset-select").value || "custom",
+      label: row.querySelector(".label-input").value.trim(),
+      amount: parseMoney(row.querySelector(".amount-input").value)
+    };
+  }).filter(function(item) {
+    return item.label || item.amount !== 0;
+  });
+}
+
+function sumRows(kind) {
+  return getRows(kind).reduce(function(sum, item) {
+    return sum + item.amount;
+  }, 0);
+}
+
+function collectData() {
+  return {
+    currentProfit: parseMoney(document.getElementById("current-profit").value),
+    additions: getRows("additions"),
+    subtractions: getRows("subtractions"),
+    afterTentative: getRows("afterTentative"),
+    lossCarryforward: parseMoney(document.getElementById("loss-carryforward").value)
+  };
+}
+
+function calculate(data) {
+  const additionTotal = data.additions.reduce(function(sum, item) { return sum + item.amount; }, 0);
+  const subtractionTotal = data.subtractions.reduce(function(sum, item) { return sum + item.amount; }, 0);
+  const tentative = data.currentProfit + additionTotal - subtractionTotal;
+  const afterTentativeTotal = data.afterTentative.reduce(function(sum, item) { return sum + item.amount; }, 0);
+  const total = tentative + afterTentativeTotal;
+  const income = total - data.lossCarryforward;
+  return {
+    additionTotal: additionTotal,
+    subtractionTotal: subtractionTotal,
+    tentative: tentative,
+    afterTentativeTotal: afterTentativeTotal,
+    total: total,
+    income: income
+  };
+}
+
+function updateResults() {
+  const data = collectData();
+  const results = calculate(data);
+  setText("addition-total", formatYen(results.additionTotal));
+  setText("subtraction-total", formatYen(results.subtractionTotal));
+  setText("after-total", formatYen(results.afterTentativeTotal));
+  setText("r-current", formatYen(data.currentProfit));
+  setText("r-additions", formatYen(results.additionTotal));
+  setText("r-subtractions", formatYen(results.subtractionTotal));
+  setText("r-tentative", formatYen(results.tentative));
+  setText("r-after", formatYen(results.afterTentativeTotal));
+  setText("r-total", formatYen(results.total));
+  setText("r-loss", formatYen(data.lossCarryforward));
+  setText("r-income", formatYen(results.income));
+  setText("income-amount", formatYen(results.income));
+  document.getElementById("income-amount").classList.toggle("negative", results.income < 0);
+}
+
+function setText(id, text) {
+  document.getElementById(id).textContent = text;
+}
+
+function saveCurrent() {
+  const name = prompt("保存名を入力してください");
+  if (!name) return;
+  const store = readStore();
+  const data = collectData();
+  const results = calculate(data);
+  const key = makeStorageKey(name);
+  store.savedSets[key] = {
+    name: name.trim(),
+    savedAt: new Date().toISOString(),
+    data: data,
+    results: results
+  };
+  writeStore(store);
+  refreshSavedList(key);
+  setStorageStatus("保存しました: " + name.trim());
+}
+
+function makeStorageKey(name) {
+  const safeName = String(name).trim().replace(/\s+/g, "_").slice(0, 36) || "saved";
+  return safeName + "_" + Date.now();
+}
+
+function readStore() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { version: "1.0", savedSets: {} };
+    const parsed = JSON.parse(raw);
+    return {
+      version: parsed.version || "1.0",
+      savedSets: parsed.savedSets || {}
+    };
+  } catch (error) {
+    setStorageStatus("保存データを読めませんでした。新しい保存領域を使います。");
+    return { version: "1.0", savedSets: {} };
+  }
+}
+
+function writeStore(store) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  } catch (error) {
+    setStorageStatus("localStorageへ保存できませんでした。ブラウザの容量や設定を確認してください。");
+  }
+}
+
+function refreshSavedList(selectedKey) {
+  const select = document.getElementById("saved-select");
+  const store = readStore();
+  const entries = Object.entries(store.savedSets).sort(function(a, b) {
+    return String(b[1].savedAt || "").localeCompare(String(a[1].savedAt || ""));
+  });
+  select.innerHTML = '<option value="">保存済みデータを選択</option>';
+  entries.forEach(function(entry) {
+    const key = entry[0];
+    const item = entry[1];
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = item.name + " / " + formatSavedAt(item.savedAt);
+    if (key === selectedKey) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function formatSavedAt(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function loadSelected() {
+  const key = document.getElementById("saved-select").value;
+  if (!key) return;
+  const store = readStore();
+  const saved = store.savedSets[key];
+  if (!saved) return;
+  applyData(normalizeLoadedData(saved.data));
+  setStorageStatus("読込しました: " + saved.name);
+}
+
+function deleteSelected() {
+  const select = document.getElementById("saved-select");
+  const key = select.value;
+  if (!key) return;
+  const store = readStore();
+  const name = store.savedSets[key] ? store.savedSets[key].name : "";
+  if (!confirm("保存データ「" + name + "」を削除しますか？")) return;
+  delete store.savedSets[key];
+  writeStore(store);
+  refreshSavedList("");
+  setStorageStatus("削除しました: " + name);
+}
+
+function normalizeLoadedData(data) {
+  const normalized = data || {};
+  if (!Array.isArray(normalized.afterTentative)) {
+    const old = normalized.afterTentative || {};
+    const rows = [];
+    if (old.donation) rows.push({ preset: "donation", label: getPresetLabel("afterTentative", "donation"), amount: old.donation });
+    if (old.withholdingTax) rows.push({ preset: "withholding_tax", label: getPresetLabel("afterTentative", "withholding_tax"), amount: old.withholdingTax });
+    if (old.foreignTaxCredit) rows.push({ preset: "foreign_tax_credit", label: getPresetLabel("afterTentative", "foreign_tax_credit"), amount: old.foreignTaxCredit });
+    if (Array.isArray(old.custom)) rows.push.apply(rows, old.custom);
+    normalized.afterTentative = rows;
+  }
+  normalized.additions = Array.isArray(normalized.additions) ? normalized.additions : [];
+  normalized.subtractions = Array.isArray(normalized.subtractions) ? normalized.subtractions : [];
+  normalized.lossCarryforward = Number(normalized.lossCarryforward || 0);
+  normalized.currentProfit = Number(normalized.currentProfit || 0);
+  return normalized;
+}
+
+function applyData(data) {
+  document.getElementById("current-profit").value = data.currentProfit ? formatNumber(data.currentProfit) : "";
+  document.getElementById("loss-carryforward").value = data.lossCarryforward ? formatNumber(data.lossCarryforward) : "";
+  clearRows();
+  fillRows("additions", data.additions);
+  fillRows("subtractions", data.subtractions);
+  fillRows("afterTentative", data.afterTentative);
+  ensureEmptyRows();
+  updateResults();
+}
+
+function fillRows(kind, rows) {
+  rows.forEach(function(item) {
+    addRow(kind, item.preset || "custom", item.label || "", item.amount ? String(item.amount) : "");
+  });
+}
+
+function clearRows() {
+  Object.keys(lists).forEach(function(kind) {
+    lists[kind].innerHTML = "";
+  });
+}
+
+function clearAll() {
+  if (!confirm("入力内容をすべてクリアしますか？")) return;
+  document.getElementById("current-profit").value = "";
+  document.getElementById("loss-carryforward").value = "";
+  clearRows();
+  ensureEmptyRows();
+  setStorageStatus("");
+  setText("copy-status", "");
+  updateResults();
+}
+
+function ensureEmptyRows() {
+  if (!lists.additions.children.length) addRow("additions");
+  if (!lists.subtractions.children.length) addRow("subtractions");
+  if (!lists.afterTentative.children.length) addRow("afterTentative");
+}
+
+function copyResult() {
+  const data = collectData();
+  const r = calculate(data);
+  const lines = [
+    "別表4 所得金額計算",
+    "① 当期利益又は当期欠損: " + formatYen(data.currentProfit),
+    "② 加算合計: " + formatYen(r.additionTotal),
+    "③ 減算合計: " + formatYen(r.subtractionTotal),
+    "④ 仮計: " + formatYen(r.tentative),
+    "⑤ 仮計後 加算合計: " + formatYen(r.afterTentativeTotal),
+    "⑥ 合計: " + formatYen(r.total),
+    "⑦ 欠損金等の当期控除額: " + formatYen(data.lossCarryforward),
+    "⑧ 所得金額: " + formatYen(r.income),
+    "",
+    "加算項目",
+    rowsToText(data.additions),
+    "",
+    "減算項目",
+    rowsToText(data.subtractions),
+    "",
+    "仮計後 加算項目",
+    rowsToText(data.afterTentative)
+  ].join("\n");
+  copyText(lines);
+}
+
+function rowsToText(rows) {
+  if (!rows.length) return "なし";
+  return rows.map(function(row) {
+    const label = row.label || getPresetLabelByAny(row.preset) || "未入力";
+    return "- " + label + ": " + formatYen(row.amount);
+  }).join("\n");
+}
+
+function getPresetLabelByAny(key) {
+  const all = presets.additions.concat(presets.subtractions, presets.afterTentative);
+  const found = all.find(function(item) { return item[0] === key; });
+  return found ? found[1] : "";
+}
+
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      setText("copy-status", "コピーしました。");
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  document.body.appendChild(area);
+  area.select();
+  try {
+    document.execCommand("copy");
+    setText("copy-status", "コピーしました。");
+  } catch (error) {
+    setText("copy-status", "コピーできませんでした。");
+  }
+  area.remove();
+}
+
+function setStorageStatus(text) {
+  setText("storage-status", text);
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, function(ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+
+function setup() {
+  ["current-profit", "loss-carryforward"].forEach(function(id) {
+    bindMoneyInput(document.getElementById(id));
+  });
+  addRow("additions", "loss_corporate_tax", getPresetLabel("additions", "loss_corporate_tax"), "");
+  addRow("subtractions", "business_tax_from_reserve", getPresetLabel("subtractions", "business_tax_from_reserve"), "");
+  addRow("afterTentative", "withholding_tax", getPresetLabel("afterTentative", "withholding_tax"), "");
+  refreshSavedList("");
+  updateResults();
+}
+
+setup();
+</script>
+</body>
+</html>

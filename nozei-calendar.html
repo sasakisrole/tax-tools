@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="portal:title" content="納税予測カレンダー">
+<meta name="portal:desc" content="前期確定額の入力だけで法人税・住民税・事業税・消費税の中間/確定納税スケジュールを自動配置。法人・個人・統合の3タブ・印刷/xlsx出力対応・保存なし">
+<meta name="portal:tag" content="法人税,消費税,予定納税,中間納税,決算">
+<meta name="portal:section" content="tools">
+<meta name="portal:created" content="2026-05-31">
+<meta name="portal:updated" content="2026-05-31">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>納税予測カレンダー</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy: #1e3a5f;
+  --blue: #1a5276;
+  --sky: #2980b9;
+  --success: #2e7a55;
+  --warning: #b8762e;
+  --danger: #a43f3a;
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface-soft: #f8fbff;
+  --surface-muted: #f3f5f7;
+  --border: #d9e2ec;
+  --border-strong: #b9c7d6;
+  --text: #1f2933;
+  --muted: #667085;
+  --faint: #98a2b3;
+  --input-bg: #ffffff;
+  --radius: 8px;
+  --shadow: 0 2px 8px rgba(17, 24, 39, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy: #132238;
+    --blue: #2d6f94;
+    --sky: #4aa3d8;
+    --success: #5cc39a;
+    --warning: #e0a858;
+    --danger: #e1847f;
+    --bg: #101820;
+    --surface: #17212b;
+    --surface-soft: #1d2b38;
+    --surface-muted: #1a2631;
+    --border: #2f4357;
+    --border-strong: #49627b;
+    --text: #eef4f8;
+    --muted: #a8b3bf;
+    --faint: #7f8c9a;
+    --input-bg: #111a23;
+    --shadow: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", Meiryo, sans-serif;
+  font-feature-settings: "palt", "tnum";
+  line-height: 1.6;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+svg {
+  flex: 0 0 auto;
+  height: 16px;
+  stroke-width: 2;
+  width: 16px;
+}
+
+header {
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  color: #fff;
+  padding: 22px 20px;
+}
+
+.header-inner {
+  margin: 0 auto;
+  max-width: 1240px;
+}
+
+h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.header-note {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  opacity: 0.86;
+}
+
+main {
+  display: grid;
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 1240px;
+  padding: 18px;
+}
+
+.toolbar,
+.panel,
+.results-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.toolbar {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1fr) auto auto auto;
+  padding: 14px;
+}
+
+.field label,
+.field-title {
+  color: var(--muted);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.field input,
+.field select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  min-height: 40px;
+  outline: none;
+  padding: 9px 10px;
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.18);
+}
+
+.money-input {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.money-input.invalid {
+  border-color: var(--danger);
+}
+
+.tabs {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px;
+}
+
+.tab-btn {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--muted);
+  display: inline-flex;
+  flex: 1 0 120px;
+  gap: 6px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
+.tab-btn.active {
+  background: var(--surface-soft);
+  border-color: var(--border);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.tab-panel {
+  display: none;
+  gap: 16px;
+}
+
+.tab-panel.active {
+  display: grid;
+}
+
+.grid-2 {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(300px, 0.45fr) minmax(0, 1fr);
+}
+
+.input-card,
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card-head {
+  border-bottom: 1px solid var(--border);
+  padding: 13px 14px;
+}
+
+.card-title {
+  color: var(--blue);
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.card-desc {
+  color: var(--muted);
+  font-size: 0.76rem;
+  margin-top: 2px;
+}
+
+.card-body {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.input-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.input-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.section-label {
+  border-bottom: 1px solid var(--border);
+  color: var(--blue);
+  font-size: 0.82rem;
+  font-weight: 700;
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  padding-bottom: 4px;
+}
+
+.table-block {
+  display: grid;
+  gap: 10px;
+}
+
+.table-note {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  padding: 9px 10px;
+}
+
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  min-width: 900px;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  font-size: 0.78rem;
+  padding: 8px 7px;
+  vertical-align: top;
+}
+
+th:last-child,
+td:last-child {
+  border-right: 0;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+th {
+  background: var(--surface-muted);
+  color: var(--blue);
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.month-cell {
+  color: var(--blue);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.amount-cell {
+  min-width: 118px;
+}
+
+.entry {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 5px;
+}
+
+.entry:last-child {
+  margin-bottom: 0;
+}
+
+.entry-type {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.entry-amount {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.not-app,
+.dash {
+  color: var(--faint);
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 2px 0;
+}
+
+.not-app {
+  background: color-mix(in srgb, var(--surface-muted) 78%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.total-cell {
+  color: var(--blue);
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.deadline {
+  align-items: center;
+  border-radius: 6px;
+  display: flex;
+  gap: 5px;
+  margin-bottom: 4px;
+  padding: 4px 5px;
+  white-space: nowrap;
+}
+
+.deadline:last-child {
+  margin-bottom: 0;
+}
+
+.deadline.warn {
+  background: rgba(184, 118, 46, 0.16);
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.micro-label {
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 0.66rem;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.meta-cell {
+  color: var(--muted);
+  min-width: 88px;
+}
+
+.placeholder {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  min-height: 96px;
+  padding: 16px;
+}
+
+.validation {
+  color: var(--danger);
+  font-size: 0.76rem;
+  min-height: 1.2em;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.btn {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: inline-flex;
+  gap: 6px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn.secondary {
+  background: var(--surface);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.btn.danger {
+  background: var(--surface);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.print-heading {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  header {
+    padding: 18px 14px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .toolbar,
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-btn {
+    flex-basis: 100px;
+  }
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: A4 portrait;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  header,
+  .toolbar,
+  .tabs,
+  .input-card,
+  .validation,
+  .note {
+    display: none !important;
+  }
+
+  main {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .tab-panel {
+    display: none !important;
+  }
+
+  .tab-panel.active {
+    display: block !important;
+  }
+
+  .grid-2 {
+    display: block;
+  }
+
+  .result-card {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .card-head {
+    display: none;
+  }
+
+  .card-body {
+    padding: 0;
+  }
+
+  .print-heading {
+    border-bottom: 2px solid #111;
+    display: block;
+    font-size: 15pt;
+    font-weight: 700;
+    margin-bottom: 6mm;
+    padding-bottom: 2mm;
+    text-align: center;
+  }
+
+  .table-note {
+    border-color: #999;
+    color: #333;
+    font-size: 8.5pt;
+    margin-bottom: 3mm;
+  }
+
+  .table-wrap {
+    border-color: #888;
+    overflow: visible;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  th,
+  td {
+    border-color: #aaa;
+    font-size: 7.5pt;
+    padding: 4px;
+  }
+
+  th {
+    background: #f1f1f1 !important;
+    color: #111;
+    position: static;
+  }
+
+  .deadline.warn {
+    background: #fff3cd !important;
+    color: #6b4b00 !important;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="beta.html" style="display:inline-block; color:#fff; opacity:0.85; text-decoration:none; font-size:0.8rem; margin-bottom:6px;">← Beta Lab</a>
+    <h1>納税予測カレンダー <span style="font-size:0.9rem; font-weight:400; opacity:0.85;">β（試験中）</span></h1>
+    <p class="header-note">前期確定額から、中間・予定納税・確定申告の基準日を自動配置します。表示日付は土日祝補正前です。<br/>※ 計算ロジックは未検証のため、結果は必ずご確認ください。</p>
+  </div>
+</header>
+
+<main>
+  <div class="print-heading" id="print-heading">納税予測カレンダー</div>
+
+  <section class="toolbar" aria-label="操作パネル">
+    <div class="field">
+      <label for="client-name">クライアント名</label>
+      <input id="client-name" type="text" placeholder="未入力の場合は無題">
+    </div>
+    <button class="btn primary" type="button" onclick="printCurrent()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+      印刷
+    </button>
+    <button class="btn secondary" type="button" onclick="downloadXlsx()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h8"></path></svg>
+      xlsx
+    </button>
+    <button class="btn danger" type="button" onclick="clearAll()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+      クリア
+    </button>
+    <div class="validation" id="validation-message" aria-live="polite"></div>
+  </section>
+
+  <nav class="tabs" aria-label="表示切替">
+    <button class="tab-btn active" type="button" data-tab="corporate" onclick="switchTab('corporate')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9h1"></path><path d="M9 13h1"></path><path d="M9 17h1"></path></svg>
+      法人
+    </button>
+    <button class="tab-btn" type="button" data-tab="individual" onclick="switchTab('individual')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      個人
+    </button>
+    <button class="tab-btn" type="button" data-tab="combined" onclick="switchTab('combined')">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+      統合
+    </button>
+  </nav>
+
+  <section class="tab-panel grid-2 active" id="tab-corporate">
+    <div class="input-card">
+      <div class="card-head">
+        <div class="card-title">法人入力</div>
+        <p class="card-desc">前期確定額を入力します。消費税は国税部分のみ入力してください。</p>
+      </div>
+      <div class="card-body">
+        <div class="input-grid">
+          <div class="field">
+            <label>決算月</label>
+            <select data-path="corporate.fiscalMonth">
+              <option value="">決算月を選択してください</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>法人税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.corpTax" inputmode="numeric" min="0" type="text" placeholder="例: 800,000">
+          </div>
+          <div class="field">
+            <label>法人住民税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.residentTax" inputmode="numeric" min="0" type="text" placeholder="例: 100,000">
+          </div>
+          <div class="field">
+            <label>法人事業税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.enterpriseTax" inputmode="numeric" min="0" type="text" placeholder="例: 150,000">
+          </div>
+          <div class="field">
+            <label>消費税 国税部分 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.consumptionTaxNational" inputmode="numeric" min="0" type="text" placeholder="例: 6,000,000">
+          </div>
+        </div>
+        <p class="note">消費税の地方消費税分は、国税部分に 22/78 を乗じて円未満四捨五入で自動配置します。</p>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="card-head">
+        <div class="card-title">法人 結果表</div>
+        <p class="card-desc">決算月起点の12ヶ月で表示します。</p>
+      </div>
+      <div class="card-body" id="corporate-result"></div>
+    </div>
+  </section>
+
+  <section class="tab-panel grid-2" id="tab-individual">
+    <div class="input-card">
+      <div class="card-head">
+        <div class="card-title">個人入力</div>
+        <p class="card-desc">予定納税基準額と通知ベースの各期額を入力します。</p>
+      </div>
+      <div class="card-body">
+        <div class="input-grid">
+          <div class="field">
+            <label>所得税 前年予定納税基準額</label>
+            <input class="money-input" data-path="individual.incomeTaxBase" inputmode="numeric" min="0" type="text" placeholder="例: 600,000">
+          </div>
+          <div class="field">
+            <label>個人消費税 国税部分</label>
+            <input class="money-input" data-path="individual.consumptionTaxNational" inputmode="numeric" min="0" type="text" placeholder="例: 800,000">
+          </div>
+          <div class="section-label">個人住民税 普通徴収4期</div>
+          <div class="field">
+            <label>6月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.0" inputmode="numeric" min="0" type="text" placeholder="例: 30,000">
+          </div>
+          <div class="field">
+            <label>8月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.1" inputmode="numeric" min="0" type="text" placeholder="例: 30,000">
+          </div>
+          <div class="field">
+            <label>10月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.2" inputmode="numeric" min="0" type="text" placeholder="例: 30,000">
+          </div>
+          <div class="field">
+            <label>翌1月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.3" inputmode="numeric" min="0" type="text" placeholder="例: 30,000">
+          </div>
+          <div class="section-label">個人事業税 2期</div>
+          <div class="field">
+            <label>8月期</label>
+            <input class="money-input" data-path="individual.enterpriseTaxByPeriod.0" inputmode="numeric" min="0" type="text" placeholder="例: 50,000">
+          </div>
+          <div class="field">
+            <label>11月期</label>
+            <input class="money-input" data-path="individual.enterpriseTaxByPeriod.1" inputmode="numeric" min="0" type="text" placeholder="例: 50,000">
+          </div>
+        </div>
+        <p class="note">所得税予定納税は基準額15万円以上で発生し、各期は基準額の3分の1を1円未満切り捨てで計算します。</p>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="card-head">
+        <div class="card-title">個人 結果表</div>
+        <p class="card-desc">1月起点の12ヶ月で表示します。</p>
+      </div>
+      <div class="card-body" id="individual-result"></div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-combined">
+    <div class="input-card">
+      <div class="card-head">
+        <div class="card-title">統合入力</div>
+        <p class="card-desc">法人・個人タブと同じ値を共有します。ここで入力しても各タブへ反映されます。</p>
+      </div>
+      <div class="card-body">
+        <div class="input-grid">
+          <div class="section-label">法人</div>
+          <div class="field">
+            <label>決算月</label>
+            <select data-path="corporate.fiscalMonth">
+              <option value="">決算月を選択してください</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>法人税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.corpTax" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>法人住民税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.residentTax" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>法人事業税 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.enterpriseTax" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>消費税 国税部分 前期確定額</label>
+            <input class="money-input" data-path="corporate.prevYear.consumptionTaxNational" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="section-label">個人</div>
+          <div class="field">
+            <label>所得税 前年予定納税基準額</label>
+            <input class="money-input" data-path="individual.incomeTaxBase" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人消費税 国税部分</label>
+            <input class="money-input" data-path="individual.consumptionTaxNational" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人住民税 6月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.0" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人住民税 8月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.1" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人住民税 10月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.2" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人住民税 翌1月期</label>
+            <input class="money-input" data-path="individual.residentTaxByPeriod.3" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人事業税 8月期</label>
+            <input class="money-input" data-path="individual.enterpriseTaxByPeriod.0" inputmode="numeric" min="0" type="text">
+          </div>
+          <div class="field">
+            <label>個人事業税 11月期</label>
+            <input class="money-input" data-path="individual.enterpriseTaxByPeriod.1" inputmode="numeric" min="0" type="text">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="card-head">
+        <div class="card-title">統合 結果表</div>
+        <p class="card-desc">1月起点の暦月表示です。対象区分と期限種別を表示し、起点はツールチップで確認できます。</p>
+      </div>
+      <div class="card-body" id="combined-result"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const BASE_YEAR = new Date().getFullYear();
+const LOCAL_CONSUMPTION_RATE = 22 / 78;
+let currentTab = "corporate";
+
+const state = {
+  corporate: {
+    fiscalMonth: "",
+    prevYear: {
+      corpTax: 0,
+      residentTax: 0,
+      enterpriseTax: 0,
+      consumptionTaxNational: 0
+    }
+  },
+  individual: {
+    incomeTaxBase: 0,
+    residentTaxByPeriod: [0, 0, 0, 0],
+    enterpriseTaxByPeriod: [0, 0],
+    consumptionTaxNational: 0
+  }
+};
+
+const corporateColumns = [
+  { key: "corpTax", label: "法人税" },
+  { key: "residentTax", label: "住民税" },
+  { key: "enterpriseTax", label: "事業税" },
+  { key: "consumptionNational", label: "消費税国税" },
+  { key: "consumptionLocal", label: "地方消費税" }
+];
+
+const individualColumns = [
+  { key: "incomeTax", label: "所得税予定" },
+  { key: "residentTax", label: "住民税" },
+  { key: "enterpriseTax", label: "事業税" },
+  { key: "consumptionNational", label: "消費税国税" },
+  { key: "consumptionLocal", label: "地方消費税" }
+];
+
+const calendarIcon = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>';
+const infoIcon = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
+
+function setup() {
+  document.querySelectorAll('select[data-path="corporate.fiscalMonth"]').forEach(function(select) {
+    for (let month = 1; month <= 12; month++) {
+      const option = document.createElement("option");
+      option.value = String(month);
+      option.textContent = month + "月";
+      select.appendChild(option);
+    }
+  });
+
+  document.querySelectorAll("[data-path]").forEach(function(input) {
+    input.addEventListener("input", function() {
+      updateStateFromInput(input);
+      syncInputs(input);
+      renderAll();
+    });
+    input.addEventListener("change", function() {
+      updateStateFromInput(input);
+      syncInputs(input);
+      renderAll();
+    });
+    if (input.classList.contains("money-input")) {
+      input.addEventListener("focus", function() {
+        input.value = getByPath(input.dataset.path) || "";
+        input.select();
+      });
+      input.addEventListener("blur", function() {
+        input.value = formatInputValue(getByPath(input.dataset.path));
+        input.classList.remove("invalid");
+      });
+    }
+  });
+
+  document.getElementById("client-name").addEventListener("input", updatePrintHeading);
+  syncInputs();
+  renderAll();
+}
+
+function switchTab(tabName) {
+  currentTab = tabName;
+  document.querySelectorAll(".tab-btn").forEach(function(button) {
+    button.classList.toggle("active", button.dataset.tab === tabName);
+  });
+  document.querySelectorAll(".tab-panel").forEach(function(panel) {
+    panel.classList.toggle("active", panel.id === "tab-" + tabName);
+  });
+  updatePrintHeading();
+}
+
+function updateStateFromInput(input) {
+  const path = input.dataset.path;
+  if (path === "corporate.fiscalMonth") {
+    setByPath(path, input.value ? Number(input.value) : "");
+    return;
+  }
+
+  const normalized = normalizeMoneyText(input.value);
+  if (normalized.negative) {
+    input.classList.add("invalid");
+    setValidation("負数は入力できません。0以上の金額で入力してください。");
+    input.value = "";
+    setByPath(path, 0);
+    return;
+  }
+  input.classList.remove("invalid");
+  setValidation("");
+  input.value = normalized.text;
+  setByPath(path, normalized.text ? Number(normalized.text) : 0);
+}
+
+function normalizeMoneyText(value) {
+  let text = String(value || "").replace(/[０-９]/g, function(ch) {
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  });
+  text = text.replace(/[，、,\s円]/g, "");
+  const negative = /[-－ー―△▲]/.test(text);
+  text = text.replace(/[^0-9]/g, "");
+  text = text.replace(/^0+(?=\d)/, "");
+  return { text: text, negative: negative };
+}
+
+function syncInputs(activeInput) {
+  document.querySelectorAll("[data-path]").forEach(function(input) {
+    if (input === activeInput) return;
+    const value = getByPath(input.dataset.path);
+    if (input.tagName === "SELECT") {
+      input.value = value === "" ? "" : String(value);
+    } else {
+      input.value = formatInputValue(value);
+      input.classList.remove("invalid");
+    }
+  });
+}
+
+function getByPath(path) {
+  return path.split(".").reduce(function(current, key) {
+    return current == null ? undefined : current[key];
+  }, state);
+}
+
+function setByPath(path, value) {
+  const parts = path.split(".");
+  let target = state;
+  for (let i = 0; i < parts.length - 1; i++) {
+    target = target[parts[i]];
+  }
+  target[parts[parts.length - 1]] = value;
+}
+
+function formatInputValue(value) {
+  const number = Number(value || 0);
+  return number > 0 ? Math.trunc(number).toLocaleString("ja-JP") : "";
+}
+
+function setValidation(text) {
+  document.getElementById("validation-message").textContent = text;
+}
+
+function consumptionInterimCount(taxNational) {
+  if (taxNational > 48000000) return 11;
+  if (taxNational > 4000000) return 3;
+  if (taxNational > 480000) return 1;
+  return 0;
+}
+
+function monthAfterFiscal(fiscalMonth, monthsAfter) {
+  return (fiscalMonth + monthsAfter - 1) % 12 + 1;
+}
+
+function fiscalYearForOffset(fiscalMonth, monthsAfter) {
+  return BASE_YEAR + Math.floor((fiscalMonth - 1 + monthsAfter) / 12);
+}
+
+function fiscalDate(fiscalMonth, monthsAfter, dayMode) {
+  const month = monthAfterFiscal(fiscalMonth, monthsAfter);
+  const year = fiscalYearForOffset(fiscalMonth, monthsAfter);
+  const day = dayMode === "end" ? lastDayOfMonth(year, month) : dayMode;
+  return makeDate(year, month, day);
+}
+
+function makeDate(year, month, day) {
+  return new Date(year, month - 1, day);
+}
+
+function lastDayOfMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function roundLocalConsumption(nationalTax) {
+  return Math.round(nationalTax * LOCAL_CONSUMPTION_RATE);
+}
+
+function addEvent(events, options) {
+  if (!options.amount || options.amount <= 0) return;
+  events.push({
+    subject: options.subject,
+    block: options.block,
+    taxKey: options.taxKey,
+    label: options.label,
+    amount: options.amount,
+    deadlineType: options.deadlineType,
+    origin: options.origin,
+    date: options.date,
+    month: options.date.getMonth() + 1,
+    year: options.date.getFullYear()
+  });
+}
+
+function calculateCorporate() {
+  const fiscalMonth = Number(state.corporate.fiscalMonth || 0);
+  const prev = state.corporate.prevYear;
+  const events = [];
+  const months = [];
+  const corpTaxInterim = prev.corpTax > 200000 ? prev.corpTax / 2 : 0;
+  const residentInterim = corpTaxInterim > 0 ? prev.residentTax / 2 : 0;
+  const enterpriseInterim = corpTaxInterim > 0 ? prev.enterpriseTax / 2 : 0;
+  const consumptionCount = consumptionInterimCount(prev.consumptionTaxNational);
+
+  if (!fiscalMonth) {
+    return {
+      events: events,
+      months: months,
+      notApplicable: {
+        corpTax: true,
+        residentTax: true,
+        enterpriseTax: true,
+        consumptionNational: true,
+        consumptionLocal: true
+      },
+      summary: { corpTaxInterim, residentInterim, enterpriseInterim, consumptionCount }
+    };
+  }
+
+  for (let offset = 0; offset < 12; offset++) {
+    months.push({
+      month: monthAfterFiscal(fiscalMonth, offset),
+      year: fiscalYearForOffset(fiscalMonth, offset),
+      origin: offset === 0 ? "fiscal" : "fiscal+" + offset
+    });
+  }
+
+  const finalDate = fiscalDate(fiscalMonth, 2, "end");
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "corpTax", label: "法人税 確定", amount: prev.corpTax, deadlineType: "確定", origin: "fiscal+2", date: finalDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "residentTax", label: "法人住民税 確定", amount: prev.residentTax, deadlineType: "確定", origin: "fiscal+2", date: finalDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "enterpriseTax", label: "法人事業税 確定", amount: prev.enterpriseTax, deadlineType: "確定", origin: "fiscal+2", date: finalDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "consumptionNational", label: "消費税国税 確定", amount: prev.consumptionTaxNational, deadlineType: "確定", origin: "fiscal+2", date: finalDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "consumptionLocal", label: "地方消費税 確定", amount: roundLocalConsumption(prev.consumptionTaxNational), deadlineType: "確定", origin: "fiscal+2", date: finalDate });
+
+  const interimDate = fiscalDate(fiscalMonth, 8, "end");
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "corpTax", label: "法人税 中間", amount: corpTaxInterim, deadlineType: "中間", origin: "fiscal+8", date: interimDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "residentTax", label: "法人住民税 中間", amount: residentInterim, deadlineType: "中間", origin: "fiscal+8", date: interimDate });
+  addEvent(events, { subject: "法人", block: "corporate", taxKey: "enterpriseTax", label: "法人事業税 中間", amount: enterpriseInterim, deadlineType: "中間", origin: "fiscal+8", date: interimDate });
+
+  const consumptionOffsets = getConsumptionOffsets(consumptionCount);
+  const consumptionDivisor = getConsumptionDivisor(consumptionCount);
+  if (consumptionDivisor) {
+    const nationalAmount = prev.consumptionTaxNational / consumptionDivisor;
+    consumptionOffsets.forEach(function(offset, index) {
+      const date = fiscalDate(fiscalMonth, offset, "end");
+      const periodLabel = consumptionCount === 11 ? "中間" + (index + 1) : "中間";
+      addEvent(events, { subject: "法人", block: "corporate", taxKey: "consumptionNational", label: "消費税国税 " + periodLabel, amount: nationalAmount, deadlineType: "中間", origin: "fiscal+" + offset, date: date });
+      addEvent(events, { subject: "法人", block: "corporate", taxKey: "consumptionLocal", label: "地方消費税 " + periodLabel, amount: roundLocalConsumption(nationalAmount), deadlineType: "中間", origin: "fiscal+" + offset, date: date });
+    });
+  }
+
+  return {
+    events: events,
+    months: months,
+    notApplicable: {
+      corpTax: corpTaxInterim <= 0,
+      residentTax: residentInterim <= 0,
+      enterpriseTax: enterpriseInterim <= 0,
+      consumptionNational: consumptionCount === 0,
+      consumptionLocal: consumptionCount === 0
+    },
+    summary: { corpTaxInterim, residentInterim, enterpriseInterim, consumptionCount }
+  };
+}
+
+function getConsumptionOffsets(count) {
+  if (count === 1) return [8];
+  if (count === 3) return [5, 8, 11];
+  if (count === 11) return [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+  return [];
+}
+
+function getConsumptionDivisor(count) {
+  if (count === 1) return 2;
+  if (count === 3) return 4;
+  if (count === 11) return 12;
+  return 0;
+}
+
+function calculateIndividual() {
+  const input = state.individual;
+  const events = [];
+  const incomeTaxPredict = input.incomeTaxBase >= 150000 ? Math.floor(input.incomeTaxBase / 3) : 0;
+  const consumptionCount = consumptionInterimCount(input.consumptionTaxNational);
+
+  addEvent(events, { subject: "個人", block: "individual", taxKey: "incomeTax", label: "所得税予定 第1期", amount: incomeTaxPredict, deadlineType: "予定納税", origin: "calendar", date: makeDate(BASE_YEAR, 7, 31) });
+  addEvent(events, { subject: "個人", block: "individual", taxKey: "incomeTax", label: "所得税予定 第2期", amount: incomeTaxPredict, deadlineType: "予定納税", origin: "calendar", date: makeDate(BASE_YEAR, 11, 30) });
+
+  [
+    { month: 6, year: BASE_YEAR, amount: input.residentTaxByPeriod[0], label: "個人住民税 1期" },
+    { month: 8, year: BASE_YEAR, amount: input.residentTaxByPeriod[1], label: "個人住民税 2期" },
+    { month: 10, year: BASE_YEAR, amount: input.residentTaxByPeriod[2], label: "個人住民税 3期" },
+    { month: 1, year: BASE_YEAR + 1, amount: input.residentTaxByPeriod[3], label: "個人住民税 4期" }
+  ].forEach(function(item) {
+    addEvent(events, { subject: "個人", block: "individual", taxKey: "residentTax", label: item.label, amount: item.amount, deadlineType: "4期分割", origin: "calendar", date: makeDate(item.year, item.month, lastDayOfMonth(item.year, item.month)) });
+  });
+
+  [
+    { month: 8, amount: input.enterpriseTaxByPeriod[0], label: "個人事業税 1期" },
+    { month: 11, amount: input.enterpriseTaxByPeriod[1], label: "個人事業税 2期" }
+  ].forEach(function(item) {
+    addEvent(events, { subject: "個人", block: "individual", taxKey: "enterpriseTax", label: item.label, amount: item.amount, deadlineType: "2期分割", origin: "calendar", date: makeDate(BASE_YEAR, item.month, lastDayOfMonth(BASE_YEAR, item.month)) });
+  });
+
+  const consumptionMonths = getIndividualConsumptionMonths(consumptionCount);
+  const consumptionDivisor = getConsumptionDivisor(consumptionCount);
+  if (consumptionDivisor) {
+    const nationalAmount = input.consumptionTaxNational / consumptionDivisor;
+    consumptionMonths.forEach(function(item, index) {
+      const periodLabel = consumptionCount === 11 ? "中間" + (index + 1) : "中間";
+      addEvent(events, { subject: "個人", block: "individual", taxKey: "consumptionNational", label: "消費税国税 " + periodLabel, amount: nationalAmount, deadlineType: "中間", origin: "calendar", date: makeDate(item.year, item.month, lastDayOfMonth(item.year, item.month)) });
+      addEvent(events, { subject: "個人", block: "individual", taxKey: "consumptionLocal", label: "地方消費税 " + periodLabel, amount: roundLocalConsumption(nationalAmount), deadlineType: "中間", origin: "calendar", date: makeDate(item.year, item.month, lastDayOfMonth(item.year, item.month)) });
+    });
+  }
+
+  addEvent(events, { subject: "個人", block: "individual", taxKey: "consumptionNational", label: "消費税国税 確定", amount: input.consumptionTaxNational, deadlineType: "確定", origin: "calendar", date: makeDate(BASE_YEAR + 1, 3, 31) });
+  addEvent(events, { subject: "個人", block: "individual", taxKey: "consumptionLocal", label: "地方消費税 確定", amount: roundLocalConsumption(input.consumptionTaxNational), deadlineType: "確定", origin: "calendar", date: makeDate(BASE_YEAR + 1, 3, 31) });
+
+  return {
+    events: events,
+    months: Array.from({ length: 12 }, function(_, i) { return { month: i + 1, year: BASE_YEAR }; }),
+    notApplicable: {
+      incomeTax: incomeTaxPredict <= 0,
+      residentTax: input.residentTaxByPeriod.every(function(amount) { return amount <= 0; }),
+      enterpriseTax: input.enterpriseTaxByPeriod.every(function(amount) { return amount <= 0; }),
+      consumptionNational: consumptionCount === 0,
+      consumptionLocal: consumptionCount === 0
+    },
+    summary: { incomeTaxPredict, consumptionCount }
+  };
+}
+
+function getIndividualConsumptionMonths(count) {
+  if (count === 1) return [{ month: 8, year: BASE_YEAR }];
+  if (count === 3) return [{ month: 5, year: BASE_YEAR }, { month: 8, year: BASE_YEAR }, { month: 11, year: BASE_YEAR }];
+  if (count === 11) {
+    return [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(function(month) {
+      return month <= 12 ? { month: month, year: BASE_YEAR } : { month: month - 12, year: BASE_YEAR + 1 };
+    });
+  }
+  return [];
+}
+
+function renderAll() {
+  renderCorporate();
+  renderIndividual();
+  renderCombined();
+  updatePrintHeading();
+}
+
+function renderCorporate() {
+  const result = calculateCorporate();
+  const root = document.getElementById("corporate-result");
+  if (!state.corporate.fiscalMonth) {
+    root.innerHTML = placeholderHtml("決算月を選択してください。");
+    return;
+  }
+  root.innerHTML = renderScheduleTable({
+    id: "corporate-table",
+    columns: corporateColumns,
+    months: result.months,
+    events: result.events,
+    notApplicable: result.notApplicable,
+    mode: "corporate"
+  });
+}
+
+function renderIndividual() {
+  const result = calculateIndividual();
+  document.getElementById("individual-result").innerHTML = renderScheduleTable({
+    id: "individual-table",
+    columns: individualColumns,
+    months: result.months,
+    events: result.events,
+    notApplicable: result.notApplicable,
+    mode: "individual"
+  });
+}
+
+function renderCombined() {
+  const corporate = calculateCorporate();
+  const individual = calculateIndividual();
+  const months = Array.from({ length: 12 }, function(_, i) { return { month: i + 1, year: BASE_YEAR }; });
+  const events = corporate.events.concat(individual.events);
+  const root = document.getElementById("combined-result");
+  let html = "";
+  if (!state.corporate.fiscalMonth) {
+    html += placeholderHtml("法人の決算月が未選択です。個人分は入力値に応じて表示されます。");
+  }
+  html += renderCombinedTable(months, events, corporate.notApplicable, individual.notApplicable);
+  root.innerHTML = html;
+}
+
+function placeholderHtml(text) {
+  return '<div class="placeholder">' + infoIcon + '<span>' + escapeHtml(text) + '</span></div>';
+}
+
+function renderScheduleTable(options) {
+  const note = '<div class="table-note">' + calendarIcon + '<span>※表示日付は補正前の基準日。土日祝の場合は翌営業日に補正されるため、実際の納期限は必ず確認してください。</span></div>';
+  let html = '<div class="table-block">' + note + '<div class="table-wrap"><table id="' + options.id + '" data-export-title="' + exportTitle(options.mode) + '"><thead><tr>';
+  html += '<th>月</th>';
+  options.columns.forEach(function(column) {
+    html += '<th>' + escapeHtml(column.label) + '</th>';
+  });
+  html += '<th>月合計</th><th>納付期限</th></tr></thead><tbody>';
+
+  options.months.forEach(function(row) {
+    const rowEvents = options.events.filter(function(event) {
+      return event.month === row.month && (options.mode !== "corporate" || event.year === row.year);
+    });
+    html += '<tr data-month="' + row.month + '" data-year="' + row.year + '">';
+    html += '<td class="month-cell">' + row.month + '月<br><span class="not-app">' + row.year + '年</span></td>';
+    options.columns.forEach(function(column) {
+      html += '<td class="amount-cell">' + renderTaxCell(rowEvents, column.key, options.notApplicable[column.key]) + '</td>';
+    });
+    html += '<td class="total-cell">' + formatYen(sumEvents(rowEvents)) + '</td>';
+    html += '<td>' + renderDeadlines(rowEvents) + '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderCombinedTable(months, events, corporateNotApplicable, individualNotApplicable) {
+  const note = '<div class="table-note">' + calendarIcon + '<span>※表示日付は補正前の基準日。土日祝の場合は翌営業日に補正されるため、実際の納期限は必ず確認してください。</span></div>';
+  let html = '<div class="table-block">' + note + '<div class="table-wrap"><table id="combined-table" data-export-title="統合"><thead><tr>';
+  html += '<th>暦月</th><th>対象区分</th><th>期限種別</th>';
+  corporateColumns.forEach(function(column) { html += '<th>法人 ' + escapeHtml(column.label) + '</th>'; });
+  individualColumns.forEach(function(column) { html += '<th>個人 ' + escapeHtml(column.label) + '</th>'; });
+  html += '<th>月合計</th><th>納付期限</th></tr></thead><tbody>';
+
+  months.forEach(function(row) {
+    const rowEvents = events.filter(function(event) { return event.month === row.month; });
+    const targets = unique(rowEvents.map(function(event) { return event.subject; }));
+    const types = unique(rowEvents.map(function(event) { return event.deadlineType; }));
+    const origins = unique(rowEvents.map(function(event) { return event.origin; }));
+    html += '<tr data-month="' + row.month + '" data-subject="' + escapeHtml(targets.join(",")) + '" data-origin="' + escapeHtml(origins.join(",")) + '" data-deadline-type="' + escapeHtml(types.join(",")) + '">';
+    html += '<td class="month-cell">' + row.month + '月</td>';
+    html += '<td class="meta-cell" title="起点: ' + escapeHtml(origins.join(" / ") || "なし") + '">' + escapeHtml(targets.join(" / ") || "－") + '</td>';
+    html += '<td class="meta-cell" title="起点: ' + escapeHtml(origins.join(" / ") || "なし") + '">' + escapeHtml(types.join(" / ") || "－") + '</td>';
+    corporateColumns.forEach(function(column) {
+      html += '<td class="amount-cell">' + renderTaxCell(rowEvents.filter(function(event) { return event.block === "corporate"; }), column.key, corporateNotApplicable[column.key]) + '</td>';
+    });
+    individualColumns.forEach(function(column) {
+      html += '<td class="amount-cell">' + renderTaxCell(rowEvents.filter(function(event) { return event.block === "individual"; }), column.key, individualNotApplicable[column.key]) + '</td>';
+    });
+    html += '<td class="total-cell">' + formatYen(sumEvents(rowEvents)) + '</td>';
+    html += '<td>' + renderDeadlines(rowEvents) + '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderTaxCell(events, taxKey, notApplicable) {
+  const taxEvents = events.filter(function(event) { return event.taxKey === taxKey; });
+  if (!taxEvents.length) {
+    return notApplicable ? '<span class="not-app">該当なし</span>' : '<span class="dash">－</span>';
+  }
+  return taxEvents.map(function(event) {
+    return '<div class="entry"><span class="entry-type">' + escapeHtml(event.deadlineType) + '</span><span class="entry-amount">' + formatYen(event.amount) + '</span></div>';
+  }).join("");
+}
+
+function renderDeadlines(events) {
+  if (!events.length) return '<span class="dash">－</span>';
+  const seen = {};
+  return events.filter(function(event) {
+    const key = event.date.getFullYear() + "-" + event.date.getMonth() + "-" + event.date.getDate();
+    if (seen[key]) return false;
+    seen[key] = true;
+    return true;
+  }).sort(function(a, b) {
+    return a.date.getTime() - b.date.getTime();
+  }).map(function(event) {
+    const warn = isWeekendOrHoliday(event.date);
+    const holiday = holidayName(event.date);
+    const title = warn ? (holiday || "土日") + "のため実際の納期限は翌営業日を確認してください" : "補正前の基準日";
+    return '<div class="deadline' + (warn ? " warn" : "") + '" title="' + escapeHtml(title) + '">' + calendarIcon + '<span class="micro-label">基準日</span><span>' + formatDate(event.date) + '</span></div>';
+  }).join("");
+}
+
+function sumEvents(events) {
+  return events.reduce(function(sum, event) { return sum + event.amount; }, 0);
+}
+
+function formatYen(value) {
+  const rounded = Math.round(Number(value || 0));
+  return rounded.toLocaleString("ja-JP") + "円";
+}
+
+function formatDate(date) {
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return yyyy + "/" + mm + "/" + dd + "（" + weekdays[date.getDay()] + "）";
+}
+
+function isWeekendOrHoliday(date) {
+  return date.getDay() === 0 || date.getDay() === 6 || Boolean(holidayName(date));
+}
+
+function holidayName(date) {
+  const key = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  const holidays = {
+    "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日", "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日", "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日", "2026-05-05": "こどもの日", "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日", "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日", "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日",
+    "2027-01-01": "元日", "2027-01-11": "成人の日", "2027-02-11": "建国記念の日", "2027-02-23": "天皇誕生日", "2027-03-21": "春分の日", "2027-03-22": "振替休日", "2027-04-29": "昭和の日", "2027-05-03": "憲法記念日", "2027-05-04": "みどりの日", "2027-05-05": "こどもの日", "2027-07-19": "海の日", "2027-08-11": "山の日", "2027-09-20": "敬老の日", "2027-09-23": "秋分の日", "2027-10-11": "スポーツの日", "2027-11-03": "文化の日", "2027-11-23": "勤労感謝の日"
+  };
+  return holidays[key] || "";
+}
+
+function unique(values) {
+  return values.filter(function(value, index, array) {
+    return value && array.indexOf(value) === index;
+  });
+}
+
+function exportTitle(tabName) {
+  if (tabName === "corporate") return "法人";
+  if (tabName === "individual") return "個人";
+  return "統合";
+}
+
+function updatePrintHeading() {
+  const client = document.getElementById("client-name").value.trim();
+  const label = exportTitle(currentTab);
+  document.getElementById("print-heading").textContent = "納税予測カレンダー（" + label + "）" + (client ? " / " + client : "");
+}
+
+function printCurrent() {
+  updatePrintHeading();
+  window.print();
+}
+
+function downloadXlsx() {
+  if (typeof XLSX === "undefined") {
+    alert("xlsx出力ライブラリを読み込めませんでした。ネットワーク接続を確認してください。");
+    return;
+  }
+  const table = document.querySelector("#tab-" + currentTab + " table");
+  if (!table) {
+    alert("出力できる結果表がありません。");
+    return;
+  }
+  const aoa = tableToArray(table);
+  const sheet = XLSX.utils.aoa_to_sheet(aoa);
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, sheet, table.dataset.exportTitle || exportTitle(currentTab));
+  XLSX.writeFile(book, makeFileName());
+}
+
+function tableToArray(table) {
+  return Array.from(table.rows).map(function(row) {
+    return Array.from(row.cells).map(function(cell) {
+      return cell.innerText.replace(/\n+/g, " / ").trim();
+    });
+  });
+}
+
+function makeFileName() {
+  const client = document.getElementById("client-name").value.trim() || "無題";
+  const safeClient = client.replace(/[\\/:*?"<>|]/g, "_");
+  const today = new Date();
+  const yyyymmdd = today.getFullYear() + String(today.getMonth() + 1).padStart(2, "0") + String(today.getDate()).padStart(2, "0");
+  return "納税予測表_" + safeClient + "_" + yyyymmdd + ".xlsx";
+}
+
+function clearAll() {
+  if (!confirm("入力内容をすべてクリアしますか？")) return;
+  state.corporate.fiscalMonth = "";
+  state.corporate.prevYear.corpTax = 0;
+  state.corporate.prevYear.residentTax = 0;
+  state.corporate.prevYear.enterpriseTax = 0;
+  state.corporate.prevYear.consumptionTaxNational = 0;
+  state.individual.incomeTaxBase = 0;
+  state.individual.residentTaxByPeriod = [0, 0, 0, 0];
+  state.individual.enterpriseTaxByPeriod = [0, 0];
+  state.individual.consumptionTaxNational = 0;
+  setValidation("");
+  syncInputs();
+  renderAll();
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, function(ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+
+if (location.search.indexOf("nozeitest=1") !== -1) window.nozeiTestApi = {
+  state: state,
+  setState: function(nextState) {
+    state.corporate.fiscalMonth = nextState.corporate && nextState.corporate.fiscalMonth ? nextState.corporate.fiscalMonth : "";
+    Object.assign(state.corporate.prevYear, (nextState.corporate && nextState.corporate.prevYear) || {});
+    Object.assign(state.individual, nextState.individual || {});
+    syncInputs();
+    renderAll();
+  },
+  calculateCorporate: calculateCorporate,
+  calculateIndividual: calculateIndividual,
+  calculateCombinedEvents: function() {
+    return calculateCorporate().events.concat(calculateIndividual().events);
+  },
+  formatDate: formatDate,
+  monthAfterFiscal: monthAfterFiscal
+};
+
+setup();
+</script>
+</body>
+</html>

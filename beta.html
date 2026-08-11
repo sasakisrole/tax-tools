@@ -1,16 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9E1F4M57NM"></script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-9E1F4M57NM"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-9E1F4M57NM');
 </script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>税務ツールボックス Beta</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -564,361 +565,331 @@ footer {
 </style>
 </head>
 <body>
-<a id="portal-badge" href="../../portal.html" style="position:fixed;top:12px;right:12px;display:none;z-index:9999;background:rgba(45,90,123,0.88);color:#fff;padding:5px 14px 5px 10px;border-radius:20px;font-size:0.78rem;text-decoration:none;font-family:'Segoe UI',sans-serif;font-weight:600;letter-spacing:0.02em;backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:background 0.15s;" onmouseover="this.style.background='rgba(45,90,123,1)'" onmouseout="this.style.background='rgba(45,90,123,0.88)'">&#8592; Portal</a><script>if(location.protocol==="file:"){document.getElementById("portal-badge").style.display="block";}</script>
-
 <header>
-  <a href="index.html" class="back-to-main"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Main</a>
-  <button class="back-btn" id="back-btn" style="display:none;" onclick="goHome()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
-  <h1>Tax Toolbox Beta</h1>
-  <div class="subtitle">試験的なツールを先行公開しています</div>
+<a class="back-to-main" href="index.html"><svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg> Main</a>
+<button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;"><svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
+<h1>Tax Toolbox Beta</h1>
+<div class="subtitle">試験的なツールを先行公開しています</div>
 </header>
-
 <div class="tab-bar" id="tab-bar" style="display:none;">
-  <button onclick="switchTab('walls')">各種の壁一覧</button>
-  <button onclick="switchTab('furusato')">ふるさと納税</button>
-  <button onclick="switchTab('moneyflow')">マネーフロー</button>
-  <button onclick="switchTab('breakeven')">損益分岐点</button>
-  <button onclick="switchTab('references')">参考資料</button>
+<button onclick="switchTab('walls')">各種の壁一覧</button>
+<button onclick="switchTab('furusato')">ふるさと納税</button>
+<button onclick="switchTab('moneyflow')">マネーフロー</button>
+<button onclick="switchTab('breakeven')">損益分岐点</button>
+<button onclick="switchTab('references')">参考資料</button>
 </div>
-
 <!-- ===== ホーム画面 ===== -->
-<div id="home-screen" class="home-grid">
-  <div class="home-card" onclick="switchTab('walls')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></div>
-    <div class="title">各種の壁一覧</div>
-    <div class="subtitle">年収と税金・社保の壁を一目で確認</div>
-  </div>
-  <div class="home-card" onclick="switchTab('furusato')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
-    <div class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:#e67e22; font-weight:400;">β</span></div>
-    <div class="subtitle">控除上限額シミュレーション＋資料印刷</div>
-  </div>
-  <div class="home-card" onclick="switchTab('moneyflow')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2v20h20"/><path d="M6 16l4-4 4 4 6-8"/></svg></div>
-    <div class="title">マネーフロー <span style="font-size:0.65rem; color:#27ae60; font-weight:400;">β</span></div>
-    <div class="subtitle">法人・個人の税金と手取りをサンキー図で可視化</div>
-  </div>
-  <div class="home-card" onclick="switchTab('breakeven')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-    <div class="title">損益分岐点 <span style="font-size:0.65rem; color:#e74c3c; font-weight:400;">β</span></div>
-    <div class="subtitle">売上・費用から損益分岐点をチャートで可視化</div>
-  </div>
-  <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
-    <div class="title">参考資料</div>
-    <div class="subtitle">各ツールの出典・参考URL一覧</div>
-  </div>
-  <div style="grid-column: 1 / -1;">
-    <details class="changelog">
-      <summary>更新履歴（サイト）</summary>
-      <ul>
-        <li>v2.0.1 (2026-04-09) ふるさと納税：タブ切替が動作しないバグを修正（if文の閉じ括弧欠落）</li>
-        <li>v2.0.0 (2026-04-07) ふるさと納税：住民税所得割概算を年度別基礎控除差で自動補正（R8: +61万、R7: +5万）</li>
-        <li>v1.9.0 (2026-04-07) ふるさと納税：R8+概算モード時に住民税基礎控除差の警告を追加</li>
-        <li>v1.8.0 (2026-04-07) ふるさと納税：令和8年分を年度選択に追加（R8デフォルト）</li>
-        <li>v1.7.0 (2026-04-07) ふるさと納税：住民税所得割額の直接入力対応・役員報酬連携時は実額を自動セット</li>
-        <li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
-        <li>v1.5.0 (2026-04-07) ふるさと納税：役員報酬シミュレーション（index.html）との連携ボタン追加</li>
-        <li>v1.4.0 (2026-04-02) 106万の壁の施行時期表現を「見込み」に修正、ふるさと納税・マネーフローに誤差方向の注記追加</li>
-        <li>v1.3.0 (2026-04-02) 損益分岐点シミュレーター追加（売上・変動費・固定費から損益分岐点を可視化）</li>
-        <li>v1.2.0 (2026-04-02) マネーフロー シミュレーター追加（法人・個人の税金と手取りをサンキー図で可視化）</li>
-        <li>v1.1.0 (2026-04-01) 壁マップ（数直線チャート）追加、壁リファレンス一覧表追加、参考資料タブ・各ツール更新履歴追加</li>
-        <li>v1.0.0 (2026-04-01) Beta Lab 新設。各種の壁一覧ツール・ふるさと納税シミュレーション（index.htmlから移動）</li>
-      </ul>
-    </details>
-  </div>
+<div class="home-grid" id="home-screen">
+<div class="home-card" onclick="switchTab('walls')">
+<div class="icon"><svg fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><line x1="3" x2="21" y1="9" y2="9"></line><line x1="3" x2="21" y1="15" y2="15"></line></svg></div>
+<div class="title">各種の壁一覧</div>
+<div class="subtitle">年収と税金・社保の壁を一目で確認</div>
 </div>
-
+<div class="home-card" onclick="switchTab('furusato')">
+<div class="icon"><svg fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg></div>
+<div class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:#e67e22; font-weight:400;">β</span></div>
+<div class="subtitle">控除上限額シミュレーション＋資料印刷</div>
+</div>
+<div class="home-card" onclick="switchTab('moneyflow')">
+<div class="icon"><svg fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 2v20h20"></path><path d="M6 16l4-4 4 4 6-8"></path></svg></div>
+<div class="title">マネーフロー <span style="font-size:0.65rem; color:#27ae60; font-weight:400;">β</span></div>
+<div class="subtitle">法人・個人の税金と手取りをサンキー図で可視化</div>
+</div>
+<div class="home-card" onclick="switchTab('breakeven')">
+<div class="icon"><svg fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"></line></svg></div>
+<div class="title">損益分岐点 <span style="font-size:0.65rem; color:#e74c3c; font-weight:400;">β</span></div>
+<div class="subtitle">売上・費用から損益分岐点をチャートで可視化</div>
+</div>
+<div class="home-card" onclick="location.href='beppyou4-keisan.html'">
+<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="20" rx="2" width="16" x="4" y="2"></rect><path d="M8 6h8"></path><path d="M8 10h8"></path><path d="M8 14h2"></path><path d="M14 14h2"></path><path d="M8 18h2"></path><path d="M14 18h2"></path></svg></div>
+<div class="title">別表4 所得金額計算 <span style="font-size:0.65rem; color:#7d3c98; font-weight:400;">β</span></div>
+<div class="subtitle">税引後利益と加減算から所得金額を計算</div>
+</div>
+<div class="home-card" onclick="location.href='nozei-calendar.html'">
+<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg></div>
+<div class="title">納税予測カレンダー <span style="font-size:0.65rem; color:#7d3c98; font-weight:400;">β</span></div>
+<div class="subtitle">前期確定額から年間納税予定を自動配置</div>
+</div>
+<div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
+<div class="icon"><svg fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></div>
+<div class="title">参考資料</div>
+<div class="subtitle">各ツールの出典・参考URL一覧</div>
+</div>
+<div style="grid-column: 1 / -1;">
+<details class="changelog">
+<summary>更新履歴（サイト）</summary>
+<ul>
+<li>v2.1.0 (2026-07-02) 別表4所得金額計算・納税予測カレンダーをBeta Labに追加（メインから移動・未検証）</li>
+<li>v2.0.1 (2026-04-09) ふるさと納税：タブ切替が動作しないバグを修正（if文の閉じ括弧欠落）</li>
+<li>v2.0.0 (2026-04-07) ふるさと納税：住民税所得割概算を年度別基礎控除差で自動補正（R8: +61万、R7: +5万）</li>
+<li>v1.9.0 (2026-04-07) ふるさと納税：R8+概算モード時に住民税基礎控除差の警告を追加</li>
+<li>v1.8.0 (2026-04-07) ふるさと納税：令和8年分を年度選択に追加（R8デフォルト）</li>
+<li>v1.7.0 (2026-04-07) ふるさと納税：住民税所得割額の直接入力対応・役員報酬連携時は実額を自動セット</li>
+<li>v1.6.0 (2026-04-07) ふるさと納税：役員報酬シミュレーションへのリンク追加</li>
+<li>v1.5.0 (2026-04-07) ふるさと納税：役員報酬シミュレーション（index.html）との連携ボタン追加</li>
+<li>v1.4.0 (2026-04-02) 106万の壁の施行時期表現を「見込み」に修正、ふるさと納税・マネーフローに誤差方向の注記追加</li>
+<li>v1.3.0 (2026-04-02) 損益分岐点シミュレーター追加（売上・変動費・固定費から損益分岐点を可視化）</li>
+<li>v1.2.0 (2026-04-02) マネーフロー シミュレーター追加（法人・個人の税金と手取りをサンキー図で可視化）</li>
+<li>v1.1.0 (2026-04-01) 壁マップ（数直線チャート）追加、壁リファレンス一覧表追加、参考資料タブ・各ツール更新履歴追加</li>
+<li>v1.0.0 (2026-04-01) Beta Lab 新設。各種の壁一覧ツール・ふるさと納税シミュレーション（index.htmlから移動）</li>
+</ul>
+</details>
+</div>
+</div>
 <!-- ===== 各種の壁一覧ツール ===== -->
-<div id="tab-walls" class="tab-content">
+<div class="tab-content" id="tab-walls">
 <div class="card">
-  <h2>各種の壁一覧</h2>
-  <p class="desc">パート・アルバイトの年収と税金・社会保険の関係を一目で確認（令和7年分〜）</p>
-
-  <details class="tool-guide">
-    <summary>使い方</summary>
-    <div class="guide-body">
-      <dl>
-        <dt>いつ使う？</dt>
-        <dd>パート従業員から「扶養の範囲内で働きたい」と相談されたとき。クライアントの配偶者控除の適用確認にも。</dd>
-        <dt>何を入力する？</dt>
-        <dd>パート・アルバイトの年収（給与収入ベース）を入力します。交通費（非課税分）は含めません。</dd>
-        <dt>結果の見方</dt>
-        <dd>
-          <ul>
-            <li><strong>緑</strong> = セーフ（壁の手前）</li>
-            <li><strong>黄</strong> = 注意（壁に接近中、あと少しで超える）</li>
-            <li><strong>赤</strong> = 超過（影響が発生）</li>
-          </ul>
-        </dd>
-        <dt>注意点</dt>
-        <dd>
-          <ul>
-            <li>106万の壁は勤務先の従業員数等の要件あり。全員に適用されるわけではありません</li>
-            <li>130万の壁は「見込み年収」で判定。月108,334円以上が継続する場合に該当</li>
-            <li>配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下が前提</li>
-          </ul>
-        </dd>
-      </dl>
-    </div>
-  </details>
-
-  <div class="form-group">
-    <label for="wall-year">対象年分</label>
-    <select id="wall-year" onchange="updateWallNote()">
-      <option value="R8" selected>令和8年分（2026年）</option>
-      <option value="R7">令和7年分（2025年）</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="annual-income">パート・アルバイトの年収（給与収入）</label>
-    <div class="input-suffix" data-suffix="万円">
-      <input type="text" id="annual-income" placeholder="例: 120" inputmode="numeric" onkeydown="if(event.key==='Enter')calcWalls()">
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="employer-size">勤務先の従業員数</label>
-    <select id="employer-size">
-      <option value="large">51人以上（社保適用拡大の対象）</option>
-      <option value="small" selected>50人以下</option>
-    </select>
-  </div>
-
-  <div style="display:flex; gap:10px; flex-wrap:wrap;">
-    <button class="btn" onclick="calcWalls()">判定する</button>
-    <button class="btn" style="background:linear-gradient(135deg,#4a235a,#7d3c98);" onclick="showWallRef()">一覧表を見る</button>
-  </div>
-
-  <!-- 壁リファレンス一覧表（年収入力不要） -->
-  <div id="wall-ref" style="display:none; margin-top:16px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0; font-size:1rem; color:#4a235a;" id="wall-ref-title"></h3>
-      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71); padding:6px 14px; font-size:0.78rem;" onclick="printWallRef()">この一覧表を印刷</button>
-    </div>
-    <div id="wall-ref-body"></div>
-  </div>
-
-  <div id="wall-result" style="display:none; margin-top:16px;">
-    <div class="summary-box">
-      <div class="income-display" id="income-display"></div>
-      <div class="summary-text" id="summary-text"></div>
-    </div>
-
-    <!-- 壁マップ（数直線チャート） -->
-    <div class="wall-map" id="wall-map">
-      <div class="wall-map-title">壁マップ</div>
-      <div class="wall-map-axis" id="wall-map-axis">
-        <div class="wall-map-line"></div>
-        <div class="wall-map-fill" id="wall-map-fill"></div>
-      </div>
-      <div class="wall-map-legend">
-        <span>&#9679; 超過</span>
-        <span>&#9679; 接近中</span>
-        <span>&#9679; セーフ</span>
-        <span>&#9660; あなたの年収</span>
-      </div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#66bb6a;"></div> セーフ</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffca28;"></div> 接近中</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ef5350;"></div> 超過</div>
-    </div>
-
-    <!-- 本人の税金 -->
-    <div class="wall-section">
-      <div class="category-header">本人の税金</div>
-      <div id="walls-tax"></div>
-    </div>
-
-    <!-- 社会保険 -->
-    <div class="wall-section">
-      <div class="category-header">社会保険</div>
-      <div id="walls-insurance"></div>
-    </div>
-
-    <!-- 配偶者控除（世帯主側） -->
-    <div class="wall-section">
-      <div class="category-header">配偶者控除・配偶者特別控除（世帯主側の控除）</div>
-      <div id="walls-spouse"></div>
-    </div>
-  </div>
-
-  <div id="wall-print-btn" style="display:none; margin-top:12px;">
-    <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printWalls()">壁一覧を印刷</button>
-  </div>
-
-  <div class="note" id="wall-note">
-    ※ 令和8年分（2026年分）の税制改正大綱に基づく概算です。基礎控除95万円（本則62万+上乗せ）・給与所得控除最低74万円（本則69万+特例5万）で計算しています。<br>
-    ※ 社会保険の壁は健康保険組合・協会けんぽの運用により判定が異なる場合があります。<br>
+<h2>各種の壁一覧</h2>
+<p class="desc">パート・アルバイトの年収と税金・社会保険の関係を一目で確認（令和7年分〜）</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>パート従業員から「扶養の範囲内で働きたい」と相談されたとき。クライアントの配偶者控除の適用確認にも。</dd>
+<dt>何を入力する？</dt>
+<dd>パート・アルバイトの年収（給与収入ベース）を入力します。交通費（非課税分）は含めません。</dd>
+<dt>結果の見方</dt>
+<dd>
+<ul>
+<li><strong>緑</strong> = セーフ（壁の手前）</li>
+<li><strong>黄</strong> = 注意（壁に接近中、あと少しで超える）</li>
+<li><strong>赤</strong> = 超過（影響が発生）</li>
+</ul>
+</dd>
+<dt>注意点</dt>
+<dd>
+<ul>
+<li>106万の壁は勤務先の従業員数等の要件あり。全員に適用されるわけではありません</li>
+<li>130万の壁は「見込み年収」で判定。月108,334円以上が継続する場合に該当</li>
+<li>配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下が前提</li>
+</ul>
+</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label for="wall-year">対象年分</label>
+<select id="wall-year" onchange="updateWallNote()">
+<option selected="" value="R8">令和8年分（2026年）</option>
+<option value="R7">令和7年分（2025年）</option>
+</select>
+</div>
+<div class="form-group">
+<label for="annual-income">パート・アルバイトの年収（給与収入）</label>
+<div class="input-suffix" data-suffix="万円">
+<input id="annual-income" inputmode="numeric" onkeydown="if(event.key==='Enter')calcWalls()" placeholder="例: 120" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label for="employer-size">勤務先の従業員数</label>
+<select id="employer-size">
+<option value="large">51人以上（社保適用拡大の対象）</option>
+<option selected="" value="small">50人以下</option>
+</select>
+</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+<button class="btn" onclick="calcWalls()">判定する</button>
+<button class="btn" onclick="showWallRef()" style="background:linear-gradient(135deg,#4a235a,#7d3c98);">一覧表を見る</button>
+</div>
+<!-- 壁リファレンス一覧表（年収入力不要） -->
+<div id="wall-ref" style="display:none; margin-top:16px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+<h3 id="wall-ref-title" style="margin:0; font-size:1rem; color:#4a235a;"></h3>
+<button class="btn" onclick="printWallRef()" style="background:linear-gradient(135deg,#27ae60,#2ecc71); padding:6px 14px; font-size:0.78rem;">この一覧表を印刷</button>
+</div>
+<div id="wall-ref-body"></div>
+</div>
+<div id="wall-result" style="display:none; margin-top:16px;">
+<div class="summary-box">
+<div class="income-display" id="income-display"></div>
+<div class="summary-text" id="summary-text"></div>
+</div>
+<!-- 壁マップ（数直線チャート） -->
+<div class="wall-map" id="wall-map">
+<div class="wall-map-title">壁マップ</div>
+<div class="wall-map-axis" id="wall-map-axis">
+<div class="wall-map-line"></div>
+<div class="wall-map-fill" id="wall-map-fill"></div>
+</div>
+<div class="wall-map-legend">
+<span>● 超過</span>
+<span>● 接近中</span>
+<span>● セーフ</span>
+<span>▼ あなたの年収</span>
+</div>
+</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#66bb6a;"></div> セーフ</div>
+<div class="legend-item"><div class="legend-dot" style="background:#ffca28;"></div> 接近中</div>
+<div class="legend-item"><div class="legend-dot" style="background:#ef5350;"></div> 超過</div>
+</div>
+<!-- 本人の税金 -->
+<div class="wall-section">
+<div class="category-header">本人の税金</div>
+<div id="walls-tax"></div>
+</div>
+<!-- 社会保険 -->
+<div class="wall-section">
+<div class="category-header">社会保険</div>
+<div id="walls-insurance"></div>
+</div>
+<!-- 配偶者控除（世帯主側） -->
+<div class="wall-section">
+<div class="category-header">配偶者控除・配偶者特別控除（世帯主側の控除）</div>
+<div id="walls-spouse"></div>
+</div>
+</div>
+<div id="wall-print-btn" style="display:none; margin-top:12px;">
+<button class="btn" onclick="printWalls()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">壁一覧を印刷</button>
+</div>
+<div class="note" id="wall-note">
+    ※ 令和8年分（2026年分）の税制改正大綱に基づく概算です。基礎控除95万円（本則62万+上乗せ）・給与所得控除最低74万円（本則69万+特例5万）で計算しています。<br/>
+    ※ 社会保険の壁は健康保険組合・協会けんぽの運用により判定が異なる場合があります。<br/>
     ※ 住民税の非課税基準は自治体により異なります（大阪市の場合で表示）。
   </div>
-  <div class="page-changelog">更新: v1.2.0 (2026-04-01) 壁マップ（数直線チャート）追加・印刷対応 | v1.1.0 (2026-04-01) 令和8年分データ追加・年度切替・印刷機能 | v1.0.0 (2026-04-01) 初版作成</div>
+<div class="page-changelog">更新: v1.2.0 (2026-04-01) 壁マップ（数直線チャート）追加・印刷対応 | v1.1.0 (2026-04-01) 令和8年分データ追加・年度切替・印刷機能 | v1.0.0 (2026-04-01) 初版作成</div>
 </div>
-
 <!-- ===== 印刷用壁一覧資料（通常時は非表示） ===== -->
 <div id="wall-print-area" style="display:none;"></div>
-
 </div>
-
 <!-- ===== ふるさと納税限度額シミュレーション ===== -->
-<div id="tab-furusato" class="tab-content">
+<div class="tab-content" id="tab-furusato">
 <div class="card">
-  <h2>ふるさと納税 控除上限額シミュレーション <span style="font-size:0.7rem; color:#e67e22; font-weight:400;">β版</span></h2>
-  <p class="desc">自己負担2,000円で済む寄附上限額を概算します（簡易版）</p>
-
-  <details class="tool-guide">
-    <summary>使い方</summary>
-    <div class="guide-body">
-      <dl>
-        <dt>いつ使う？</dt>
-        <dd>クライアントから「ふるさと納税いくらまでできる？」と聞かれたときに使います。計算結果をそのまま印刷して資料として渡せます。</dd>
-        <dt>総所得金額等</dt>
-        <dd>確定申告書の「合計所得金額」に近い数字です。給与所得・事業所得・不動産所得等の合計を入力してください。</dd>
-        <dt>所得控除合計額</dt>
-        <dd>社会保険料控除・扶養控除・基礎控除等の合計です。確定申告書の「所得控除の額の合計額」または源泉徴収票の「所得控除の額の合計額」を入力してください。</dd>
-        <dt>資料印刷</dt>
-        <dd>計算後に「資料を印刷」ボタンを押すと、クライアント名・計算根拠・注意書き入りの資料をA4で印刷できます。</dd>
-      </dl>
-    </div>
-  </details>
-
-  <div class="form-group">
-    <label>クライアント名（印刷資料用・任意）</label>
-    <input type="text" id="furusato-client" placeholder="例: 山田太郎 様">
-  </div>
-
-  <div class="form-group">
-    <label>対象年分</label>
-    <select id="furusato-year">
-      <option value="R8" selected>令和8年分（2026年）</option>
-      <option value="R7">令和7年分（2025年）</option>
-      <option value="R6">令和6年分（2024年）</option>
-    </select>
-  </div>
-
-  <div id="furusato-import-area" style="margin-bottom:12px;">
-    <div style="margin-bottom:8px; font-size:0.85rem; color:#555;">
-      <a href="index.html#yakuin" style="color:#7d6b9e; text-decoration:none;">役員報酬シミュレーションの金額をもとに計算する →</a>
-    </div>
-    <button class="btn" style="background:linear-gradient(135deg,#7d6b9e,#a084ca); font-size:0.85rem; padding:8px 16px;" onclick="importFromYakuin()">役員報酬シミュレーションの数値を取り込む</button>
-    <div id="furusato-import-msg" style="display:none; margin-top:6px; font-size:0.8rem; color:#7d6b9e;"></div>
-  </div>
-
-  <div class="form-group">
-    <label>総所得金額等（年額）</label>
-    <div class="input-prefix">
-      <input type="text" id="furusato-income" inputmode="numeric" placeholder="例: 6000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
-    </div>
-    <span style="font-size:0.75rem; color:#888;">※ 給与所得・事業所得・不動産所得等の合計</span>
-  </div>
-
-  <div class="form-group">
-    <label>所得控除合計額</label>
-    <div class="input-prefix">
-      <input type="text" id="furusato-deduction" inputmode="numeric" placeholder="例: 1500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
-    </div>
-    <span style="font-size:0.75rem; color:#888;">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
-  </div>
-
-  <div class="form-group">
-    <label>住民税所得割額（任意・入力すると精度が上がります）</label>
-    <div class="input-prefix">
-      <input type="text" id="furusato-jumin-shotokuwari" inputmode="numeric" placeholder="例: 280000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}">
-    </div>
-    <span style="font-size:0.75rem; color:#888;">※ 特別徴収税額決定通知書の「所得割」欄 or 役員報酬シミュレーションから自動取込</span>
-  </div>
-
-  <button class="btn" id="btn-furusato" onclick="calcFurusato()">計算する</button>
-
-  <div id="furusato-result" class="result" style="display:none;"></div>
-
-  <div id="furusato-print-btn" style="display:none; margin-top:12px;">
-    <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printFurusato()">資料を印刷</button>
-  </div>
-
-  <p class="note">
-    ※ 住宅ローン控除は考慮していません。該当する場合は上限額が<strong>過大</strong>に算出されます<br>
-    ※ 住民税所得割額を入力した場合は実額ベースで計算。未入力の場合は年度ごとの基礎控除差を自動補正した概算で計算します<br>
+<h2>ふるさと納税 控除上限額シミュレーション <span style="font-size:0.7rem; color:#e67e22; font-weight:400;">β版</span></h2>
+<p class="desc">自己負担2,000円で済む寄附上限額を概算します（簡易版）</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>クライアントから「ふるさと納税いくらまでできる？」と聞かれたときに使います。計算結果をそのまま印刷して資料として渡せます。</dd>
+<dt>総所得金額等</dt>
+<dd>確定申告書の「合計所得金額」に近い数字です。給与所得・事業所得・不動産所得等の合計を入力してください。</dd>
+<dt>所得控除合計額</dt>
+<dd>社会保険料控除・扶養控除・基礎控除等の合計です。確定申告書の「所得控除の額の合計額」または源泉徴収票の「所得控除の額の合計額」を入力してください。</dd>
+<dt>資料印刷</dt>
+<dd>計算後に「資料を印刷」ボタンを押すと、クライアント名・計算根拠・注意書き入りの資料をA4で印刷できます。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>クライアント名（印刷資料用・任意）</label>
+<input id="furusato-client" placeholder="例: 山田太郎 様" type="text"/>
+</div>
+<div class="form-group">
+<label>対象年分</label>
+<select id="furusato-year">
+<option selected="" value="R8">令和8年分（2026年）</option>
+<option value="R7">令和7年分（2025年）</option>
+<option value="R6">令和6年分（2024年）</option>
+</select>
+</div>
+<div id="furusato-import-area" style="margin-bottom:12px;">
+<div style="margin-bottom:8px; font-size:0.85rem; color:#555;">
+<a href="index.html#yakuin" style="color:#7d6b9e; text-decoration:none;">役員報酬シミュレーションの金額をもとに計算する →</a>
+</div>
+<button class="btn" onclick="importFromYakuin()" style="background:linear-gradient(135deg,#7d6b9e,#a084ca); font-size:0.85rem; padding:8px 16px;">役員報酬シミュレーションの数値を取り込む</button>
+<div id="furusato-import-msg" style="display:none; margin-top:6px; font-size:0.8rem; color:#7d6b9e;"></div>
+</div>
+<div class="form-group">
+<label>総所得金額等（年額）</label>
+<div class="input-prefix">
+<input id="furusato-income" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 6000000" type="text"/>
+</div>
+<span style="font-size:0.75rem; color:#888;">※ 給与所得・事業所得・不動産所得等の合計</span>
+</div>
+<div class="form-group">
+<label>所得控除合計額</label>
+<div class="input-prefix">
+<input id="furusato-deduction" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 1500000" type="text"/>
+</div>
+<span style="font-size:0.75rem; color:#888;">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
+</div>
+<div class="form-group">
+<label>住民税所得割額（任意・入力すると精度が上がります）</label>
+<div class="input-prefix">
+<input id="furusato-jumin-shotokuwari" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 280000" type="text"/>
+</div>
+<span style="font-size:0.75rem; color:#888;">※ 特別徴収税額決定通知書の「所得割」欄 or 役員報酬シミュレーションから自動取込</span>
+</div>
+<button class="btn" id="btn-furusato" onclick="calcFurusato()">計算する</button>
+<div class="result" id="furusato-result" style="display:none;"></div>
+<div id="furusato-print-btn" style="display:none; margin-top:12px;">
+<button class="btn" onclick="printFurusato()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+</div>
+<p class="note">
+    ※ 住宅ローン控除は考慮していません。該当する場合は上限額が<strong>過大</strong>に算出されます<br/>
+    ※ 住民税所得割額を入力した場合は実額ベースで計算。未入力の場合は年度ごとの基礎控除差を自動補正した概算で計算します<br/>
     ※ 生命保険料控除等の住民税固有の控除差は未反映のため、概算との誤差が数千〜数万円生じる場合があります
   </p>
-  <div class="page-changelog">更新: v1.6.1 (2026-04-09) タブ切替が動作しないバグを修正 | v1.6.0 (2026-04-07) 住民税所得割概算を基礎控除差で自動補正 | v1.5.0 (2026-04-07) R8+概算時の住民税基礎控除差警告 | v1.4.0 (2026-04-07) 令和8年分を年度選択に追加（R8デフォルト） | v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
+<div class="page-changelog">更新: v1.6.1 (2026-04-09) タブ切替が動作しないバグを修正 | v1.6.0 (2026-04-07) 住民税所得割概算を基礎控除差で自動補正 | v1.5.0 (2026-04-07) R8+概算時の住民税基礎控除差警告 | v1.4.0 (2026-04-07) 令和8年分を年度選択に追加（R8デフォルト） | v1.3.0 (2026-04-07) 住民税所得割額の直接入力対応・役員報酬連携時は実額自動セット | v1.2.0 (2026-04-07) 役員報酬シミュレーションへのリンク追加 | v1.1.0 (2026-04-07) 役員報酬シミュレーションとlocalStorage連携 | v1.0.0 (2026-03-27) 初版作成（index.htmlから移動: 2026-04-01）</div>
 </div>
-
 <!-- ===== 印刷用ふるさと納税資料（通常時は非表示） ===== -->
 <div id="furusato-print-area" style="display:none;"></div>
 </div>
-
 <!-- ===== マネーフロー シミュレーター ===== -->
-<div id="tab-moneyflow" class="tab-content">
+<div class="tab-content" id="tab-moneyflow">
 <div class="card">
-  <h2>法人・個人マネーフロー シミュレーター</h2>
-  <p class="desc">役員報酬の増減による税金・手取りの変化をサンキー図で可視化します</p>
-
-  <div class="mf-layout">
-    <div class="mf-left">
-      <details class="tool-guide">
-        <summary>使い方</summary>
-        <div class="guide-body">
-          <dl>
-            <dt>いつ使う？</dt>
-            <dd>法人の役員報酬を決めるとき。報酬額を変えると法人税・所得税・社会保険料がどう変わるかを直感的に把握できます。</dd>
-            <dt>何を入力する？</dt>
-            <dd>法人売上高（年間）、役員報酬（年間）、その他経費（年間）の3項目をスライダーで調整します。</dd>
-            <dt>結果の見方</dt>
-            <dd>
-              <ul>
-                <li>左から右へお金の流れを追えます</li>
-                <li>青系 = 法人のお金、赤系 = 税金・社保、緑系 = 手取り・留保</li>
-                <li>下部の3つの数字で「個人手取り」「法人内部留保」「税金・社保合計」を確認</li>
-              </ul>
-            </dd>
-            <dt>注意事項</dt>
-            <dd>簡易計算です。消費税、各種控除の詳細、均等割の端数等は省略しています。</dd>
-          </dl>
-        </div>
-      </details>
-
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">法人売上高（年間）: <span id="mf-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
-        <input type="range" id="mf-revenue" min="500" max="10000" step="100" value="3000" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
+<h2>法人・個人マネーフロー シミュレーター</h2>
+<p class="desc">役員報酬の増減による税金・手取りの変化をサンキー図で可視化します</p>
+<div class="mf-layout">
+<div class="mf-left">
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>法人の役員報酬を決めるとき。報酬額を変えると法人税・所得税・社会保険料がどう変わるかを直感的に把握できます。</dd>
+<dt>何を入力する？</dt>
+<dd>法人売上高（年間）、役員報酬（年間）、その他経費（年間）の3項目をスライダーで調整します。</dd>
+<dt>結果の見方</dt>
+<dd>
+<ul>
+<li>左から右へお金の流れを追えます</li>
+<li>青系 = 法人のお金、赤系 = 税金・社保、緑系 = 手取り・留保</li>
+<li>下部の3つの数字で「個人手取り」「法人内部留保」「税金・社保合計」を確認</li>
+</ul>
+</dd>
+<dt>注意事項</dt>
+<dd>簡易計算です。消費税、各種控除の詳細、均等割の端数等は省略しています。</dd>
+</dl>
+</div>
+</details>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">法人売上高（年間）: <span id="mf-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
+<input id="mf-revenue" max="10000" min="500" oninput="updateMoneyFlow()" step="100" style="width:100%; accent-color:#4a235a;" type="range" value="3000"/>
+</div>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">役員報酬（年間）: <span id="mf-salary-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
+<input id="mf-salary" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="1200"/>
+</div>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">その他経費（年間）: <span id="mf-expenses-val" style="font-weight:700; color:#4a235a;">300万円</span></label>
+<input id="mf-expenses" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="300"/>
+</div>
+</div>
+<div class="mf-right">
+<div id="mf-chart" style="width:100%; min-height:400px;"></div>
+<div id="mf-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
+</div>
+<div class="mf-notes">
+<div class="mf-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
+<span class="mf-notes-arrow">▸</span> 計算条件・注意事項
       </div>
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">役員報酬（年間）: <span id="mf-salary-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
-        <input type="range" id="mf-salary" min="0" max="5000" step="50" value="1200" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">その他経費（年間）: <span id="mf-expenses-val" style="font-weight:700; color:#4a235a;">300万円</span></label>
-        <input type="range" id="mf-expenses" min="0" max="5000" step="50" value="300" style="width:100%; accent-color:#4a235a;" oninput="updateMoneyFlow()">
-      </div>
-
-    </div>
-
-    <div class="mf-right">
-      <div id="mf-chart" style="width:100%; min-height:400px;"></div>
-      <div id="mf-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
-    </div>
-
-    <div class="mf-notes">
-      <div class="mf-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
-        <span class="mf-notes-arrow">▸</span> 計算条件・注意事項
-      </div>
-      <div class="mf-notes-body note" style="margin-top:4px;">
-        ※ 税率・料率は「役員報酬シミュレーション」「必要売上計算」と同一のデータベースを使用しています。<br>
-        ※ 消費税、各種税額控除、配偶者・扶養控除、賞与等は考慮していません。<br>
-        ※ 社会保険料は協会けんぽ（大阪・令和8年度）の料率で計算。40〜64歳（介護保険あり）想定です。<br>
-        ※ 法人税等は実効税率方式（800万以下25%・超35%）で概算しています。<br>
-        ※ 住民税は翌年度課税のため、表示される手取りは当年のキャッシュフローとは異なります。<br>
+<div class="mf-notes-body note" style="margin-top:4px;">
+        ※ 税率・料率は「役員報酬シミュレーション」「必要売上計算」と同一のデータベースを使用しています。<br/>
+        ※ 消費税、各種税額控除、配偶者・扶養控除、賞与等は考慮していません。<br/>
+        ※ 社会保険料は協会けんぽ（大阪・令和8年度）の料率で計算。40〜64歳（介護保険あり）想定です。<br/>
+        ※ 法人税等は実効税率方式（800万以下25%・超35%）で概算しています。<br/>
+        ※ 住民税は翌年度課税のため、表示される手取りは当年のキャッシュフローとは異なります。<br/>
         ※ 役員報酬が売上高−経費を超える場合は、超過分を自動的に切り捨てます。
       </div>
-    </div>
-  </div>
-  <div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
 </div>
 </div>
-
+<div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
+</div>
+</div>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
 google.charts.load('current', { packages: ['sankey', 'corechart'] });
@@ -1149,72 +1120,65 @@ function updateMoneyFlow() {
   document.getElementById('mf-summary').innerHTML = sumHtml;
 }
 </script>
-
 <!-- ===== 損益分岐点シミュレーター ===== -->
-<div id="tab-breakeven" class="tab-content">
+<div class="tab-content" id="tab-breakeven">
 <div class="card">
-  <h2>損益分岐点シミュレーター</h2>
-  <p class="desc">売上高・変動費・固定費から損益分岐点をリアルタイムで可視化します</p>
-
-  <div class="be-layout">
-    <div class="be-left">
-      <details class="tool-guide">
-        <summary>使い方</summary>
-        <div class="guide-body">
-          <dl>
-            <dt>いつ使う？</dt>
-            <dd>「あといくら売れば黒字になるか？」を確認したいとき。価格変更や経費削減の影響もシミュレーションできます。</dd>
-            <dt>何を入力する？</dt>
-            <dd>売上高（年間）、売上原価・変動費（年間）、販管費・固定費（年間）の3項目をスライダーで調整します。</dd>
-            <dt>結果の見方</dt>
-            <dd>
-              <ul>
-                <li>青い線 = 売上高、赤い線 = 総費用（固定費＋変動費）</li>
-                <li>2本の線が交わる点が損益分岐点（BEP）</li>
-                <li>交点より右側の領域が利益、左側が損失</li>
-                <li>限界利益率が高いほど損益分岐点は低くなります</li>
-              </ul>
-            </dd>
-          </dl>
-        </div>
-      </details>
-
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">売上高（年間）: <span id="be-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
-        <input type="range" id="be-revenue" min="100" max="20000" step="100" value="3000" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
+<h2>損益分岐点シミュレーター</h2>
+<p class="desc">売上高・変動費・固定費から損益分岐点をリアルタイムで可視化します</p>
+<div class="be-layout">
+<div class="be-left">
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>「あといくら売れば黒字になるか？」を確認したいとき。価格変更や経費削減の影響もシミュレーションできます。</dd>
+<dt>何を入力する？</dt>
+<dd>売上高（年間）、売上原価・変動費（年間）、販管費・固定費（年間）の3項目をスライダーで調整します。</dd>
+<dt>結果の見方</dt>
+<dd>
+<ul>
+<li>青い線 = 売上高、赤い線 = 総費用（固定費＋変動費）</li>
+<li>2本の線が交わる点が損益分岐点（BEP）</li>
+<li>交点より右側の領域が利益、左側が損失</li>
+<li>限界利益率が高いほど損益分岐点は低くなります</li>
+</ul>
+</dd>
+</dl>
+</div>
+</details>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">売上高（年間）: <span id="be-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
+<input id="be-revenue" max="20000" min="100" oninput="updateBreakeven()" step="100" style="width:100%; accent-color:#4a235a;" type="range" value="3000"/>
+</div>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">売上原価・変動費（年間）: <span id="be-variable-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
+<input id="be-variable" max="15000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="1200"/>
+</div>
+<div style="margin-bottom:16px;">
+<label style="font-size:0.85rem; font-weight:500; color:#555;">販管費・固定費（年間）: <span id="be-fixed-val" style="font-weight:700; color:#4a235a;">800万円</span></label>
+<input id="be-fixed" max="10000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="800"/>
+</div>
+</div>
+<div class="be-right">
+<div id="be-chart" style="width:100%; min-height:400px;"></div>
+<div id="be-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
+</div>
+<div class="be-notes">
+<div class="be-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
+<span class="be-notes-arrow">▸</span> 計算条件・注意事項
       </div>
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">売上原価・変動費（年間）: <span id="be-variable-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
-        <input type="range" id="be-variable" min="0" max="15000" step="50" value="1200" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="font-size:0.85rem; font-weight:500; color:#555;">販管費・固定費（年間）: <span id="be-fixed-val" style="font-weight:700; color:#4a235a;">800万円</span></label>
-        <input type="range" id="be-fixed" min="0" max="10000" step="50" value="800" style="width:100%; accent-color:#4a235a;" oninput="updateBreakeven()">
-      </div>
-
-    </div>
-
-    <div class="be-right">
-      <div id="be-chart" style="width:100%; min-height:400px;"></div>
-      <div id="be-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
-    </div>
-
-    <div class="be-notes">
-      <div class="be-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
-        <span class="be-notes-arrow">▸</span> 計算条件・注意事項
-      </div>
-      <div class="be-notes-body note" style="margin-top:4px;">
-        ※ 変動費率 = 変動費 ÷ 売上高。売上高がゼロの場合は0%として計算します。<br>
-        ※ 損益分岐点売上高 = 固定費 ÷ 限界利益率（限界利益率 = 1 − 変動費率）。<br>
-        ※ 限界利益率が0%以下の場合、固定費を回収できないため損益分岐点は算出できません。<br>
+<div class="be-notes-body note" style="margin-top:4px;">
+        ※ 変動費率 = 変動費 ÷ 売上高。売上高がゼロの場合は0%として計算します。<br/>
+        ※ 損益分岐点売上高 = 固定費 ÷ 限界利益率（限界利益率 = 1 − 変動費率）。<br/>
+        ※ 限界利益率が0%以下の場合、固定費を回収できないため損益分岐点は算出できません。<br/>
         ※ 税金（法人税等）は考慮していません。税引前の営業利益ベースの分析です。
       </div>
-    </div>
-  </div>
-  <div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
 </div>
 </div>
-
+<div class="page-changelog">更新: v1.0.0 (2026-04-02) 初版作成</div>
+</div>
+</div>
 <script>
 // ===== 損益分岐点シミュレーター =====
 function updateBreakeven() {
@@ -1298,62 +1262,55 @@ function updateBreakeven() {
   document.getElementById('be-summary').innerHTML = sumHtml;
 }
 </script>
-
 <!-- ===== 参考資料 ===== -->
-<div id="tab-references" class="tab-content">
-  <div class="card">
-    <h2>参考資料・出典一覧</h2>
-    <p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
-
-    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">各種の壁一覧</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/users/gensen/2025kiso/index.htm" target="_blank">国税庁 令和7年度税制改正による所得税の基礎控除の見直し等について</a></li>
-      <li><a href="https://www.mof.go.jp/tax_policy/tax_reform/outline/fy2026/08taikou_gaiyou.pdf" target="_blank">財務省 令和8年度税制改正の大綱の概要（PDF）</a></li>
-      <li><a href="https://www.ht-tax.or.jp/topics/nenshunokabe178man-hikiage/" target="_blank">辻・本郷 税理士法人 178万円への引上げ解説</a></li>
-      <li><a href="https://www.tkc.jp/lp/income-wall/" target="_blank">TKCグループ 「年収の壁」見直しで、何が、どうなる？</a></li>
-      <li><a href="https://www.dlri.co.jp/report/macro/556220.html" target="_blank">第一生命経済研究所 2026年度税制改正大綱のポイント</a></li>
-      <li>令和7年分: 基礎控除58万円・給与所得控除最低65万円（非課税ライン123万円）</li>
-      <li>令和8年分: 基礎控除95万円（本則62万+上乗せ33万）・給与所得控除最低74万円（本則69万+特例5万）（非課税ライン178万円）</li>
-      <li>106万の壁: 賃金要件（月額8.8万円）は撤廃見込み（公布から3年以内。時期は最低賃金の状況を踏まえ判断 — 厚労省）</li>
-      <li>130万の壁: 2026年4月から労働契約書ベースの判定に変更</li>
-      <li>配偶者特別控除満額上限: 令和7年分150万円 → 令和8年分160万円</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">ふるさと納税限度額</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html" target="_blank">総務省 ふるさと納税のしくみ（税金の控除について）</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1155.htm" target="_blank">国税庁 No.1155 ふるさと納税（寄附金控除）</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
-      <li>計算式: 限度額 = 住民税所得割額 × 20% ÷ (90% - 所得税率 × 1.021) + 2,000円</li>
-      <li>住民税所得割額: 課税所得 × 10% - 調整控除2,500円（概算）</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">マネーフロー シミュレーター</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://x.com/shikajiro/status/2039252859796291878" target="_blank">@shikajiro「欲しいツールはgeminiに作ってもらえる」（着想元）</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a></li>
-      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r06/r6ryougakuhyou3gatukara/" target="_blank">協会けんぽ 都道府県別保険料額表</a></li>
-      <li>社会保険料: 標準報酬月額テーブル（50等級）・協会けんぽ大阪R8料率（介護保険込み）</li>
-      <li>法人税等: 実効税率方式（800万以下25%・超35%）— 「必要売上計算」と同一ロジック</li>
-      <li>所得税・住民税・給与所得控除: 「役員報酬シミュレーション」と同一ロジック</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">損益分岐点シミュレーター</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://x.com/ecogrammer/status/2039312139366875557" target="_blank">@ecogrammer 損益分岐点シミュレーター（着想元）</a></li>
-      <li>損益分岐点売上高 = 固定費 ÷ 限界利益率</li>
-      <li>限界利益率 = 1 − 変動費率（変動費率 = 変動費 ÷ 売上高）</li>
-      <li>税引前の営業利益ベース。法人税等は考慮していません。</li>
-    </ul>
-  </div>
+<div class="tab-content" id="tab-references">
+<div class="card">
+<h2>参考資料・出典一覧</h2>
+<p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
+<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">各種の壁一覧</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/users/gensen/2025kiso/index.htm" target="_blank">国税庁 令和7年度税制改正による所得税の基礎控除の見直し等について</a></li>
+<li><a href="https://www.mof.go.jp/tax_policy/tax_reform/outline/fy2026/08taikou_gaiyou.pdf" target="_blank">財務省 令和8年度税制改正の大綱の概要（PDF）</a></li>
+<li><a href="https://www.ht-tax.or.jp/topics/nenshunokabe178man-hikiage/" target="_blank">辻・本郷 税理士法人 178万円への引上げ解説</a></li>
+<li><a href="https://www.tkc.jp/lp/income-wall/" target="_blank">TKCグループ 「年収の壁」見直しで、何が、どうなる？</a></li>
+<li><a href="https://www.dlri.co.jp/report/macro/556220.html" target="_blank">第一生命経済研究所 2026年度税制改正大綱のポイント</a></li>
+<li>令和7年分: 基礎控除58万円・給与所得控除最低65万円（非課税ライン123万円）</li>
+<li>令和8年分: 基礎控除95万円（本則62万+上乗せ33万）・給与所得控除最低74万円（本則69万+特例5万）（非課税ライン178万円）</li>
+<li>106万の壁: 賃金要件（月額8.8万円）は撤廃見込み（公布から3年以内。時期は最低賃金の状況を踏まえ判断 — 厚労省）</li>
+<li>130万の壁: 2026年4月から労働契約書ベースの判定に変更</li>
+<li>配偶者特別控除満額上限: 令和7年分150万円 → 令和8年分160万円</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">ふるさと納税限度額</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html" target="_blank">総務省 ふるさと納税のしくみ（税金の控除について）</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1155.htm" target="_blank">国税庁 No.1155 ふるさと納税（寄附金控除）</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+<li>計算式: 限度額 = 住民税所得割額 × 20% ÷ (90% - 所得税率 × 1.021) + 2,000円</li>
+<li>住民税所得割額: 課税所得 × 10% - 調整控除2,500円（概算）</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">マネーフロー シミュレーター</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://x.com/shikajiro/status/2039252859796291878" target="_blank">@shikajiro「欲しいツールはgeminiに作ってもらえる」（着想元）</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a></li>
+<li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r06/r6ryougakuhyou3gatukara/" target="_blank">協会けんぽ 都道府県別保険料額表</a></li>
+<li>社会保険料: 標準報酬月額テーブル（50等級）・協会けんぽ大阪R8料率（介護保険込み）</li>
+<li>法人税等: 実効税率方式（800万以下25%・超35%）— 「必要売上計算」と同一ロジック</li>
+<li>所得税・住民税・給与所得控除: 「役員報酬シミュレーション」と同一ロジック</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">損益分岐点シミュレーター</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://x.com/ecogrammer/status/2039312139366875557" target="_blank">@ecogrammer 損益分岐点シミュレーター（着想元）</a></li>
+<li>損益分岐点売上高 = 固定費 ÷ 限界利益率</li>
+<li>限界利益率 = 1 − 変動費率（変動費率 = 変動費 ÷ 売上高）</li>
+<li>税引前の営業利益ベース。法人税等は考慮していません。</li>
+</ul>
 </div>
-
+</div>
 <footer>
-  <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Beta版は試験的なツールです。計算結果は参考値としてご利用ください。<br>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
-  <p>&copy; 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
+<p><svg fill="none" stroke="#f39c12" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg> Beta版は試験的なツールです。計算結果は参考値としてご利用ください。<br/>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
+<p>© 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
 </footer>
-
 <script>
 // ===== タブ切替 =====
 function switchTab(name) {
@@ -2092,6 +2049,5 @@ function printFurusato() {
   }, 500);
 }
 </script>
-
 </body>
 </html>

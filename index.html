@@ -1,16 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9E1F4M57NM"></script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-9E1F4M57NM"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-9E1F4M57NM');
 </script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>税務ツールボックス</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -413,956 +414,861 @@ header { position: relative; }
 </style>
 </head>
 <body>
-<a id="portal-badge" href="../../portal.html" style="position:fixed;top:12px;right:12px;display:none;z-index:9999;background:rgba(45,90,123,0.88);color:#fff;padding:5px 14px 5px 10px;border-radius:20px;font-size:0.78rem;text-decoration:none;font-family:'Segoe UI',sans-serif;font-weight:600;letter-spacing:0.02em;backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:background 0.15s;" onmouseover="this.style.background='rgba(45,90,123,1)'" onmouseout="this.style.background='rgba(45,90,123,0.88)'">&#8592; Portal</a><script>if(location.protocol==="file:"){document.getElementById("portal-badge").style.display="block";}</script>
-
 <header>
-  <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
-  <h1>税務ツールボックス</h1>
-  <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: <span id="header-version">-</span> ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
+<button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
+<h1>税務ツールボックス</h1>
+<p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: <span id="header-version">-</span> ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
 </header>
-
 <div class="tab-bar" id="tab-bar" style="display:none;">
-  <button onclick="switchTab('interest')">受取利息逆算</button>
-  <button onclick="switchTab('sales')">必要売上計算</button>
-  <button onclick="switchTab('depreciation')">耐用年数検索</button>
-  <button onclick="switchTab('tax-rates')">税率一覧</button>
-  <button onclick="switchTab('tax-calendar')">税務カレンダー</button>
-  <button onclick="switchTab('gensen-salary')">給与源泉税</button>
-  <button onclick="switchTab('gensen-hoshu')">報酬源泉</button>
-  <button onclick="switchTab('shuzenhi')">修繕費判定</button>
-  <button onclick="switchTab('yakuin')">役員報酬</button>
-  <button onclick="switchTab('kokuho')">国保シミュレーション</button>
-  <button onclick="switchTab('references')">参考資料</button>
+<button onclick="switchTab('interest')">受取利息逆算</button>
+<button onclick="switchTab('sales')">必要売上計算</button>
+<button onclick="switchTab('depreciation')">耐用年数検索</button>
+<button onclick="switchTab('tax-rates')">税率一覧</button>
+<button onclick="switchTab('tax-calendar')">税務カレンダー</button>
+<button onclick="switchTab('gensen-salary')">給与源泉税</button>
+<button onclick="switchTab('gensen-hoshu')">報酬源泉</button>
+<button onclick="switchTab('shuzenhi')">修繕費判定</button>
+<button onclick="switchTab('yakuin')">役員報酬</button>
+<button onclick="switchTab('kokuho')">国保シミュレーション</button>
+<button onclick="switchTab('references')">参考資料</button>
+<button onclick="switchTab('wareki')">和暦西暦変換</button>
 </div>
-
 <!-- ===== ホーム画面 ===== -->
-<div id="home-screen" class="home-grid">
-  <details class="about-box">
-    <summary>このツールについて</summary>
-    <div class="about-body">
-      <p>税理士・会計事務所スタッフが日常業務で使う計算を、ブラウザだけで手軽に実行できるツール集です。</p>
-      <h3>特徴</h3>
-      <ul>
-        <li>インストール不要 — ブラウザで開くだけで使えます</li>
-        <li>オフラインでも動作 — 全機能がページ内に完結しています</li>
-        <li>Enterキーで即計算 — 金額入力後Enterで実行できます</li>
-        <li>カンマ区切り対応 — 「1,000,000」のような入力もそのまま使えます</li>
-      </ul>
-      <h3>ツール一覧</h3>
-      <ul>
-        <li><strong>受取利息逆算</strong> — 通帳の入金額から仕訳用の税引前利息・源泉税を逆算</li>
-        <li><strong>必要売上計算</strong> — 目標利益を達成するために必要な売上高を計算</li>
-        <li><strong>耐用年数検索</strong> — 固定資産の法定耐用年数・償却率をキーワード検索</li>
-        <li><strong>税率一覧</strong> — 所得税・贈与税・相続税の速算表</li>
-        <li><strong>税務カレンダー</strong> — 月別の申告・納付期限一覧</li>
-        <li><strong>給与源泉税早見表</strong> — 月額表から源泉税額をハイライト表示</li>
-        <li><strong>報酬源泉計算</strong> — 税理士報酬等の源泉税を正算・逆算</li>
-        <li><strong>修繕費判定</strong> — 国税庁フローチャートに沿って修繕費か資本的支出かを判定</li>
-        <li><strong>役員報酬シミュレーション</strong> — 社保・所得税を差し引いた手取り額を概算</li>
-        <li><strong>国保シミュレーション</strong> — 大阪市の国民健康保険料を試算（軽減判定付き）</li>
-      </ul>
-      <h3>注意事項</h3>
-      <ul>
-        <li>計算結果は簡易的な概算値です。正式な申告・届出には必ず専門家の確認を受けてください</li>
-        <li>料率・税率は年度更新が必要です。各ツールに適用年度を記載しています</li>
-        <li>各ツールの入力欄の下にある「使い方」を開くと、入力項目の説明を確認できます</li>
-      </ul>
-    </div>
-  </details>
-  <div class="home-card" onclick="switchTab('interest')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
-    <div class="title">受取利息逆算</div>
-    <div class="subtitle">入金額から税引前利息・源泉税を逆算</div>
-  </div>
-  <div class="home-card" onclick="switchTab('sales')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-    <div class="title">必要売上計算</div>
-    <div class="subtitle">法人・個人対応。目標利益から必要売上高を算出</div>
-  </div>
-  <div class="home-card" onclick="switchTab('depreciation')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8e44ad" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-    <div class="title">耐用年数検索</div>
-    <div class="subtitle">資産の法定耐用年数を検索</div>
-  </div>
-  <div class="home-card" onclick="switchTab('tax-rates')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
-    <div class="title">税率一覧</div>
-    <div class="subtitle">所得税・贈与税・相続税の速算表</div>
-  </div>
-  <div class="home-card" onclick="switchTab('tax-calendar')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-    <div class="title">税務カレンダー</div>
-    <div class="subtitle">月別の申告・納付期限一覧</div>
-  </div>
-  <div class="home-card" onclick="switchTab('gensen-salary')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-    <div class="title">給与源泉税早見表</div>
-    <div class="subtitle">月額表・金額入力でハイライト</div>
-  </div>
-  <div class="home-card" onclick="switchTab('gensen-hoshu')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#16a085" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
-    <div class="title">報酬源泉計算</div>
-    <div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
-  </div>
-  <div class="home-card" onclick="switchTab('shuzenhi')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg></div>
-    <div class="title">修繕費判定</div>
-    <div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
-  </div>
-  <div class="home-card" onclick="switchTab('yakuin')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-    <div class="title">役員報酬シミュレーション</div>
-    <div class="subtitle">社保・所得税控除後の手取りを計算</div>
-  </div>
-  <div class="home-card" onclick="switchTab('kokuho')">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
-    <div class="title">国保シミュレーション</div>
-    <div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
-  </div>
-  <div class="home-card" onclick="location.href='beta.html'" style="border:2px dashed #7d3c98;">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7d3c98" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg></div>
-    <div class="title" style="color:#7d3c98;">Beta Lab</div>
-    <div class="subtitle">試験中のツールを先行公開</div>
-  </div>
-  <div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
-    <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
-    <div class="title">参考資料</div>
-    <div class="subtitle">各ツールの出典・参考URL一覧</div>
-  </div>
-  <div style="grid-column: 1 / -1;">
-    <details class="changelog">
-      <summary>更新履歴</summary>
-      <ul>
-        <li>v3.7.0 (2026-04-07) ゴールデンテストに給与所得控除・基礎控除・178万の壁のケースを追加（R7/R8全パターン）</li>
-        <li>v3.6.0 (2026-04-07) 基礎控除を所得額ベースで逓減計算（R8: 2,400万超・4,890万超で段階的減少）</li>
-        <li>v3.5.0 (2026-04-07) 令和8年税制改正対応：給与所得控除+9万（R8/R9特例）・基礎控除104万（本則62万+時限42万）</li>
-        <li>v3.4.0 (2026-04-07) 役員報酬：住民税所得割をlocalStorageに追加保存（ふるさと納税精度向上）</li>
-        <li>v3.3.0 (2026-04-07) 役員報酬：ふるさと納税シミュレーションへのリンク追加</li>
-        <li>v3.2.0 (2026-04-07) 役員報酬：計算結果をlocalStorageに保存し、beta.htmlのふるさと納税シミュレーションと連携</li>
-        <li>v3.1.0 (2026-04-02) 計算エンジン検証機能追加（公式例によるゴールデンテスト）</li>
-        <li>v3.0.1 (2026-04-02) 税率一覧：所得税の課税所得1,000円未満切捨てを自動適用</li>
-        <li>v3.0.0 (2026-04-01) Beta Lab（beta.html）新設。ふるさと納税をBetaに移動、各種の壁一覧ツール追加。ブラウザ戻るボタンでホームに戻れるように改善</li>
-        <li>v2.2.1 (2026-03-30) ヘッダー最終更新表示を修正、参考資料の定率法表記を250%→200%に訂正</li>
-        <li>v2.2.0 (2026-03-29) 役員報酬：クライアント向け印刷機能追加、手取りを1年目/2年目以降に分離</li>
-        <li>v2.1.0 (2026-03-29) 役員報酬シミュレーションに住民税（大阪市）概算を追加、手取りに反映</li>
-        <li>v2.0.0 (2026-03-27) ふるさと納税限度額シミュレーション追加（控除上限計算＋クライアント向け資料印刷）</li>
-        <li>v1.9.0 (2026-03-27) 年度切替対応（国保・役員報酬）、印刷対応、介護人数バリデーション、ボタンID統一</li>
-        <li>v1.8.0 (2026-03-27) 全ツールに使い方ガイドを追加、ホームに「このツールについて」を追加</li>
-        <li>v1.7.0 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
-        <li>v1.6.0 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
-        <li>v1.5.0 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
-        <li>v1.4.0 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
-        <li>v1.3.0 (2026-03-26) 全ツールにEnterキーで計算実行を追加。修繕費判定フローチャートを追加（国税庁No.1379準拠・災害分岐対応・全体図表示付き）</li>
-        <li>v1.2.0 (2026-03-26) 修繕費判定フローチャートを追加</li>
-        <li>v1.1.0 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
-        <li>v1.0.0 (2026-03-07) 初版：受取利息逆算・必要売上計算・耐用年数検索・税率一覧・税務カレンダー</li>
-      </ul>
-    </details>
-    <details class="changelog" style="margin-top:8px;">
-      <summary>計算エンジン検証</summary>
-      <p style="font-size:0.78rem; color:#666; margin:8px 0 6px;">公式例と照合して計算ロジックの正常性を確認します。</p>
-      <button class="btn" onclick="runGoldenTests()" style="font-size:0.78rem; padding:6px 16px;">検証実行</button>
-      <div id="golden-test-result" style="margin-top:8px;"></div>
-    </details>
-  </div>
+<div class="home-grid" id="home-screen">
+<details class="about-box">
+<summary>このツールについて</summary>
+<div class="about-body">
+<p>税理士・会計事務所スタッフが日常業務で使う計算を、ブラウザだけで手軽に実行できるツール集です。</p>
+<h3>特徴</h3>
+<ul>
+<li>インストール不要 — ブラウザで開くだけで使えます</li>
+<li>オフラインでも動作 — 全機能がページ内に完結しています</li>
+<li>Enterキーで即計算 — 金額入力後Enterで実行できます</li>
+<li>カンマ区切り対応 — 「1,000,000」のような入力もそのまま使えます</li>
+</ul>
+<h3>ツール一覧</h3>
+<ul>
+<li><strong>受取利息逆算</strong> — 通帳の入金額から仕訳用の税引前利息・源泉税を逆算</li>
+<li><strong>必要売上計算</strong> — 目標利益を達成するために必要な売上高を計算</li>
+<li><strong>耐用年数検索</strong> — 固定資産の法定耐用年数・償却率をキーワード検索</li>
+<li><strong>税率一覧</strong> — 所得税・贈与税・相続税の速算表</li>
+<li><strong>税務カレンダー</strong> — 月別の申告・納付期限一覧</li>
+<li><strong>給与源泉税早見表</strong> — 月額表から源泉税額をハイライト表示</li>
+<li><strong>報酬源泉計算</strong> — 税理士報酬等の源泉税を正算・逆算</li>
+<li><strong>修繕費判定</strong> — 国税庁フローチャートに沿って修繕費か資本的支出かを判定</li>
+<li><strong>役員報酬シミュレーション</strong> — 社保・所得税を差し引いた手取り額を概算</li>
+<li><strong>国保シミュレーション</strong> — 大阪市の国民健康保険料を試算（軽減判定付き）</li>
+</ul>
+<h3>注意事項</h3>
+<ul>
+<li>計算結果は簡易的な概算値です。正式な申告・届出には必ず専門家の確認を受けてください</li>
+<li>料率・税率は年度更新が必要です。各ツールに適用年度を記載しています</li>
+<li>各ツールの入力欄の下にある「使い方」を開くと、入力項目の説明を確認できます</li>
+</ul>
 </div>
-
+</details>
+<div class="home-card" onclick="switchTab('interest')">
+<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg></div>
+<div class="title">受取利息逆算</div>
+<div class="subtitle">入金額から税引前利息・源泉税を逆算</div>
+</div>
+<div class="home-card" onclick="switchTab('sales')">
+<div class="icon"><svg fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg></div>
+<div class="title">必要売上計算</div>
+<div class="subtitle">法人・個人対応。目標利益から必要売上高を算出</div>
+</div>
+<div class="home-card" onclick="switchTab('depreciation')">
+<div class="icon"><svg fill="none" stroke="#8e44ad" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg></div>
+<div class="title">耐用年数検索</div>
+<div class="subtitle">資産の法定耐用年数を検索</div>
+</div>
+<div class="home-card" onclick="switchTab('tax-rates')">
+<div class="icon"><svg fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg></div>
+<div class="title">税率一覧</div>
+<div class="subtitle">所得税・贈与税・相続税の速算表</div>
+</div>
+<div class="home-card" onclick="switchTab('tax-calendar')">
+<div class="icon"><svg fill="none" stroke="#c0392b" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></div>
+<div class="title">税務カレンダー</div>
+<div class="subtitle">月別の申告・納付期限一覧</div>
+</div>
+<div class="home-card" onclick="switchTab('wareki')">
+<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></svg></div>
+<div class="title">和暦⇔西暦変換</div>
+<div class="subtitle">改元年も月日で正確に相互変換</div>
+</div>
+<div class="home-card" onclick="switchTab('gensen-salary')">
+<div class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+<div class="title">給与源泉税早見表</div>
+<div class="subtitle">月額表・金額入力でハイライト</div>
+</div>
+<div class="home-card" onclick="switchTab('gensen-hoshu')">
+<div class="icon"><svg fill="none" stroke="#16a085" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="9" x2="15" y1="15" y2="15"></line></svg></div>
+<div class="title">報酬源泉計算</div>
+<div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
+</div>
+<div class="home-card" onclick="switchTab('shuzenhi')">
+<div class="icon"><svg fill="none" stroke="#d35400" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"></path></svg></div>
+<div class="title">修繕費判定</div>
+<div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
+</div>
+<div class="home-card" onclick="switchTab('yakuin')">
+<div class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+<div class="title">役員報酬シミュレーション</div>
+<div class="subtitle">社保・所得税控除後の手取りを計算</div>
+</div>
+<div class="home-card" onclick="switchTab('kokuho')">
+<div class="icon"><svg fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
+<div class="title">国保シミュレーション</div>
+<div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
+</div>
+<div class="home-card" onclick="location.href='beta.html'" style="border:2px dashed #7d3c98;">
+<div class="icon"><svg fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg></div>
+<div class="title" style="color:#7d3c98;">Beta Lab</div>
+<div class="subtitle">試験中のツールを先行公開</div>
+</div>
+<div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
+<div class="icon"><svg fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></div>
+<div class="title">参考資料</div>
+<div class="subtitle">各ツールの出典・参考URL一覧</div>
+</div>
+<div style="grid-column: 1 / -1;">
+<details class="changelog">
+<summary>更新履歴</summary>
+<ul>
+<li>v3.8.1 (2026-07-02) 別表4所得金額計算・納税予測カレンダーを未検証のためBeta Labへ移動</li>
+<li>v3.8.0 (2026-07-02) 和暦⇔西暦変換ツールを追加（改元日基準で日付単位判定・双方向）</li>
+<li>v3.7.0 (2026-04-07) ゴールデンテストに給与所得控除・基礎控除・178万の壁のケースを追加（R7/R8全パターン）</li>
+<li>v3.6.0 (2026-04-07) 基礎控除を所得額ベースで逓減計算（R8: 2,400万超・4,890万超で段階的減少）</li>
+<li>v3.5.0 (2026-04-07) 令和8年税制改正対応：給与所得控除+9万（R8/R9特例）・基礎控除104万（本則62万+時限42万）</li>
+<li>v3.4.0 (2026-04-07) 役員報酬：住民税所得割をlocalStorageに追加保存（ふるさと納税精度向上）</li>
+<li>v3.3.0 (2026-04-07) 役員報酬：ふるさと納税シミュレーションへのリンク追加</li>
+<li>v3.2.0 (2026-04-07) 役員報酬：計算結果をlocalStorageに保存し、beta.htmlのふるさと納税シミュレーションと連携</li>
+<li>v3.1.0 (2026-04-02) 計算エンジン検証機能追加（公式例によるゴールデンテスト）</li>
+<li>v3.0.1 (2026-04-02) 税率一覧：所得税の課税所得1,000円未満切捨てを自動適用</li>
+<li>v3.0.0 (2026-04-01) Beta Lab（beta.html）新設。ふるさと納税をBetaに移動、各種の壁一覧ツール追加。ブラウザ戻るボタンでホームに戻れるように改善</li>
+<li>v2.2.1 (2026-03-30) ヘッダー最終更新表示を修正、参考資料の定率法表記を250%→200%に訂正</li>
+<li>v2.2.0 (2026-03-29) 役員報酬：クライアント向け印刷機能追加、手取りを1年目/2年目以降に分離</li>
+<li>v2.1.0 (2026-03-29) 役員報酬シミュレーションに住民税（大阪市）概算を追加、手取りに反映</li>
+<li>v2.0.0 (2026-03-27) ふるさと納税限度額シミュレーション追加（控除上限計算＋クライアント向け資料印刷）</li>
+<li>v1.9.0 (2026-03-27) 年度切替対応（国保・役員報酬）、印刷対応、介護人数バリデーション、ボタンID統一</li>
+<li>v1.8.0 (2026-03-27) 全ツールに使い方ガイドを追加、ホームに「このツールについて」を追加</li>
+<li>v1.7.0 (2026-03-27) 国保シミュレーション追加（大阪市・令和7年度料率・7/5/2割軽減判定付き）</li>
+<li>v1.6.0 (2026-03-26) 役員報酬：R8料率に更新・子ども子育て支援金（0.23%）追加</li>
+<li>v1.5.0 (2026-03-26) 役員報酬シミュレーション追加（社保・所得税・手取り・会社負担を一括計算）</li>
+<li>v1.4.0 (2026-03-26) 必要売上計算：個人事業主モード追加・法人の実効税率自動計算（800万境界）</li>
+<li>v1.3.0 (2026-03-26) 全ツールにEnterキーで計算実行を追加。修繕費判定フローチャートを追加（国税庁No.1379準拠・災害分岐対応・全体図表示付き）</li>
+<li>v1.2.0 (2026-03-26) 修繕費判定フローチャートを追加</li>
+<li>v1.1.0 (2026-03-26) 給与源泉税早見表・報酬源泉計算を追加。免責注意書き・コピーライト追加</li>
+<li>v1.0.0 (2026-03-07) 初版：受取利息逆算・必要売上計算・耐用年数検索・税率一覧・税務カレンダー</li>
+</ul>
+</details>
+<details class="changelog" style="margin-top:8px;">
+<summary>計算エンジン検証</summary>
+<p style="font-size:0.78rem; color:#666; margin:8px 0 6px;">公式例と照合して計算ロジックの正常性を確認します。</p>
+<button class="btn" onclick="runGoldenTests()" style="font-size:0.78rem; padding:6px 16px;">検証実行</button>
+<div id="golden-test-result" style="margin-top:8px;"></div>
+</details>
+</div>
+</div>
 <!-- ===== 受取利息逆算ツール ===== -->
-<div id="tab-interest" class="tab-content">
-  <div class="card">
-    <h2>受取利息・配当金の逆算計算（法人用）</h2>
-    <p class="desc">入金額（手取額）から税引前金額・源泉所得税・復興特別所得税を逆算します</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>通帳に記帳された受取利息や配当金の入金額から、仕訳に必要な税引前金額と源泉税額を求めるときに使います。</dd>
-          <dt>入力する金額</dt>
-          <dd>通帳に記載された入金額（手取額）をそのまま入力してください。正算モードでは税引前の額面金額を入力します。</dd>
-          <dt>種類の選び方</dt>
-          <dd>預金利息 → 「受取利息」（源泉税率15.315%）、出資分配金・配当金 → 「配当金」（源泉税率20.42%）を選択してください。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>種類</label>
-      <select id="interest-type" onchange="updateInterestUI()">
-        <option value="interest">受取利息（源泉税率 15.315%）</option>
-        <option value="dividend">配当金・出資分配金（源泉税率 20.42%）</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>入金額（税引後の手取額）</label>
-      <div class="input-prefix">
-        <input type="text" id="deposit-amount" inputmode="numeric" placeholder="例: 797" onkeydown="if(event.key==='Enter'){event.preventDefault();calcInterest();}">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>端数処理</label>
-      <select id="rounding-method">
-        <option value="truncate">切捨て（一般的）</option>
-        <option value="round">四捨五入</option>
-      </select>
-    </div>
-
-    <button class="btn" id="btn-interest" onclick="calcInterest()">計算する</button>
-
-    <div id="interest-result" class="result" style="display:none;"></div>
-
-    <p class="note" id="interest-note">
-      ※ 法人向け：源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）<br>
-      ※ 法人の利子割は平成28年1月以降廃止されています<br>
-      ※ 2037年12月31日まで復興特別所得税が課されます<br>
+<div class="tab-content" id="tab-interest">
+<div class="card">
+<h2>受取利息・配当金の逆算計算（法人用）</h2>
+<p class="desc">入金額（手取額）から税引前金額・源泉所得税・復興特別所得税を逆算します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>通帳に記帳された受取利息や配当金の入金額から、仕訳に必要な税引前金額と源泉税額を求めるときに使います。</dd>
+<dt>入力する金額</dt>
+<dd>通帳に記載された入金額（手取額）をそのまま入力してください。正算モードでは税引前の額面金額を入力します。</dd>
+<dt>種類の選び方</dt>
+<dd>預金利息 → 「受取利息」（源泉税率15.315%）、出資分配金・配当金 → 「配当金」（源泉税率20.42%）を選択してください。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>種類</label>
+<select id="interest-type" onchange="updateInterestUI()">
+<option value="interest">受取利息（源泉税率 15.315%）</option>
+<option value="dividend">配当金・出資分配金（源泉税率 20.42%）</option>
+</select>
+</div>
+<div class="form-group">
+<label>入金額（税引後の手取額）</label>
+<div class="input-prefix">
+<input id="deposit-amount" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcInterest();}" placeholder="例: 797" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label>端数処理</label>
+<select id="rounding-method">
+<option value="truncate">切捨て（一般的）</option>
+<option value="round">四捨五入</option>
+</select>
+</div>
+<button class="btn" id="btn-interest" onclick="calcInterest()">計算する</button>
+<div class="result" id="interest-result" style="display:none;"></div>
+<p class="note" id="interest-note">
+      ※ 法人向け：源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）<br/>
+      ※ 法人の利子割は平成28年1月以降廃止されています<br/>
+      ※ 2037年12月31日まで復興特別所得税が課されます<br/>
       ※ 個人事業主の場合は事業主借で処理するため逆算不要です
     </p>
-    <div class="page-changelog">更新: v1.1.0 (2026-03-26) Enterキーで計算実行対応 | v1.0.0 (2026-03-07) 初版作成</div>
-  </div>
+<div class="page-changelog">更新: v1.1.0 (2026-03-26) Enterキーで計算実行対応 | v1.0.0 (2026-03-07) 初版作成</div>
 </div>
-
+</div>
 <!-- ===== 必要売上計算ツール ===== -->
-<div id="tab-sales" class="tab-content">
-  <div class="card">
-    <h2>必要売上シミュレーター</h2>
-    <p class="desc">手元に残したい金額・粗利率・固定費から必要な売上高を計算します</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>「年間でいくら手元に残したい」という目標から、必要な売上高を逆算するときに使います。経営相談や事業計画の際に便利です。</dd>
-          <dt>法人モードと個人モード</dt>
-          <dd>法人 → 実効税率（800万境界で自動計算）を考慮して税引前利益を算出します。個人 → 税率を考慮せず、入力した金額＝必要利益として計算します。</dd>
-          <dt>粗利率</dt>
-          <dd>売上高に対する粗利（売上総利益）の割合です。卸売業なら20〜30%、サービス業なら50〜80%程度が目安です。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label id="sales-profit-label">手元に残したい金額（税引後利益目標）</label>
-      <div class="input-prefix">
-        <input type="text" id="target-profit" inputmode="numeric" placeholder="例: 5000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>粗利率（売上総利益率）</label>
-      <div class="input-suffix" data-suffix="%">
-        <input type="text" id="gross-margin" inputmode="decimal" placeholder="例: 40" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>固定費（人件費・家賃等の年間合計）</label>
-      <div class="input-prefix">
-        <input type="text" id="fixed-cost" inputmode="numeric" placeholder="例: 10000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}">
-      </div>
-    </div>
-
-    <div class="checkbox-row">
-      <label for="sales-personal-check">
-        <input type="checkbox" id="sales-personal-check" onchange="toggleSalesPersonal()"> 個人事業主（税率を考慮しない）
+<div class="tab-content" id="tab-sales">
+<div class="card">
+<h2>必要売上シミュレーター</h2>
+<p class="desc">手元に残したい金額・粗利率・固定費から必要な売上高を計算します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>「年間でいくら手元に残したい」という目標から、必要な売上高を逆算するときに使います。経営相談や事業計画の際に便利です。</dd>
+<dt>法人モードと個人モード</dt>
+<dd>法人 → 実効税率（800万境界で自動計算）を考慮して税引前利益を算出します。個人 → 税率を考慮せず、入力した金額＝必要利益として計算します。</dd>
+<dt>粗利率</dt>
+<dd>売上高に対する粗利（売上総利益）の割合です。卸売業なら20〜30%、サービス業なら50〜80%程度が目安です。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label id="sales-profit-label">手元に残したい金額（税引後利益目標）</label>
+<div class="input-prefix">
+<input id="target-profit" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}" placeholder="例: 5000000" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label>粗利率（売上総利益率）</label>
+<div class="input-suffix" data-suffix="%">
+<input id="gross-margin" inputmode="decimal" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}" placeholder="例: 40" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label>固定費（人件費・家賃等の年間合計）</label>
+<div class="input-prefix">
+<input id="fixed-cost" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcSales();}" placeholder="例: 10000000" type="text"/>
+</div>
+</div>
+<div class="checkbox-row">
+<label for="sales-personal-check">
+<input id="sales-personal-check" onchange="toggleSalesPersonal()" type="checkbox"/> 個人事業主（税率を考慮しない）
       </label>
-    </div>
-
-    <button class="btn" id="btn-sales" onclick="calcSales()">計算する</button>
-
-    <div id="sales-result" class="result" style="display:none;"></div>
-
-    <div id="sales-print-btn" style="display:none; margin-top:12px;">
-      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printSales()">資料を印刷</button>
-    </div>
-
-    <p class="note" id="sales-note">
-      ※ 法人：所得800万以下を25%、800万超を35%で自動計算します<br>
-      ※ 個人：税率を考慮しない単純計算です（必要売上＝（目標利益＋固定費）÷粗利率）<br>
+</div>
+<button class="btn" id="btn-sales" onclick="calcSales()">計算する</button>
+<div class="result" id="sales-result" style="display:none;"></div>
+<div id="sales-print-btn" style="display:none; margin-top:12px;">
+<button class="btn" onclick="printSales()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+</div>
+<p class="note" id="sales-note">
+      ※ 法人：所得800万以下を25%、800万超を35%で自動計算します<br/>
+      ※ 個人：税率を考慮しない単純計算です（必要売上＝（目標利益＋固定費）÷粗利率）<br/>
       ※ 安全余裕率：実際の売上が損益分岐点からどれだけ余裕があるかの指標。高いほど赤字になりにくい（目安：20%以上で安全）
     </p>
-    <div class="page-changelog">更新: v2.2.0 (2026-03-30) 印刷機能追加 | v2.1.0 (2026-03-26) UI簡素化 | v2.0.0 個人モード | v1.0.0 (2026-03-07) 初版</div>
-  </div>
+<div class="page-changelog">更新: v2.2.0 (2026-03-30) 印刷機能追加 | v2.1.0 (2026-03-26) UI簡素化 | v2.0.0 個人モード | v1.0.0 (2026-03-07) 初版</div>
 </div>
-
+</div>
 <!-- ===== 印刷用必要売上資料（通常時は非表示） ===== -->
 <div id="sales-print-area" style="display:none;"></div>
-
 <!-- ===== 耐用年数検索 ===== -->
-<div id="tab-depreciation" class="tab-content">
-  <div class="card">
-    <h2>減価償却 耐用年数検索</h2>
-    <p class="desc">資産名・種類で耐用年数を検索できます</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>固定資産を取得したとき、減価償却の耐用年数と償却率を調べるために使います。</dd>
-          <dt>検索のコツ</dt>
-          <dd>「パソコン」「車」「エアコン」など一般的な名称で検索できます。見つからない場合はカテゴリ（「器具備品」「建物」等）でも絞り込めます。</dd>
-          <dt>償却率について</dt>
-          <dd>定額法・定率法（200%）の償却率を表示しています。保証率・改定償却率も表の中に含まれています。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>キーワード検索</label>
-      <input type="text" id="dep-search" placeholder="例: パソコン、車、エアコン、机" oninput="searchDepreciation()">
-    </div>
-
-    <div class="form-group">
-      <label>カテゴリで絞り込み</label>
-      <select id="dep-category" onchange="searchDepreciation()">
-        <option value="">すべて</option>
-        <option value="建物">建物</option>
-        <option value="建物附属設備">建物附属設備</option>
-        <option value="構築物">構築物</option>
-        <option value="船舶">船舶</option>
-        <option value="航空機">航空機</option>
-        <option value="車両運搬具">車両運搬具</option>
-        <option value="工具">工具</option>
-        <option value="器具備品">器具備品</option>
-        <option value="機械装置">機械装置</option>
-        <option value="無形減価償却資産">無形減価償却資産</option>
-        <option value="生物">生物</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom:12px;">
-      <a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> 耐用年数を直接入力して償却計算 →</a>
-    </div>
-
-    <div id="dep-result"></div>
-
-    <div id="dep-calc" class="card" style="display:none; margin-top:12px; border: 2px solid #2980b9;">
-      <h2 id="dep-calc-title">償却計算</h2>
-      <p class="desc" id="dep-calc-desc"></p>
-
-      <div class="form-group">
-        <label>耐用年数</label>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <input type="text" id="dep-calc-life" inputmode="numeric" style="width:80px;" placeholder="年数" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}">
-          <span>年</span>
-        </div>
-      </div>
-
-      <div class="checkbox-row" style="margin-bottom:0;">
-        <label for="dep-used-check">
-          <input type="checkbox" id="dep-used-check" onchange="toggleUsedAsset()"> 中古資産（簡便法で耐用年数を計算）
+<div class="tab-content" id="tab-depreciation">
+<div class="card">
+<h2>減価償却 耐用年数検索</h2>
+<p class="desc">資産名・種類で耐用年数を検索できます</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>固定資産を取得したとき、減価償却の耐用年数と償却率を調べるために使います。</dd>
+<dt>検索のコツ</dt>
+<dd>「パソコン」「車」「エアコン」など一般的な名称で検索できます。見つからない場合はカテゴリ（「器具備品」「建物」等）でも絞り込めます。</dd>
+<dt>償却率について</dt>
+<dd>定額法・定率法（200%）の償却率を表示しています。保証率・改定償却率も表の中に含まれています。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>キーワード検索</label>
+<input id="dep-search" oninput="searchDepreciation()" placeholder="例: パソコン、車、エアコン、机" type="text"/>
+</div>
+<div class="form-group">
+<label>カテゴリで絞り込み</label>
+<select id="dep-category" onchange="searchDepreciation()">
+<option value="">すべて</option>
+<option value="建物">建物</option>
+<option value="建物附属設備">建物附属設備</option>
+<option value="構築物">構築物</option>
+<option value="船舶">船舶</option>
+<option value="航空機">航空機</option>
+<option value="車両運搬具">車両運搬具</option>
+<option value="工具">工具</option>
+<option value="器具備品">器具備品</option>
+<option value="機械装置">機械装置</option>
+<option value="無形減価償却資産">無形減価償却資産</option>
+<option value="生物">生物</option>
+</select>
+</div>
+<div style="margin-bottom:12px;">
+<a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg> 耐用年数を直接入力して償却計算 →</a>
+</div>
+<div id="dep-result"></div>
+<div class="card" id="dep-calc" style="display:none; margin-top:12px; border: 2px solid #2980b9;">
+<h2 id="dep-calc-title">償却計算</h2>
+<p class="desc" id="dep-calc-desc"></p>
+<div class="form-group">
+<label>耐用年数</label>
+<div style="display:flex; align-items:center; gap:8px;">
+<input id="dep-calc-life" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}" placeholder="年数" style="width:80px;" type="text"/>
+<span>年</span>
+</div>
+</div>
+<div class="checkbox-row" style="margin-bottom:0;">
+<label for="dep-used-check">
+<input id="dep-used-check" onchange="toggleUsedAsset()" type="checkbox"/> 中古資産（簡便法で耐用年数を計算）
         </label>
-      </div>
-      <div id="dep-used-section" style="display:none; background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:12px; margin-bottom:12px;">
-        <div class="form-group" style="margin-bottom:8px;">
-          <label style="font-size:0.82rem;">経過年数</label>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <input type="text" id="dep-used-years" inputmode="numeric" style="width:60px;" placeholder="年" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" oninput="calcUsedLife()">
-            <span>年</span>
-            <input type="text" id="dep-used-months" inputmode="numeric" style="width:60px;" placeholder="月" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" oninput="calcUsedLife()">
-            <span>ヶ月</span>
-          </div>
-        </div>
-        <div id="dep-used-result" style="font-size:0.82rem; color:#7d6608;"></div>
-      </div>
-
-      <div class="form-group">
-        <label>取得価額（円）</label>
-        <div class="input-prefix">
-          <input type="text" id="dep-calc-cost" inputmode="numeric" placeholder="例: 1,000,000" oninput="formatDepCost(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}">
-        </div>
-        <div id="dep-cost-notes" style="font-size:0.78rem; color:#38a169; margin-top:4px;"></div>
-      </div>
-
-      <div class="form-group">
-        <label>初年度の償却月数</label>
-        <select id="dep-calc-months" style="width:100px;">
-          <option value="12" selected>12ヶ月</option>
-          <option value="11">11ヶ月</option>
-          <option value="10">10ヶ月</option>
-          <option value="9">9ヶ月</option>
-          <option value="8">8ヶ月</option>
-          <option value="7">7ヶ月</option>
-          <option value="6">6ヶ月</option>
-          <option value="5">5ヶ月</option>
-          <option value="4">4ヶ月</option>
-          <option value="3">3ヶ月</option>
-          <option value="2">2ヶ月</option>
-          <option value="1">1ヶ月</option>
-        </select>
-      </div>
-
-      <div class="checkbox-row">
-        <label for="dep-kojin-check">
-          <input type="checkbox" id="dep-kojin-check" onchange="toggleKojin()"> 個人（定額法に変更）
+</div>
+<div id="dep-used-section" style="display:none; background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:12px; margin-bottom:12px;">
+<div class="form-group" style="margin-bottom:8px;">
+<label style="font-size:0.82rem;">経過年数</label>
+<div style="display:flex; align-items:center; gap:8px;">
+<input id="dep-used-years" inputmode="numeric" oninput="calcUsedLife()" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" placeholder="年" style="width:60px;" type="text"/>
+<span>年</span>
+<input id="dep-used-months" inputmode="numeric" oninput="calcUsedLife()" onkeydown="if(event.key==='Enter'){event.preventDefault();calcUsedLife();}" placeholder="月" style="width:60px;" type="text"/>
+<span>ヶ月</span>
+</div>
+</div>
+<div id="dep-used-result" style="font-size:0.82rem; color:#7d6608;"></div>
+</div>
+<div class="form-group">
+<label>取得価額（円）</label>
+<div class="input-prefix">
+<input id="dep-calc-cost" inputmode="numeric" oninput="formatDepCost(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}" placeholder="例: 1,000,000" type="text"/>
+</div>
+<div id="dep-cost-notes" style="font-size:0.78rem; color:#38a169; margin-top:4px;"></div>
+</div>
+<div class="form-group">
+<label>初年度の償却月数</label>
+<select id="dep-calc-months" style="width:100px;">
+<option selected="" value="12">12ヶ月</option>
+<option value="11">11ヶ月</option>
+<option value="10">10ヶ月</option>
+<option value="9">9ヶ月</option>
+<option value="8">8ヶ月</option>
+<option value="7">7ヶ月</option>
+<option value="6">6ヶ月</option>
+<option value="5">5ヶ月</option>
+<option value="4">4ヶ月</option>
+<option value="3">3ヶ月</option>
+<option value="2">2ヶ月</option>
+<option value="1">1ヶ月</option>
+</select>
+</div>
+<div class="checkbox-row">
+<label for="dep-kojin-check">
+<input id="dep-kojin-check" onchange="toggleKojin()" type="checkbox"/> 個人（定額法に変更）
         </label>
-      </div>
-
-      <div id="dep-method-info" style="font-size:0.78rem; color:#666; margin-bottom:12px;"></div>
-
-      <button class="btn" id="btn-dep" onclick="calcDepSchedule()">計算する</button>
-
-      <div id="dep-calc-result" style="display:none; margin-top:16px;">
-        <div id="dep-calc-summary"></div>
-        <div style="overflow-x:auto; margin-top:12px;">
-          <table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:520px;"></table>
-        </div>
-      </div>
-    </div>
-
-    <p class="note">
-      ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br>
+</div>
+<div id="dep-method-info" style="font-size:0.78rem; color:#666; margin-bottom:12px;"></div>
+<button class="btn" id="btn-dep" onclick="calcDepSchedule()">計算する</button>
+<div id="dep-calc-result" style="display:none; margin-top:16px;">
+<div id="dep-calc-summary"></div>
+<div style="overflow-x:auto; margin-top:12px;">
+<table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:520px;"></table>
+</div>
+</div>
+</div>
+<p class="note">
+      ※ 主要な資産を収録しています。特殊な資産は国税庁の耐用年数表をご確認ください<br/>
       ※ 中古資産の耐用年数は簡便法: (法定耐用年数-経過年数)+経過年数×20%
     </p>
-    <div class="page-changelog">更新: v2.1.0 (2026-03-27) 絵文字→SVGアイコンに統一 | v2.0.0 (2026-03-27) DB全量拡充(562件)・中古簡便法・検索改善 | v1.5.0 (2026-03-26) Enterキーで計算実行対応 | v1.4.0 デフォルト複数年表示・工具データ追加 | v1.2.0 償却計算機能を統合 | v1.0.0 (2026-03-07) 初版作成</div>
-  </div>
+<div class="page-changelog">更新: v2.1.0 (2026-03-27) 絵文字→SVGアイコンに統一 | v2.0.0 (2026-03-27) DB全量拡充(562件)・中古簡便法・検索改善 | v1.5.0 (2026-03-26) Enterキーで計算実行対応 | v1.4.0 デフォルト複数年表示・工具データ追加 | v1.2.0 償却計算機能を統合 | v1.0.0 (2026-03-07) 初版作成</div>
 </div>
-
+</div>
 <!-- ===== 税率一覧 ===== -->
-<div id="tab-tax-rates" class="tab-content">
-  <div class="card">
-    <h2>税率一覧表</h2>
-    <p class="desc">所得税・贈与税・相続税の速算表</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>クライアントへの説明や概算計算で、税率・控除額をさっと確認したいときに使います。</dd>
-          <dt>速算表の読み方</dt>
-          <dd>税額 ＝ 課税所得 × 税率 − 控除額。例えば所得税で課税所得500万円の場合、500万×20%−42.75万＝57.25万円です。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>表示する税率表</label>
-      <select id="rate-type" onchange="showTaxRates()">
-        <option value="income">所得税（総合課税）</option>
-        <option value="gift-general">贈与税（一般贈与）</option>
-        <option value="gift-special">贈与税（特例贈与：直系尊属→18歳以上）</option>
-        <option value="inheritance">相続税</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>金額を入力すると税額を計算します（任意）</label>
-      <div class="input-prefix">
-        <input type="text" id="rate-amount" inputmode="numeric" placeholder="例: 7000000" oninput="showTaxRates()">
-      </div>
-    </div>
-
-    <div id="tax-rates-result"></div>
-    <div class="page-changelog">更新: v1.0.0 (2026-03-07) 初版作成</div>
-  </div>
+<div class="tab-content" id="tab-tax-rates">
+<div class="card">
+<h2>税率一覧表</h2>
+<p class="desc">所得税・贈与税・相続税の速算表</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>クライアントへの説明や概算計算で、税率・控除額をさっと確認したいときに使います。</dd>
+<dt>速算表の読み方</dt>
+<dd>税額 ＝ 課税所得 × 税率 − 控除額。例えば所得税で課税所得500万円の場合、500万×20%−42.75万＝57.25万円です。</dd>
+</dl>
 </div>
-
+</details>
+<div class="form-group">
+<label>表示する税率表</label>
+<select id="rate-type" onchange="showTaxRates()">
+<option value="income">所得税（総合課税）</option>
+<option value="gift-general">贈与税（一般贈与）</option>
+<option value="gift-special">贈与税（特例贈与：直系尊属→18歳以上）</option>
+<option value="inheritance">相続税</option>
+</select>
+</div>
+<div class="form-group">
+<label>金額を入力すると税額を計算します（任意）</label>
+<div class="input-prefix">
+<input id="rate-amount" inputmode="numeric" oninput="showTaxRates()" placeholder="例: 7000000" type="text"/>
+</div>
+</div>
+<div id="tax-rates-result"></div>
+<div class="page-changelog">更新: v1.0.0 (2026-03-07) 初版作成</div>
+</div>
+</div>
 <!-- ===== 税務カレンダー ===== -->
-<div id="tab-tax-calendar" class="tab-content">
-  <div class="card">
-    <h2>主要税務スケジュール</h2>
-    <p class="desc">月別の主な税務申告・納付期限（法人：3月決算の場合）</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>「今月の税務イベントは何がある？」を確認するときに使います。法人は3月決算ベースで表示しています。</dd>
-          <dt>決算月が異なる場合</dt>
-          <dd>3月決算以外の法人は、申告・納付月を自社の決算月に読み替えてください（例：12月決算法人の法人税申告は翌年2月末）。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>表示する月</label>
-      <select id="calendar-month" onchange="showCalendar()">
-        <option value="0">すべての月を表示</option>
-        <option value="1">1月</option><option value="2">2月</option>
-        <option value="3">3月</option><option value="4">4月</option>
-        <option value="5">5月</option><option value="6">6月</option>
-        <option value="7">7月</option><option value="8">8月</option>
-        <option value="9">9月</option><option value="10">10月</option>
-        <option value="11">11月</option><option value="12">12月</option>
-      </select>
-    </div>
-
-    <div id="calendar-result"></div>
-    <div class="page-changelog">更新: v1.0.0 (2026-03-07) 初版作成</div>
-  </div>
+<div class="tab-content" id="tab-tax-calendar">
+<div class="card">
+<h2>主要税務スケジュール</h2>
+<p class="desc">月別の主な税務申告・納付期限（法人：3月決算の場合）</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>「今月の税務イベントは何がある？」を確認するときに使います。法人は3月決算ベースで表示しています。</dd>
+<dt>決算月が異なる場合</dt>
+<dd>3月決算以外の法人は、申告・納付月を自社の決算月に読み替えてください（例：12月決算法人の法人税申告は翌年2月末）。</dd>
+</dl>
 </div>
-
+</details>
+<div class="form-group">
+<label>表示する月</label>
+<select id="calendar-month" onchange="showCalendar()">
+<option value="0">すべての月を表示</option>
+<option value="1">1月</option><option value="2">2月</option>
+<option value="3">3月</option><option value="4">4月</option>
+<option value="5">5月</option><option value="6">6月</option>
+<option value="7">7月</option><option value="8">8月</option>
+<option value="9">9月</option><option value="10">10月</option>
+<option value="11">11月</option><option value="12">12月</option>
+</select>
+</div>
+<div id="calendar-result"></div>
+<div class="page-changelog">更新: v1.0.0 (2026-03-07) 初版作成</div>
+</div>
+</div>
 <!-- ===== 給与源泉税早見表 ===== -->
-<div id="tab-gensen-salary" class="tab-content">
-  <div class="card">
-    <h2>給与源泉税早見表（月額表）</h2>
-    <p class="desc">社会保険料等控除後の給与等の金額を入力すると、該当する税額をハイライト表示します</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>毎月の給与計算で、源泉徴収する所得税額を確認するときに使います。国税庁の月額表（甲欄）と同じデータです。</dd>
-          <dt>入力する金額</dt>
-          <dd>給与の総支給額ではなく、「社会保険料等控除後の金額」を入力してください。総支給額から健保・厚年・雇保の本人負担分を差し引いた金額です。</dd>
-          <dt>扶養親族等の数</dt>
-          <dd>源泉控除対象配偶者と控除対象扶養親族の合計人数です。本人が障害者・寡婦等に該当する場合は1人加算してください。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>年度</label>
-      <select id="gensen-year" onchange="calcGensenSalary()" style="width:100%; padding:10px 12px; border:1px solid #d0d0d0; border-radius:8px; font-size:1rem;">
-        <option value="2026" selected>令和8年（2026年）</option>
-        <option value="2024">令和6年（2024年）※令和7年も同一</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>甲欄 / 乙欄</label>
-      <div class="toggle-group" id="gensen-kotype">
-        <button class="active" onclick="setGensenKo('kou')">甲欄</button>
-        <button onclick="setGensenKo('otsu')">乙欄</button>
-      </div>
-    </div>
-
-    <div class="form-group" id="gensen-fuyou-group">
-      <label>扶養親族等の数</label>
-      <select id="gensen-fuyou" onchange="calcGensenSalary()">
-        <option value="0">0人</option>
-        <option value="1">1人</option>
-        <option value="2">2人</option>
-        <option value="3">3人</option>
-        <option value="4">4人</option>
-        <option value="5">5人</option>
-        <option value="6">6人</option>
-        <option value="7">7人</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>社会保険料等控除後の給与等の金額</label>
-      <div class="input-prefix">
-        <input type="text" id="gensen-salary-amount" inputmode="numeric" placeholder="例: 250000" oninput="calcGensenSalary()">
-      </div>
-    </div>
-
-    <div id="gensen-salary-result-card" style="display:none;"></div>
-    <div id="gensen-salary-table"></div>
-
-    <p class="note">
+<div class="tab-content" id="tab-gensen-salary">
+<div class="card">
+<h2>給与源泉税早見表（月額表）</h2>
+<p class="desc">社会保険料等控除後の給与等の金額を入力すると、該当する税額をハイライト表示します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>毎月の給与計算で、源泉徴収する所得税額を確認するときに使います。国税庁の月額表（甲欄）と同じデータです。</dd>
+<dt>入力する金額</dt>
+<dd>給与の総支給額ではなく、「社会保険料等控除後の金額」を入力してください。総支給額から健保・厚年・雇保の本人負担分を差し引いた金額です。</dd>
+<dt>扶養親族等の数</dt>
+<dd>源泉控除対象配偶者と控除対象扶養親族の合計人数です。本人が障害者・寡婦等に該当する場合は1人加算してください。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>年度</label>
+<select id="gensen-year" onchange="calcGensenSalary()" style="width:100%; padding:10px 12px; border:1px solid #d0d0d0; border-radius:8px; font-size:1rem;">
+<option selected="" value="2026">令和8年（2026年）</option>
+<option value="2024">令和6年（2024年）※令和7年も同一</option>
+</select>
+</div>
+<div class="form-group">
+<label>甲欄 / 乙欄</label>
+<div class="toggle-group" id="gensen-kotype">
+<button class="active" onclick="setGensenKo('kou')">甲欄</button>
+<button onclick="setGensenKo('otsu')">乙欄</button>
+</div>
+</div>
+<div class="form-group" id="gensen-fuyou-group">
+<label>扶養親族等の数</label>
+<select id="gensen-fuyou" onchange="calcGensenSalary()">
+<option value="0">0人</option>
+<option value="1">1人</option>
+<option value="2">2人</option>
+<option value="3">3人</option>
+<option value="4">4人</option>
+<option value="5">5人</option>
+<option value="6">6人</option>
+<option value="7">7人</option>
+</select>
+</div>
+<div class="form-group">
+<label>社会保険料等控除後の給与等の金額</label>
+<div class="input-prefix">
+<input id="gensen-salary-amount" inputmode="numeric" oninput="calcGensenSalary()" placeholder="例: 250000" type="text"/>
+</div>
+</div>
+<div id="gensen-salary-result-card" style="display:none;"></div>
+<div id="gensen-salary-table"></div>
+<p class="note">
       ※ 国税庁公表の源泉徴収税額表（月額表）に基づく簡易版です。年度を切り替えて使用できます。実際の適用は税額表原本をご確認ください。
     </p>
-    <div class="page-changelog">更新: v1.4.0 (2026-04-02) 所得税の課税所得1,000円未満切捨てを自動適用 | v1.3.0 (2026-03-26) 高額給与の税率計算対応 | v1.2.0 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1.0 (2026-03-26) 新規作成</div>
-  </div>
+<div class="page-changelog">更新: v1.4.0 (2026-04-02) 所得税の課税所得1,000円未満切捨てを自動適用 | v1.3.0 (2026-03-26) 高額給与の税率計算対応 | v1.2.0 (2026-03-26) 令和8年データ追加・年度切替対応 | v1.1.0 (2026-03-26) 新規作成</div>
 </div>
-
+</div>
 <!-- ===== 報酬源泉計算 ===== -->
-<div id="tab-gensen-hoshu" class="tab-content">
-  <div class="card">
-    <h2>報酬源泉計算</h2>
-    <p class="desc">報酬・料金等に対する源泉徴収税額を正算・逆算で計算します</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>税理士・弁護士・司法書士等への報酬を支払うとき、源泉徴収する税額を計算するために使います。</dd>
-          <dt>正算と逆算</dt>
-          <dd>正算 → 税込の報酬額面から源泉税額と手取額を計算します。逆算 → 手取額（振込額）から税込の報酬額と源泉税額を逆算します。「手取り○万円になるように」と言われたときに便利です。</dd>
-          <dt>税率</dt>
-          <dd>100万円以下の部分は10.21%、100万円超の部分は20.42%（いずれも復興特別所得税込み）です。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>計算方法</label>
-      <div class="toggle-group" id="hoshu-mode-group">
-        <button class="active" onclick="setHoshuMode('forward')">正算（報酬額→税額）</button>
-        <button onclick="setHoshuMode('reverse')">逆算（手取額→報酬額）</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label id="hoshu-input-label">報酬額（税込・消費税等区分なし）</label>
-      <div class="input-prefix">
-        <input type="text" id="hoshu-amount" inputmode="numeric" placeholder="例: 1500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcHoshu();}">
-      </div>
-    </div>
-
-    <button class="btn" id="btn-hoshu" onclick="calcHoshu()">計算する</button>
-
-    <div id="hoshu-result" class="result" style="display:none;"></div>
-
-    <p class="note">
+<div class="tab-content" id="tab-gensen-hoshu">
+<div class="card">
+<h2>報酬源泉計算</h2>
+<p class="desc">報酬・料金等に対する源泉徴収税額を正算・逆算で計算します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>税理士・弁護士・司法書士等への報酬を支払うとき、源泉徴収する税額を計算するために使います。</dd>
+<dt>正算と逆算</dt>
+<dd>正算 → 税込の報酬額面から源泉税額と手取額を計算します。逆算 → 手取額（振込額）から税込の報酬額と源泉税額を逆算します。「手取り○万円になるように」と言われたときに便利です。</dd>
+<dt>税率</dt>
+<dd>100万円以下の部分は10.21%、100万円超の部分は20.42%（いずれも復興特別所得税込み）です。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>計算方法</label>
+<div class="toggle-group" id="hoshu-mode-group">
+<button class="active" onclick="setHoshuMode('forward')">正算（報酬額→税額）</button>
+<button onclick="setHoshuMode('reverse')">逆算（手取額→報酬額）</button>
+</div>
+</div>
+<div class="form-group">
+<label id="hoshu-input-label">報酬額（税込・消費税等区分なし）</label>
+<div class="input-prefix">
+<input id="hoshu-amount" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcHoshu();}" placeholder="例: 1500000" type="text"/>
+</div>
+</div>
+<button class="btn" id="btn-hoshu" onclick="calcHoshu()">計算する</button>
+<div class="result" id="hoshu-result" style="display:none;"></div>
+<p class="note">
       ※ 所得税法第204条に基づく報酬・料金等（弁護士・税理士・デザイナー等）の源泉徴収税額。復興特別所得税（2.1%）を含みます。
     </p>
-    <div class="page-changelog">更新: v1.2.0 (2026-03-26) Enterキーで計算実行対応 | v1.1.0 (2026-03-26) 新規作成</div>
-  </div>
+<div class="page-changelog">更新: v1.2.0 (2026-03-26) Enterキーで計算実行対応 | v1.1.0 (2026-03-26) 新規作成</div>
 </div>
-
+</div>
 <!-- ===== 修繕費判定フローチャート ===== -->
-<div id="tab-shuzenhi" class="tab-content">
-  <div class="card">
-    <h2>修繕費・資本的支出の判定フローチャート</h2>
-    <p class="desc">国税庁 No.1379 に基づき、修理改良等の支出が修繕費か資本的支出かを判定します</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>建物や設備の修理・改良にかかった費用を、全額経費（修繕費）にできるか、資産計上（資本的支出）すべきかを判断するときに使います。</dd>
-          <dt>フローチャートの進め方</dt>
-          <dd>質問に「はい」「いいえ」で答えていくと、最終的な判定結果が表示されます。途中で金額の入力が必要になる場合もあります。</dd>
-          <dt>フロー全体図</dt>
-          <dd>「フロー全体図を表示」ボタンで判定ルートの全体像を確認できます。クライアントへの説明資料としても使えます。</dd>
-          <dt>注意</dt>
-          <dd>災害に起因する支出かどうかで判定ルートが変わります。最初の質問で正しく選択してください。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div style="margin-bottom:16px;">
-      <button class="btn" style="background:#718096; font-size:0.85rem; padding:8px 16px;" onclick="toggleFlowOverview()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg> フロー全体図を表示</button>
-    </div>
-
-    <div id="flow-overview" style="display:none; margin-bottom:20px;">
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:20px 8px; overflow-x:auto;">
-        <svg viewBox="0 0 540 780" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:540px; display:block; margin:0 auto; font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;">
-          <defs>
-            <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#a0aec0"/></marker>
-            <marker id="ah-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#e53e3e"/></marker>
-            <filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/></filter>
-            <linearGradient id="gH" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a5276"/><stop offset="100%" stop-color="#2980b9"/></linearGradient>
-            <linearGradient id="gO" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#dd6b20"/><stop offset="100%" stop-color="#ed8936"/></linearGradient>
-            <linearGradient id="gG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5a6778"/><stop offset="100%" stop-color="#718096"/></linearGradient>
-          </defs>
-
-          <!-- タイトル -->
-          <rect x="120" y="4" width="300" height="40" rx="10" fill="url(#gH)" filter="url(#shadow)"/>
-          <text x="270" y="29" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">修理改良等のための支出金額</text>
-
-          <!-- 縦の幹線 -->
-          <line x1="270" y1="44" x2="270" y2="488" stroke="#cbd5e0" stroke-width="2"/>
-
-          <!-- === Q1: 20万円未満か === -->
-          <rect x="173" y="56" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="79" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">20万円未満か</text>
-          <line x1="367" y1="74" x2="410" y2="74" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="388" y="68" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="62" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
-          <text x="452" y="79" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
-          <text x="280" y="101" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q2: 3年以内周期 === -->
-          <rect x="173" y="110" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="133" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">おおむね3年以内の周期か</text>
-          <line x1="367" y1="128" x2="410" y2="128" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="388" y="122" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="116" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
-          <text x="452" y="133" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
-          <text x="280" y="155" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q3: 価値増加 === -->
-          <rect x="173" y="164" width="194" height="46" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="184" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">明らかに価値を高める</text>
-          <text x="270" y="200" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">or 耐久性を増すか</text>
-          <line x1="367" y1="187" x2="410" y2="187" stroke="#fc8181" stroke-width="1.5" marker-end="url(#ah-r)"/>
-          <text x="388" y="181" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="175" width="84" height="24" rx="12" fill="#fff5f5" stroke="#fc8181" stroke-width="1.5"/>
-          <text x="458" y="192" text-anchor="middle" fill="#c53030" font-size="11" font-weight="bold">資本的支出</text>
-          <text x="280" y="220" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q4: 維持管理 === -->
-          <rect x="173" y="228" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="251" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">通常の維持管理のためか</text>
-          <line x1="367" y1="246" x2="410" y2="246" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="388" y="240" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="234" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
-          <text x="452" y="251" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
-          <text x="280" y="273" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q5: 災害原状回復 === -->
-          <rect x="173" y="282" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="305" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">災害でき損 → 原状回復か</text>
-          <line x1="367" y1="300" x2="410" y2="300" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="388" y="294" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="288" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
-          <text x="452" y="305" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
-          <text x="280" y="327" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q6: 60万円/10% === -->
-          <rect x="173" y="336" width="194" height="46" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="356" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">60万円未満 or</text>
-          <text x="270" y="372" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">取得価額の10%以下か</text>
-          <line x1="367" y1="359" x2="410" y2="359" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="388" y="353" text-anchor="middle" fill="#38a169" font-size="9" font-weight="bold">Yes</text>
-          <rect x="416" y="347" width="72" height="24" rx="12" fill="#f0fff4" stroke="#68d391" stroke-width="1.5"/>
-          <text x="452" y="364" text-anchor="middle" fill="#276749" font-size="11" font-weight="bold">修繕費</text>
-          <text x="280" y="392" fill="#e53e3e" font-size="9" font-weight="bold">No</text>
-
-          <!-- === Q7: 災害に伴う支出か === -->
-          <rect x="173" y="400" width="194" height="36" rx="8" fill="#edf2f7" stroke="#4a90b8" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="423" text-anchor="middle" fill="#2c5282" font-size="12" font-weight="600">災害に伴って支出したものか</text>
-
-          <!-- 分岐の矢印 -->
-          <line x1="220" y1="436" x2="150" y2="465" stroke="#dd6b20" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="172" y="450" fill="#dd6b20" font-size="9" font-weight="bold">Yes</text>
-          <line x1="320" y1="436" x2="390" y2="465" stroke="#718096" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="363" y="450" fill="#718096" font-size="9" font-weight="bold">No</text>
-
-          <!-- 災害の場合 -->
-          <rect x="18" y="468" width="244" height="120" rx="10" fill="#fff" stroke="#ed8936" stroke-width="1.5" filter="url(#shadow)"/>
-          <rect x="18" y="468" width="244" height="26" rx="10" fill="url(#gO)"/>
-          <rect x="18" y="484" width="244" height="10" fill="url(#gO)"/>
-          <text x="140" y="487" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="bold">Yes：災害の場合</text>
-          <rect x="52" y="504" width="176" height="30" rx="6" fill="#f7fafc" stroke="#a0aec0" stroke-width="1"/>
-          <text x="140" y="524" text-anchor="middle" fill="#4a5568" font-size="10.5" font-weight="600">割合区分を採用しているか</text>
-          <text x="52" y="552" fill="#38a169" font-size="9" font-weight="bold">Yes →</text>
-          <rect x="88" y="540" width="100" height="22" rx="11" fill="#fffff0" stroke="#ecc94b" stroke-width="1.5"/>
-          <text x="138" y="555" text-anchor="middle" fill="#975a16" font-size="10" font-weight="bold">70% ＝ 修繕費</text>
-          <text x="52" y="578" fill="#e53e3e" font-size="9" font-weight="bold">No → 実質判定へ ↓</text>
-
-          <!-- 災害以外 -->
-          <rect x="278" y="468" width="244" height="120" rx="10" fill="#fff" stroke="#a0aec0" stroke-width="1.5" filter="url(#shadow)"/>
-          <rect x="278" y="468" width="244" height="26" rx="10" fill="url(#gG)"/>
-          <rect x="278" y="484" width="244" height="10" fill="url(#gG)"/>
-          <text x="400" y="487" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="bold">No：災害以外</text>
-          <rect x="312" y="504" width="176" height="30" rx="6" fill="#f7fafc" stroke="#a0aec0" stroke-width="1"/>
-          <text x="400" y="524" text-anchor="middle" fill="#4a5568" font-size="10.5" font-weight="600">割合区分を採用しているか</text>
-          <text x="312" y="552" fill="#38a169" font-size="9" font-weight="bold">Yes →</text>
-          <rect x="348" y="537" width="152" height="28" rx="11" fill="#fffff0" stroke="#ecc94b" stroke-width="1.5"/>
-          <text x="424" y="549" text-anchor="middle" fill="#975a16" font-size="9.5" font-weight="bold">30%と10%の少ない方</text>
-          <text x="424" y="561" text-anchor="middle" fill="#975a16" font-size="9.5" font-weight="bold">＝ 修繕費(A)</text>
-          <text x="312" y="578" fill="#e53e3e" font-size="9" font-weight="bold">No → 実質判定へ ↓</text>
-
-          <!-- 実質判定への接続線 -->
-          <line x1="140" y1="588" x2="140" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
-          <line x1="400" y1="588" x2="400" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
-          <line x1="140" y1="614" x2="400" y2="614" stroke="#cbd5e0" stroke-width="1.5"/>
-          <line x1="270" y1="614" x2="270" y2="628" stroke="#cbd5e0" stroke-width="2" marker-end="url(#ah)"/>
-
-          <!-- 実質判定 -->
-          <rect x="173" y="632" width="194" height="36" rx="8" fill="#f7fafc" stroke="#718096" stroke-width="1.5" filter="url(#shadow)"/>
-          <text x="270" y="655" text-anchor="middle" fill="#4a5568" font-size="12" font-weight="600">実質により判定する</text>
-
-          <!-- 最終分岐 -->
-          <line x1="220" y1="668" x2="160" y2="694" stroke="#e53e3e" stroke-width="1.5" marker-end="url(#ah-r)"/>
-          <text x="180" y="682" fill="#718096" font-size="9">該当する</text>
-          <line x1="320" y1="668" x2="380" y2="694" stroke="#68d391" stroke-width="1.5" marker-end="url(#ah)"/>
-          <text x="345" y="682" fill="#718096" font-size="9">該当しない</text>
-
-          <rect x="104" y="698" width="100" height="30" rx="15" fill="#fff5f5" stroke="#fc8181" stroke-width="2" filter="url(#shadow)"/>
-          <text x="154" y="718" text-anchor="middle" fill="#c53030" font-size="12" font-weight="bold">資本的支出</text>
-          <rect x="336" y="698" width="80" height="30" rx="15" fill="#f0fff4" stroke="#68d391" stroke-width="2" filter="url(#shadow)"/>
-          <text x="376" y="718" text-anchor="middle" fill="#276749" font-size="12" font-weight="bold">修繕費</text>
-
-          <!-- 注釈 -->
-          <text x="270" y="756" text-anchor="middle" fill="#a0aec0" font-size="8.5">※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額</text>
-        </svg>
-        <p style="font-size:0.72rem; color:#a0aec0; text-align:center; margin-top:10px;">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank" style="color:#4a90b8;">国税庁 No.1379 修繕費とならないものの判定</a></p>
-      </div>
-    </div>
-
-    <div id="shuzenhi-flow">
-      <!-- Q1: 20万円未満か -->
-      <div class="flow-step" id="flow-step-1">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q1</span>
-          <span class="flow-ref">少額基準</span>
-        </div>
-        <div class="flow-question">支出額は <strong>20万円未満</strong> ですか？</div>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(1,'yes')">はい（20万円未満）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(1,'no')">いいえ（20万円以上）</button>
-        </div>
-      </div>
-
-      <!-- Q2: 3年以内周期か -->
-      <div class="flow-step" id="flow-step-2" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q2</span>
-          <span class="flow-ref">周期基準</span>
-        </div>
-        <div class="flow-question">おおむね <strong>3年以内の周期</strong> で行われる修理・改良ですか？</div>
-        <p class="flow-hint">例：定期的な外壁塗装、機械の定期オーバーホール、車両の定期整備など</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(2,'yes')">はい</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(2,'no')">いいえ</button>
-        </div>
-      </div>
-
-      <!-- Q3: 明らかに価値を高めるか -->
-      <div class="flow-step" id="flow-step-3" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q3</span>
-          <span class="flow-ref">資本的支出の判定</span>
-        </div>
-        <div class="flow-question">明らかに<strong>価値を高める</strong>もの、または<strong>耐久性を増す</strong>ものですか？</div>
-        <p class="flow-hint">例：用途変更のための模様替え、エレベーター設置、機械を高性能品に取替え</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(3,'yes')">はい</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(3,'no')">いいえ・判断できない</button>
-        </div>
-      </div>
-
-      <!-- Q4: 通常の維持管理か -->
-      <div class="flow-step" id="flow-step-4" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q4</span>
-          <span class="flow-ref">維持管理基準</span>
-        </div>
-        <div class="flow-question"><strong>通常の維持管理</strong>のためのものですか？</div>
-        <p class="flow-hint">例：壁の塗り替え、同等部品への交換、雨漏り修理、床の張り替え（同等品）</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(4,'yes')">はい</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(4,'no')">いいえ</button>
-        </div>
-      </div>
-
-      <!-- Q5: 災害による原状回復か -->
-      <div class="flow-step" id="flow-step-5" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q5</span>
-          <span class="flow-ref">災害原状回復</span>
-        </div>
-        <div class="flow-question"><strong>災害等によりき損</strong>したものを<strong>原状に復する</strong>ためのものですか？</div>
-        <p class="flow-hint">例：台風による屋根の修理、地震で損壊した壁の復旧、水害後の設備復旧</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(5,'yes')">はい</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(5,'no')">いいえ</button>
-        </div>
-      </div>
-
-      <!-- Q6: 60万円未満 or 取得価額10%以下か -->
-      <div class="flow-step" id="flow-step-6" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q6</span>
-          <span class="flow-ref">形式基準</span>
-        </div>
-        <div class="flow-question">次のいずれかに該当しますか？</div>
-        <div class="flow-conditions">
-          <div class="flow-condition">① 支出額が <strong>60万円未満</strong></div>
-          <div class="flow-or">または</div>
-          <div class="flow-condition">② 支出額が前年末<strong>取得価額の10%以下</strong>（※）</div>
-        </div>
-        <p class="flow-hint">※ 前年末取得価額＝取得時の価額＋既往の資本的支出額（帳簿価額ではありません）</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(6,'yes')">はい（いずれかに該当）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(6,'no')">いいえ（どちらも該当しない）</button>
-        </div>
-      </div>
-
-      <!-- Q7: 災害に伴って支出したものか -->
-      <div class="flow-step" id="flow-step-7" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q7</span>
-          <span class="flow-ref">災害関連の分岐</span>
-        </div>
-        <div class="flow-question"><strong>災害に伴って</strong>支出したものですか？</div>
-        <p class="flow-hint">災害かどうかで、割合区分の計算方法（70%/30%）が変わります</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(7,'yes')">はい（災害関連）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(7,'no')">いいえ（災害以外）</button>
-        </div>
-      </div>
-
-      <!-- Q8a: 災害 → 割合区分を採用しているか -->
-      <div class="flow-step" id="flow-step-8a" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q8</span>
-          <span class="flow-ref">災害の割合区分</span>
-        </div>
-        <div class="flow-question"><strong>割合区分による方法</strong>を採用していますか？</div>
-        <p class="flow-hint">災害の場合：支出額の <strong>70%相当額</strong> を修繕費、残りを資本的支出とする方法</p>
-
-        <div class="flow-calc-box">
-          <label>支出額（円）</label>
-          <div class="input-prefix">
-            <input type="text" id="flow-expense-d" inputmode="numeric" placeholder="例: 3000000">
-          </div>
-          <button class="btn" style="margin-top:8px;" onclick="calcAnbunDisaster()">按分を計算</button>
-          <div id="flow-anbun-result-d" style="display:none; margin-top:12px;"></div>
-        </div>
-
-        <div class="flow-buttons" style="margin-top:12px;">
-          <button class="flow-btn flow-yes" onclick="flowAnswer('8a','yes')">はい（70%按分する）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer('8a','no')">いいえ</button>
-        </div>
-      </div>
-
-      <!-- Q8b: 通常 → 割合区分を採用しているか -->
-      <div class="flow-step" id="flow-step-8b" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q8</span>
-          <span class="flow-ref">通常の割合区分</span>
-        </div>
-        <div class="flow-question"><strong>割合区分による方法</strong>を採用していますか？</div>
-        <p class="flow-hint">支出額の30%と前年末取得価額の10%の<strong>いずれか少ない金額</strong>を修繕費（A）、残額を資本的支出とする方法<br>※ 継続適用が条件です</p>
-
-        <div class="flow-calc-box">
-          <label>支出額（円）</label>
-          <div class="input-prefix">
-            <input type="text" id="flow-expense" inputmode="numeric" placeholder="例: 1500000">
-          </div>
-          <label>前年末の取得価額（円）</label>
-          <div class="input-prefix">
-            <input type="text" id="flow-book-value" inputmode="numeric" placeholder="例: 5000000">
-          </div>
-          <button class="btn" style="margin-top:8px;" onclick="calcAnbun()">按分を計算</button>
-          <div id="flow-anbun-result" style="display:none; margin-top:12px;"></div>
-        </div>
-
-        <div class="flow-buttons" style="margin-top:12px;">
-          <button class="flow-btn flow-yes" onclick="flowAnswer('8b','yes')">はい（30%/10%按分する）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer('8b','no')">いいえ</button>
-        </div>
-      </div>
-
-      <!-- Q9: 実質判定 -->
-      <div class="flow-step" id="flow-step-9" style="display:none;">
-        <div class="flow-step-header">
-          <span class="flow-step-num">Q9</span>
-          <span class="flow-ref">実質判定</span>
-        </div>
-        <div class="flow-question">実質的に判定して、<strong>資本的支出</strong>に該当しますか？</div>
-        <p class="flow-hint">使用可能期間を延長させる部分・価値を増加させる部分は資本的支出、それ以外は修繕費です。<br>判断に迷う場合は税理士にご相談ください。</p>
-        <div class="flow-buttons">
-          <button class="flow-btn flow-yes" onclick="flowAnswer(9,'yes')">はい（資本的支出）</button>
-          <button class="flow-btn flow-no" onclick="flowAnswer(9,'no')">いいえ（修繕費）</button>
-        </div>
-      </div>
-
-      <!-- 結果表示 -->
-      <div class="flow-result" id="flow-result" style="display:none;"></div>
-    </div>
-
-    <button class="btn" id="flow-reset-btn" style="display:none; margin-top:16px; background:#718096;" onclick="flowReset()">最初からやり直す</button>
-    <button class="btn" id="flow-print-btn" style="display:none; margin-top:16px; margin-left:8px; background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printFlow()">判定結果を印刷</button>
-
-    <p class="note" style="margin-top:24px;">
-      ※ 国税庁 No.1379「修繕費とならないものの判定」に基づく判定フローです<br>
-      ※ 前年末取得価額＝固定資産の最初の取得価額＋既往の資本的支出額<br>
+<div class="tab-content" id="tab-shuzenhi">
+<div class="card">
+<h2>修繕費・資本的支出の判定フローチャート</h2>
+<p class="desc">国税庁 No.1379 に基づき、修理改良等の支出が修繕費か資本的支出かを判定します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>建物や設備の修理・改良にかかった費用を、全額経費（修繕費）にできるか、資産計上（資本的支出）すべきかを判断するときに使います。</dd>
+<dt>フローチャートの進め方</dt>
+<dd>質問に「はい」「いいえ」で答えていくと、最終的な判定結果が表示されます。途中で金額の入力が必要になる場合もあります。</dd>
+<dt>フロー全体図</dt>
+<dd>「フロー全体図を表示」ボタンで判定ルートの全体像を確認できます。クライアントへの説明資料としても使えます。</dd>
+<dt>注意</dt>
+<dd>災害に起因する支出かどうかで判定ルートが変わります。最初の質問で正しく選択してください。</dd>
+</dl>
+</div>
+</details>
+<div style="margin-bottom:16px;">
+<button class="btn" onclick="toggleFlowOverview()" style="background:#718096; font-size:0.85rem; padding:8px 16px;"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg> フロー全体図を表示</button>
+</div>
+<div id="flow-overview" style="display:none; margin-bottom:20px;">
+<div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:20px 8px; overflow-x:auto;">
+<svg style="width:100%; max-width:540px; display:block; margin:0 auto; font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;" viewbox="0 0 540 780" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="ah" markerheight="6" markerwidth="8" orient="auto" refx="8" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#a0aec0"></path></marker>
+<marker id="ah-r" markerheight="6" markerwidth="8" orient="auto" refx="8" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#e53e3e"></path></marker>
+<filter id="shadow"><fedropshadow dx="0" dy="1" flood-opacity="0.08" stddeviation="2"></fedropshadow></filter>
+<lineargradient id="gH" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#1a5276"></stop><stop offset="100%" stop-color="#2980b9"></stop></lineargradient>
+<lineargradient id="gO" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#dd6b20"></stop><stop offset="100%" stop-color="#ed8936"></stop></lineargradient>
+<lineargradient id="gG" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#5a6778"></stop><stop offset="100%" stop-color="#718096"></stop></lineargradient>
+</defs>
+<!-- タイトル -->
+<rect fill="url(#gH)" filter="url(#shadow)" height="40" rx="10" width="300" x="120" y="4"></rect>
+<text fill="#fff" font-size="13" font-weight="bold" text-anchor="middle" x="270" y="29">修理改良等のための支出金額</text>
+<!-- 縦の幹線 -->
+<line stroke="#cbd5e0" stroke-width="2" x1="270" x2="270" y1="44" y2="488"></line>
+<!-- === Q1: 20万円未満か === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="36" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="56"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="79">20万円未満か</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="367" x2="410" y1="74" y2="74"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="68">Yes</text>
+<rect fill="#f0fff4" height="24" rx="12" stroke="#68d391" stroke-width="1.5" width="72" x="416" y="62"></rect>
+<text fill="#276749" font-size="11" font-weight="bold" text-anchor="middle" x="452" y="79">修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="101">No</text>
+<!-- === Q2: 3年以内周期 === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="36" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="110"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="133">おおむね3年以内の周期か</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="367" x2="410" y1="128" y2="128"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="122">Yes</text>
+<rect fill="#f0fff4" height="24" rx="12" stroke="#68d391" stroke-width="1.5" width="72" x="416" y="116"></rect>
+<text fill="#276749" font-size="11" font-weight="bold" text-anchor="middle" x="452" y="133">修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="155">No</text>
+<!-- === Q3: 価値増加 === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="46" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="164"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="184">明らかに価値を高める</text>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="200">or 耐久性を増すか</text>
+<line marker-end="url(#ah-r)" stroke="#fc8181" stroke-width="1.5" x1="367" x2="410" y1="187" y2="187"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="181">Yes</text>
+<rect fill="#fff5f5" height="24" rx="12" stroke="#fc8181" stroke-width="1.5" width="84" x="416" y="175"></rect>
+<text fill="#c53030" font-size="11" font-weight="bold" text-anchor="middle" x="458" y="192">資本的支出</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="220">No</text>
+<!-- === Q4: 維持管理 === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="36" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="228"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="251">通常の維持管理のためか</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="367" x2="410" y1="246" y2="246"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="240">Yes</text>
+<rect fill="#f0fff4" height="24" rx="12" stroke="#68d391" stroke-width="1.5" width="72" x="416" y="234"></rect>
+<text fill="#276749" font-size="11" font-weight="bold" text-anchor="middle" x="452" y="251">修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="273">No</text>
+<!-- === Q5: 災害原状回復 === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="36" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="282"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="305">災害でき損 → 原状回復か</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="367" x2="410" y1="300" y2="300"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="294">Yes</text>
+<rect fill="#f0fff4" height="24" rx="12" stroke="#68d391" stroke-width="1.5" width="72" x="416" y="288"></rect>
+<text fill="#276749" font-size="11" font-weight="bold" text-anchor="middle" x="452" y="305">修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="327">No</text>
+<!-- === Q6: 60万円/10% === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="46" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="336"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="356">60万円未満 or</text>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="372">取得価額の10%以下か</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="367" x2="410" y1="359" y2="359"></line>
+<text fill="#38a169" font-size="9" font-weight="bold" text-anchor="middle" x="388" y="353">Yes</text>
+<rect fill="#f0fff4" height="24" rx="12" stroke="#68d391" stroke-width="1.5" width="72" x="416" y="347"></rect>
+<text fill="#276749" font-size="11" font-weight="bold" text-anchor="middle" x="452" y="364">修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="280" y="392">No</text>
+<!-- === Q7: 災害に伴う支出か === -->
+<rect fill="#edf2f7" filter="url(#shadow)" height="36" rx="8" stroke="#4a90b8" stroke-width="1.5" width="194" x="173" y="400"></rect>
+<text fill="#2c5282" font-size="12" font-weight="600" text-anchor="middle" x="270" y="423">災害に伴って支出したものか</text>
+<!-- 分岐の矢印 -->
+<line marker-end="url(#ah)" stroke="#dd6b20" stroke-width="1.5" x1="220" x2="150" y1="436" y2="465"></line>
+<text fill="#dd6b20" font-size="9" font-weight="bold" x="172" y="450">Yes</text>
+<line marker-end="url(#ah)" stroke="#718096" stroke-width="1.5" x1="320" x2="390" y1="436" y2="465"></line>
+<text fill="#718096" font-size="9" font-weight="bold" x="363" y="450">No</text>
+<!-- 災害の場合 -->
+<rect fill="#fff" filter="url(#shadow)" height="120" rx="10" stroke="#ed8936" stroke-width="1.5" width="244" x="18" y="468"></rect>
+<rect fill="url(#gO)" height="26" rx="10" width="244" x="18" y="468"></rect>
+<rect fill="url(#gO)" height="10" width="244" x="18" y="484"></rect>
+<text fill="#fff" font-size="10.5" font-weight="bold" text-anchor="middle" x="140" y="487">Yes：災害の場合</text>
+<rect fill="#f7fafc" height="30" rx="6" stroke="#a0aec0" stroke-width="1" width="176" x="52" y="504"></rect>
+<text fill="#4a5568" font-size="10.5" font-weight="600" text-anchor="middle" x="140" y="524">割合区分を採用しているか</text>
+<text fill="#38a169" font-size="9" font-weight="bold" x="52" y="552">Yes →</text>
+<rect fill="#fffff0" height="22" rx="11" stroke="#ecc94b" stroke-width="1.5" width="100" x="88" y="540"></rect>
+<text fill="#975a16" font-size="10" font-weight="bold" text-anchor="middle" x="138" y="555">70% ＝ 修繕費</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="52" y="578">No → 実質判定へ ↓</text>
+<!-- 災害以外 -->
+<rect fill="#fff" filter="url(#shadow)" height="120" rx="10" stroke="#a0aec0" stroke-width="1.5" width="244" x="278" y="468"></rect>
+<rect fill="url(#gG)" height="26" rx="10" width="244" x="278" y="468"></rect>
+<rect fill="url(#gG)" height="10" width="244" x="278" y="484"></rect>
+<text fill="#fff" font-size="10.5" font-weight="bold" text-anchor="middle" x="400" y="487">No：災害以外</text>
+<rect fill="#f7fafc" height="30" rx="6" stroke="#a0aec0" stroke-width="1" width="176" x="312" y="504"></rect>
+<text fill="#4a5568" font-size="10.5" font-weight="600" text-anchor="middle" x="400" y="524">割合区分を採用しているか</text>
+<text fill="#38a169" font-size="9" font-weight="bold" x="312" y="552">Yes →</text>
+<rect fill="#fffff0" height="28" rx="11" stroke="#ecc94b" stroke-width="1.5" width="152" x="348" y="537"></rect>
+<text fill="#975a16" font-size="9.5" font-weight="bold" text-anchor="middle" x="424" y="549">30%と10%の少ない方</text>
+<text fill="#975a16" font-size="9.5" font-weight="bold" text-anchor="middle" x="424" y="561">＝ 修繕費(A)</text>
+<text fill="#e53e3e" font-size="9" font-weight="bold" x="312" y="578">No → 実質判定へ ↓</text>
+<!-- 実質判定への接続線 -->
+<line stroke="#cbd5e0" stroke-width="1.5" x1="140" x2="140" y1="588" y2="614"></line>
+<line stroke="#cbd5e0" stroke-width="1.5" x1="400" x2="400" y1="588" y2="614"></line>
+<line stroke="#cbd5e0" stroke-width="1.5" x1="140" x2="400" y1="614" y2="614"></line>
+<line marker-end="url(#ah)" stroke="#cbd5e0" stroke-width="2" x1="270" x2="270" y1="614" y2="628"></line>
+<!-- 実質判定 -->
+<rect fill="#f7fafc" filter="url(#shadow)" height="36" rx="8" stroke="#718096" stroke-width="1.5" width="194" x="173" y="632"></rect>
+<text fill="#4a5568" font-size="12" font-weight="600" text-anchor="middle" x="270" y="655">実質により判定する</text>
+<!-- 最終分岐 -->
+<line marker-end="url(#ah-r)" stroke="#e53e3e" stroke-width="1.5" x1="220" x2="160" y1="668" y2="694"></line>
+<text fill="#718096" font-size="9" x="180" y="682">該当する</text>
+<line marker-end="url(#ah)" stroke="#68d391" stroke-width="1.5" x1="320" x2="380" y1="668" y2="694"></line>
+<text fill="#718096" font-size="9" x="345" y="682">該当しない</text>
+<rect fill="#fff5f5" filter="url(#shadow)" height="30" rx="15" stroke="#fc8181" stroke-width="2" width="100" x="104" y="698"></rect>
+<text fill="#c53030" font-size="12" font-weight="bold" text-anchor="middle" x="154" y="718">資本的支出</text>
+<rect fill="#f0fff4" filter="url(#shadow)" height="30" rx="15" stroke="#68d391" stroke-width="2" width="80" x="336" y="698"></rect>
+<text fill="#276749" font-size="12" font-weight="bold" text-anchor="middle" x="376" y="718">修繕費</text>
+<!-- 注釈 -->
+<text fill="#a0aec0" font-size="8.5" text-anchor="middle" x="270" y="756">※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額</text>
+</svg>
+<p style="font-size:0.72rem; color:#a0aec0; text-align:center; margin-top:10px;">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" style="color:#4a90b8;" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></p>
+</div>
+</div>
+<div id="shuzenhi-flow">
+<!-- Q1: 20万円未満か -->
+<div class="flow-step" id="flow-step-1">
+<div class="flow-step-header">
+<span class="flow-step-num">Q1</span>
+<span class="flow-ref">少額基準</span>
+</div>
+<div class="flow-question">支出額は <strong>20万円未満</strong> ですか？</div>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(1,'yes')">はい（20万円未満）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(1,'no')">いいえ（20万円以上）</button>
+</div>
+</div>
+<!-- Q2: 3年以内周期か -->
+<div class="flow-step" id="flow-step-2" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q2</span>
+<span class="flow-ref">周期基準</span>
+</div>
+<div class="flow-question">おおむね <strong>3年以内の周期</strong> で行われる修理・改良ですか？</div>
+<p class="flow-hint">例：定期的な外壁塗装、機械の定期オーバーホール、車両の定期整備など</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(2,'yes')">はい</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(2,'no')">いいえ</button>
+</div>
+</div>
+<!-- Q3: 明らかに価値を高めるか -->
+<div class="flow-step" id="flow-step-3" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q3</span>
+<span class="flow-ref">資本的支出の判定</span>
+</div>
+<div class="flow-question">明らかに<strong>価値を高める</strong>もの、または<strong>耐久性を増す</strong>ものですか？</div>
+<p class="flow-hint">例：用途変更のための模様替え、エレベーター設置、機械を高性能品に取替え</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(3,'yes')">はい</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(3,'no')">いいえ・判断できない</button>
+</div>
+</div>
+<!-- Q4: 通常の維持管理か -->
+<div class="flow-step" id="flow-step-4" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q4</span>
+<span class="flow-ref">維持管理基準</span>
+</div>
+<div class="flow-question"><strong>通常の維持管理</strong>のためのものですか？</div>
+<p class="flow-hint">例：壁の塗り替え、同等部品への交換、雨漏り修理、床の張り替え（同等品）</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(4,'yes')">はい</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(4,'no')">いいえ</button>
+</div>
+</div>
+<!-- Q5: 災害による原状回復か -->
+<div class="flow-step" id="flow-step-5" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q5</span>
+<span class="flow-ref">災害原状回復</span>
+</div>
+<div class="flow-question"><strong>災害等によりき損</strong>したものを<strong>原状に復する</strong>ためのものですか？</div>
+<p class="flow-hint">例：台風による屋根の修理、地震で損壊した壁の復旧、水害後の設備復旧</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(5,'yes')">はい</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(5,'no')">いいえ</button>
+</div>
+</div>
+<!-- Q6: 60万円未満 or 取得価額10%以下か -->
+<div class="flow-step" id="flow-step-6" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q6</span>
+<span class="flow-ref">形式基準</span>
+</div>
+<div class="flow-question">次のいずれかに該当しますか？</div>
+<div class="flow-conditions">
+<div class="flow-condition">① 支出額が <strong>60万円未満</strong></div>
+<div class="flow-or">または</div>
+<div class="flow-condition">② 支出額が前年末<strong>取得価額の10%以下</strong>（※）</div>
+</div>
+<p class="flow-hint">※ 前年末取得価額＝取得時の価額＋既往の資本的支出額（帳簿価額ではありません）</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(6,'yes')">はい（いずれかに該当）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(6,'no')">いいえ（どちらも該当しない）</button>
+</div>
+</div>
+<!-- Q7: 災害に伴って支出したものか -->
+<div class="flow-step" id="flow-step-7" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q7</span>
+<span class="flow-ref">災害関連の分岐</span>
+</div>
+<div class="flow-question"><strong>災害に伴って</strong>支出したものですか？</div>
+<p class="flow-hint">災害かどうかで、割合区分の計算方法（70%/30%）が変わります</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(7,'yes')">はい（災害関連）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(7,'no')">いいえ（災害以外）</button>
+</div>
+</div>
+<!-- Q8a: 災害 → 割合区分を採用しているか -->
+<div class="flow-step" id="flow-step-8a" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q8</span>
+<span class="flow-ref">災害の割合区分</span>
+</div>
+<div class="flow-question"><strong>割合区分による方法</strong>を採用していますか？</div>
+<p class="flow-hint">災害の場合：支出額の <strong>70%相当額</strong> を修繕費、残りを資本的支出とする方法</p>
+<div class="flow-calc-box">
+<label>支出額（円）</label>
+<div class="input-prefix">
+<input id="flow-expense-d" inputmode="numeric" placeholder="例: 3000000" type="text"/>
+</div>
+<button class="btn" onclick="calcAnbunDisaster()" style="margin-top:8px;">按分を計算</button>
+<div id="flow-anbun-result-d" style="display:none; margin-top:12px;"></div>
+</div>
+<div class="flow-buttons" style="margin-top:12px;">
+<button class="flow-btn flow-yes" onclick="flowAnswer('8a','yes')">はい（70%按分する）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer('8a','no')">いいえ</button>
+</div>
+</div>
+<!-- Q8b: 通常 → 割合区分を採用しているか -->
+<div class="flow-step" id="flow-step-8b" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q8</span>
+<span class="flow-ref">通常の割合区分</span>
+</div>
+<div class="flow-question"><strong>割合区分による方法</strong>を採用していますか？</div>
+<p class="flow-hint">支出額の30%と前年末取得価額の10%の<strong>いずれか少ない金額</strong>を修繕費（A）、残額を資本的支出とする方法<br/>※ 継続適用が条件です</p>
+<div class="flow-calc-box">
+<label>支出額（円）</label>
+<div class="input-prefix">
+<input id="flow-expense" inputmode="numeric" placeholder="例: 1500000" type="text"/>
+</div>
+<label>前年末の取得価額（円）</label>
+<div class="input-prefix">
+<input id="flow-book-value" inputmode="numeric" placeholder="例: 5000000" type="text"/>
+</div>
+<button class="btn" onclick="calcAnbun()" style="margin-top:8px;">按分を計算</button>
+<div id="flow-anbun-result" style="display:none; margin-top:12px;"></div>
+</div>
+<div class="flow-buttons" style="margin-top:12px;">
+<button class="flow-btn flow-yes" onclick="flowAnswer('8b','yes')">はい（30%/10%按分する）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer('8b','no')">いいえ</button>
+</div>
+</div>
+<!-- Q9: 実質判定 -->
+<div class="flow-step" id="flow-step-9" style="display:none;">
+<div class="flow-step-header">
+<span class="flow-step-num">Q9</span>
+<span class="flow-ref">実質判定</span>
+</div>
+<div class="flow-question">実質的に判定して、<strong>資本的支出</strong>に該当しますか？</div>
+<p class="flow-hint">使用可能期間を延長させる部分・価値を増加させる部分は資本的支出、それ以外は修繕費です。<br/>判断に迷う場合は税理士にご相談ください。</p>
+<div class="flow-buttons">
+<button class="flow-btn flow-yes" onclick="flowAnswer(9,'yes')">はい（資本的支出）</button>
+<button class="flow-btn flow-no" onclick="flowAnswer(9,'no')">いいえ（修繕費）</button>
+</div>
+</div>
+<!-- 結果表示 -->
+<div class="flow-result" id="flow-result" style="display:none;"></div>
+</div>
+<button class="btn" id="flow-reset-btn" onclick="flowReset()" style="display:none; margin-top:16px; background:#718096;">最初からやり直す</button>
+<button class="btn" id="flow-print-btn" onclick="printFlow()" style="display:none; margin-top:16px; margin-left:8px; background:linear-gradient(135deg,#27ae60,#2ecc71);">判定結果を印刷</button>
+<p class="note" style="margin-top:24px;">
+      ※ 国税庁 No.1379「修繕費とならないものの判定」に基づく判定フローです<br/>
+      ※ 前年末取得価額＝固定資産の最初の取得価額＋既往の資本的支出額<br/>
       ※ 最終判断は個別の事実関係に基づきます。判断に迷う場合は税理士にご相談ください
     </p>
-    <div class="page-changelog">更新: v2.1.0 (2026-03-30) 印刷機能追加 | v2.0.0 (2026-03-26) No.1379フロー準拠 | v1.0.0 (2026-03-26) 初版</div>
-  </div>
+<div class="page-changelog">更新: v2.1.0 (2026-03-30) 印刷機能追加 | v2.0.0 (2026-03-26) No.1379フロー準拠 | v1.0.0 (2026-03-26) 初版</div>
 </div>
-
+</div>
 <!-- ===== 印刷用修繕費判定資料（通常時は非表示） ===== -->
 <div id="flow-print-area" style="display:none;"></div>
-
 <script>
 // ===== タブ切替 =====
 function switchTab(name) {
@@ -1378,7 +1284,7 @@ function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, kokuho: 9, references: 10 };
+  const tabs = { interest: 0, sales: 1, depreciation: 2, 'tax-rates': 3, 'tax-calendar': 4, 'gensen-salary': 5, 'gensen-hoshu': 6, shuzenhi: 7, yakuin: 8, kokuho: 9, references: 10, wareki: 11 };
   document.querySelectorAll('.tab-bar button')[tabs[name]].classList.add('active');
 }
 
@@ -4296,257 +4202,426 @@ initDepCalc();
 showTaxRates();
 calcGensenSalary();
 </script>
-
 <!-- ===== 役員報酬シミュレーション ===== -->
-<div id="tab-yakuin" class="tab-content">
-  <div class="card">
-    <h2>役員報酬シミュレーション</h2>
-    <p class="desc">月額報酬から社会保険料・所得税を計算し、手取り額を概算します（協会けんぽ大阪府・令和7年度）</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>役員報酬を決めるとき（設立時・期首の改定時）に、社保・所得税を引いた手取り額と会社の総コストを確認するために使います。</dd>
-          <dt>月額報酬</dt>
-          <dd>毎月の定期同額給与の額面（税引前）を入力してください。賞与は考慮していません。</dd>
-          <dt>年齢区分</dt>
-          <dd>40〜64歳は介護保険料が上乗せされるため、健保料率が変わります。</dd>
-          <dt>前提条件</dt>
-          <dd>協会けんぽ大阪府・令和8年度料率で計算しています。組合健保の場合は料率が異なります。雇用保険は対象外（役員のため）です。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>クライアント名（印刷資料用・任意）</label>
-      <input type="text" id="yakuin-client-name" placeholder="例: 株式会社○○ 代表取締役 ○○様">
-    </div>
-
-    <div class="form-group">
-      <label>適用年度</label>
-      <select id="yakuin-year">
-        <option value="R8" selected>令和8年度（2026年3月分〜）</option>
-        <option value="R7">令和7年度（2025年3月分〜）</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>役員報酬（月額・額面）</label>
-      <div class="input-prefix">
-        <input type="text" id="yakuin-salary" inputmode="numeric" placeholder="例: 500000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcYakuin();}">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>年齢区分</label>
-      <select id="yakuin-age">
-        <option value="under40">40歳未満（介護保険なし）</option>
-        <option value="40to64" selected>40〜64歳（介護保険あり）</option>
-        <option value="over65">65歳以上（介護保険なし）</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>扶養親族等の数</label>
-      <select id="yakuin-dependents">
-        <option value="0" selected>0人</option>
-        <option value="1">1人</option>
-        <option value="2">2人</option>
-        <option value="3">3人</option>
-      </select>
-    </div>
-
-    <button class="btn" id="btn-yakuin" onclick="calcYakuin()">計算する</button>
-
-    <div id="yakuin-result" class="result" style="display:none;"></div>
-
-    <div id="yakuin-print-btn" style="display:none; margin-top:12px;">
-      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printYakuin()">資料を印刷</button>
-      <a href="beta.html#furusato" style="display:inline-block; margin-left:12px; font-size:0.85rem; color:#7d6b9e; text-decoration:none; vertical-align:middle;">ふるさと納税の限度額も試算する →</a>
-    </div>
-
-    <p class="note">
-      ※ 協会けんぽ大阪府の料率で計算（年度は上のプルダウンで切替可能）<br>
-      ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br>
+<div class="tab-content" id="tab-yakuin">
+<div class="card">
+<h2>役員報酬シミュレーション</h2>
+<p class="desc">月額報酬から社会保険料・所得税を計算し、手取り額を概算します（協会けんぽ大阪府・令和7年度）</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>役員報酬を決めるとき（設立時・期首の改定時）に、社保・所得税を引いた手取り額と会社の総コストを確認するために使います。</dd>
+<dt>月額報酬</dt>
+<dd>毎月の定期同額給与の額面（税引前）を入力してください。賞与は考慮していません。</dd>
+<dt>年齢区分</dt>
+<dd>40〜64歳は介護保険料が上乗せされるため、健保料率が変わります。</dd>
+<dt>前提条件</dt>
+<dd>協会けんぽ大阪府・令和8年度料率で計算しています。組合健保の場合は料率が異なります。雇用保険は対象外（役員のため）です。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>クライアント名（印刷資料用・任意）</label>
+<input id="yakuin-client-name" placeholder="例: 株式会社○○ 代表取締役 ○○様" type="text"/>
+</div>
+<div class="form-group">
+<label>適用年度</label>
+<select id="yakuin-year">
+<option selected="" value="R8">令和8年度（2026年3月分〜）</option>
+<option value="R7">令和7年度（2025年3月分〜）</option>
+</select>
+</div>
+<div class="form-group">
+<label>役員報酬（月額・額面）</label>
+<div class="input-prefix">
+<input id="yakuin-salary" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcYakuin();}" placeholder="例: 500000" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label>年齢区分</label>
+<select id="yakuin-age">
+<option value="under40">40歳未満（介護保険なし）</option>
+<option selected="" value="40to64">40〜64歳（介護保険あり）</option>
+<option value="over65">65歳以上（介護保険なし）</option>
+</select>
+</div>
+<div class="form-group">
+<label>扶養親族等の数</label>
+<select id="yakuin-dependents">
+<option selected="" value="0">0人</option>
+<option value="1">1人</option>
+<option value="2">2人</option>
+<option value="3">3人</option>
+</select>
+</div>
+<button class="btn" id="btn-yakuin" onclick="calcYakuin()">計算する</button>
+<div class="result" id="yakuin-result" style="display:none;"></div>
+<div id="yakuin-print-btn" style="display:none; margin-top:12px;">
+<button class="btn" onclick="printYakuin()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+<a href="beta.html#furusato" style="display:inline-block; margin-left:12px; font-size:0.85rem; color:#7d6b9e; text-decoration:none; vertical-align:middle;">ふるさと納税の限度額も試算する →</a>
+</div>
+<p class="note">
+      ※ 協会けんぽ大阪府の料率で計算（年度は上のプルダウンで切替可能）<br/>
+      ※ 所得税・住民税は給与所得控除・基礎控除等で概算<br/>
       ※ 賞与なし・雇用保険なしの前提です
     </p>
-    <div class="page-changelog">更新: v1.7.0 (2026-04-07) 基礎控除を所得額で逓減計算（全パターン対応） | v1.6.0 (2026-04-07) R8税制改正対応（給与所得控除+9万・基礎控除104万） | v1.5.0 (2026-04-07) 住民税所得割をlocalStorageに追加保存 | v1.4.0 (2026-04-07) ふるさと納税へのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
-  </div>
+<div class="page-changelog">更新: v1.7.0 (2026-04-07) 基礎控除を所得額で逓減計算（全パターン対応） | v1.6.0 (2026-04-07) R8税制改正対応（給与所得控除+9万・基礎控除104万） | v1.5.0 (2026-04-07) 住民税所得割をlocalStorageに追加保存 | v1.4.0 (2026-04-07) ふるさと納税へのリンク追加 | v1.3.0 (2026-04-07) ふるさと納税とlocalStorage連携 | v1.2.0 (2026-03-29) 住民税追加・印刷機能 | v1.1.0 (2026-03-26) R8料率に更新 | v1.0.0 (2026-03-26) 初版</div>
 </div>
-
+</div>
 <!-- ===== 印刷用役員報酬資料（通常時は非表示） ===== -->
 <div id="yakuin-print-area" style="display:none;"></div>
-
 <!-- ===== 国保シミュレーション ===== -->
-<div id="tab-kokuho" class="tab-content">
-  <div class="card">
-    <h2>国民健康保険料シミュレーション</h2>
-    <p class="desc">大阪市（大阪府統一料率）の国民健康保険料を試算します（令和7年度）</p>
-
-    <details class="tool-guide">
-      <summary>使い方</summary>
-      <div class="guide-body">
-        <dl>
-          <dt>いつ使う？</dt>
-          <dd>個人事業主のクライアントに国保料の概算を伝えたいとき、確定申告後に翌年度の保険料を見積もるときに使います。</dd>
-          <dt>総所得金額等</dt>
-          <dd>確定申告書の「合計所得金額」に近い数字です。事業所得・給与所得・不動産所得等の合計を入力してください。世帯内に複数の被保険者がいる場合は、全員分の合計です。</dd>
-          <dt>被保険者数</dt>
-          <dd>国保に加入している人数です。社保に加入している家族は含めません。世帯主が社保加入でも、国保の世帯主として均等割の判定対象になる点に注意してください。</dd>
-          <dt>給与所得者等の数</dt>
-          <dd>軽減判定に使います。給与収入55万円超、または公的年金収入が一定額超の被保険者の人数です。多くの場合は1人です。</dd>
-          <dt>軽減判定</dt>
-          <dd>世帯の総所得に応じて均等割・平等割が7割・5割・2割軽減されます。所得が基準以下であれば自動判定して適用します。</dd>
-        </dl>
-      </div>
-    </details>
-
-    <div class="form-group">
-      <label>適用年度</label>
-      <select id="kokuho-year">
-        <option value="R7" selected>令和7年度</option>
-        <option value="R6">令和6年度</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>世帯の総所得金額等（年額）</label>
-      <div class="input-prefix">
-        <input type="text" id="kokuho-income" inputmode="numeric" placeholder="例: 4000000" onkeydown="if(event.key==='Enter'){event.preventDefault();calcKokuho();}">
-      </div>
-      <span style="font-size:0.75rem; color:#888;">※ 事業所得・給与所得・不動産所得等の合計（世帯主＋被保険者全員分）</span>
-    </div>
-
-    <div class="form-group">
-      <label>被保険者数（世帯主を含む）</label>
-      <select id="kokuho-members" onchange="syncKaigoMax()">
-        <option value="1" selected>1人</option>
-        <option value="2">2人</option>
-        <option value="3">3人</option>
-        <option value="4">4人</option>
-        <option value="5">5人</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>うち40〜64歳の人数（介護分の対象）</label>
-      <select id="kokuho-kaigo">
-        <option value="0">0人</option>
-        <option value="1" selected>1人</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>給与所得者等の数</label>
-      <select id="kokuho-salary-earners">
-        <option value="0">0人</option>
-        <option value="1" selected>1人</option>
-        <option value="2">2人</option>
-        <option value="3">3人</option>
-      </select>
-      <span style="font-size:0.75rem; color:#888;">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
-    </div>
-
-    <button class="btn" id="btn-kokuho" onclick="calcKokuho()">計算する</button>
-
-    <div id="kokuho-result" class="result" style="display:none;"></div>
-
-    <div id="kokuho-print-btn" style="display:none; margin-top:12px;">
-      <button class="btn" style="background:linear-gradient(135deg,#27ae60,#2ecc71);" onclick="printKokuho()">資料を印刷</button>
-    </div>
-
-    <p class="note">
-      ※ 大阪府統一保険料率で計算（年度は上のプルダウンで切替可能）<br>
+<div class="tab-content" id="tab-kokuho">
+<div class="card">
+<h2>国民健康保険料シミュレーション</h2>
+<p class="desc">大阪市（大阪府統一料率）の国民健康保険料を試算します（令和7年度）</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>個人事業主のクライアントに国保料の概算を伝えたいとき、確定申告後に翌年度の保険料を見積もるときに使います。</dd>
+<dt>総所得金額等</dt>
+<dd>確定申告書の「合計所得金額」に近い数字です。事業所得・給与所得・不動産所得等の合計を入力してください。世帯内に複数の被保険者がいる場合は、全員分の合計です。</dd>
+<dt>被保険者数</dt>
+<dd>国保に加入している人数です。社保に加入している家族は含めません。世帯主が社保加入でも、国保の世帯主として均等割の判定対象になる点に注意してください。</dd>
+<dt>給与所得者等の数</dt>
+<dd>軽減判定に使います。給与収入55万円超、または公的年金収入が一定額超の被保険者の人数です。多くの場合は1人です。</dd>
+<dt>軽減判定</dt>
+<dd>世帯の総所得に応じて均等割・平等割が7割・5割・2割軽減されます。所得が基準以下であれば自動判定して適用します。</dd>
+</dl>
+</div>
+</details>
+<div class="form-group">
+<label>適用年度</label>
+<select id="kokuho-year">
+<option selected="" value="R7">令和7年度</option>
+<option value="R6">令和6年度</option>
+</select>
+</div>
+<div class="form-group">
+<label>世帯の総所得金額等（年額）</label>
+<div class="input-prefix">
+<input id="kokuho-income" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcKokuho();}" placeholder="例: 4000000" type="text"/>
+</div>
+<span style="font-size:0.75rem; color:#888;">※ 事業所得・給与所得・不動産所得等の合計（世帯主＋被保険者全員分）</span>
+</div>
+<div class="form-group">
+<label>被保険者数（世帯主を含む）</label>
+<select id="kokuho-members" onchange="syncKaigoMax()">
+<option selected="" value="1">1人</option>
+<option value="2">2人</option>
+<option value="3">3人</option>
+<option value="4">4人</option>
+<option value="5">5人</option>
+</select>
+</div>
+<div class="form-group">
+<label>うち40〜64歳の人数（介護分の対象）</label>
+<select id="kokuho-kaigo">
+<option value="0">0人</option>
+<option selected="" value="1">1人</option>
+</select>
+</div>
+<div class="form-group">
+<label>給与所得者等の数</label>
+<select id="kokuho-salary-earners">
+<option value="0">0人</option>
+<option selected="" value="1">1人</option>
+<option value="2">2人</option>
+<option value="3">3人</option>
+</select>
+<span style="font-size:0.75rem; color:#888;">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
+</div>
+<button class="btn" id="btn-kokuho" onclick="calcKokuho()">計算する</button>
+<div class="result" id="kokuho-result" style="display:none;"></div>
+<div id="kokuho-print-btn" style="display:none; margin-top:12px;">
+<button class="btn" onclick="printKokuho()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+</div>
+<p class="note">
+      ※ 大阪府統一保険料率で計算（年度は上のプルダウンで切替可能）<br/>
       ※ 7割・5割・2割軽減の自動判定付き。未就学児の均等割軽減には未対応
     </p>
-    <div class="page-changelog">更新: v1.1.0 (2026-03-30) 印刷機能追加 | v1.0.0 (2026-03-27) 初版作成</div>
-  </div>
+<div class="page-changelog">更新: v1.1.0 (2026-03-30) 印刷機能追加 | v1.0.0 (2026-03-27) 初版作成</div>
 </div>
-
+</div>
 <!-- ===== 印刷用国保資料（通常時は非表示） ===== -->
 <div id="kokuho-print-area" style="display:none;"></div>
-
-<div id="tab-references" class="tab-content">
-  <div class="card">
-    <h2>参考資料・出典一覧</h2>
-    <p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">受取利息逆算</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li>源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）</li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2880.htm" target="_blank">国税庁 No.2880 預貯金の利子所得と税金</a></li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">必要売上計算</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li>法人実効税率：所得800万以下 約25%、800万超 約35%（中小法人の概算）</li>
-      <li>損益分岐点・安全余裕率の計算式は管理会計の一般的な手法</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">耐用年数検索</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm" target="_blank">国税庁 No.2100 減価償却のあらまし</a></li>
-      <li><a href="https://www.tax.metro.tokyo.lg.jp/shisan/info/hyo01_01.pdf" target="_blank">東京都主税局 耐用年数表</a></li>
-      <li>減価償却率：定額法・定率法（200%）の率表（平成24年4月以降取得分）</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税率一覧</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/zoyo/4408.htm" target="_blank">国税庁 No.4408 贈与税の計算と税率</a></li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/sozoku/4155.htm" target="_blank">国税庁 No.4155 相続税の税率</a></li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税務カレンダー</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/taxes/nozei/nofu/01.htm" target="_blank">国税庁 税の届出・申告・納付</a></li>
-      <li>各税目の法定申告期限・納付期限を月別に整理</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">給与源泉税早見表</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2024/02.htm" target="_blank">国税庁 令和6年分 源泉徴収税額表</a></li>
-      <li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2025/02.htm" target="_blank">国税庁 令和7年分 源泉徴収税額表</a></li>
-      <li>月額表（甲欄）の税額データをExcelファイルから抽出・整形して使用</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">報酬源泉計算</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2795.htm" target="_blank">国税庁 No.2795 原稿料や講演料等を支払ったとき</a></li>
-      <li>税率：100万円以下 10.21%、100万円超 20.42%（復興特別所得税含む）</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">修繕費判定フローチャート</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></li>
-      <li>法人税基本通達 7-8-1〜7-8-6（修繕費と資本的支出の区分）</li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">役員報酬シミュレーション</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r08/r8ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和8年度保険料額表</a>（大阪府）</li>
-      <li>健保料率：大阪府 10.13%（介護なし）/ 11.75%（介護あり・40〜64歳）</li>
-      <li>厚生年金保険料率：18.300%（全国一律）</li>
-      <li>子ども・子育て支援金率：0.23%（令和8年4月分〜新設・労使折半）</li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a>（令和7年分：最低65万円）</li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
-      <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
-    </ul>
-
-    <h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">国保シミュレーション</h3>
-    <ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
-      <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000624098.html" target="_blank">大阪市 保険料の決め方（令和7年度）</a></li>
-      <li><a href="https://www.city.osaka.lg.jp/fukushima/page/0000624311.html" target="_blank">大阪市 令和7年度国民健康保険料のお知らせ</a></li>
-      <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000369751.html" target="_blank">大阪市 保険料の軽減・減免</a></li>
-      <li>大阪府統一保険料率（令和7年度）：医療分9.30%・支援金分3.02%・介護分2.56%</li>
-      <li>軽減判定基準：7割（43万円）・5割（43万+30.5万×人数）・2割（43万+56万×人数）</li>
-    </ul>
-
-  </div>
+<!-- ===== 和暦⇔西暦変換 ===== -->
+<div class="tab-content" id="tab-wareki">
+<div class="card">
+<h2>和暦⇔西暦変換</h2>
+<p class="desc">和暦と西暦を相互変換します。改元日をまたぐ年（元号の切替年）も月日を入れれば正確に判定します</p>
+<details class="tool-guide">
+<summary>使い方</summary>
+<div class="guide-body">
+<dl>
+<dt>いつ使う？</dt>
+<dd>申告書・届出書の年号表記や、生年月日の和暦⇔西暦換算をすぐ確認したいときに使います。</dd>
+<dt>月日の入力</dt>
+<dd>年だけでも変換できます。ただし改元があった年（1912・1926・1989・2019）は月日によって元号が変わるため、正確に知りたいときは月日も入力してください。</dd>
+<dt>元年の扱い</dt>
+<dd>各元号の最初の年は「元年」と表示します（例: 令和元年 ＝ 2019年）。</dd>
+</dl>
 </div>
+</details>
+<div class="form-group">
+<label>変換方向</label>
+<div class="toggle-group" id="wareki-mode-group">
+<button class="active" onclick="setWarekiMode('s2w')">西暦 → 和暦</button>
+<button onclick="setWarekiMode('w2s')">和暦 → 西暦</button>
+</div>
+</div>
+<!-- 西暦→和暦 入力 -->
+<div id="wareki-s2w-inputs">
+<div class="form-group">
+<label>西暦</label>
+<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+<input id="s2w-year" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();convertWareki();}" oninput="convertWareki()" placeholder="例: 2026" style="max-width:120px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">年</span>
+<input id="s2w-month" inputmode="numeric" oninput="convertWareki()" placeholder="月" style="max-width:70px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">月</span>
+<input id="s2w-day" inputmode="numeric" oninput="convertWareki()" placeholder="日" style="max-width:70px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">日</span>
+</div>
+<p class="note" style="margin-top:6px;">月・日は任意（改元年の判定に使用）</p>
+</div>
+</div>
+<!-- 和暦→西暦 入力 -->
+<div id="wareki-w2s-inputs" style="display:none;">
+<div class="form-group">
+<label>和暦</label>
+<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+<select id="w2s-era" onchange="convertWareki()" style="max-width:110px;">
+<option value="reiwa">令和</option>
+<option value="heisei">平成</option>
+<option value="showa">昭和</option>
+<option value="taisho">大正</option>
+<option value="meiji">明治</option>
+</select>
+<input id="w2s-year" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();convertWareki();}" oninput="convertWareki()" placeholder="年" style="max-width:90px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">年</span>
+<input id="w2s-month" inputmode="numeric" oninput="convertWareki()" placeholder="月" style="max-width:70px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">月</span>
+<input id="w2s-day" inputmode="numeric" oninput="convertWareki()" placeholder="日" style="max-width:70px;" type="text"/>
+<span style="color:#555; font-size:0.9rem;">日</span>
+</div>
+<p class="note" style="margin-top:6px;">「元年」は 1 を入力してください</p>
+</div>
+</div>
+<button class="btn" id="btn-wareki" onclick="convertWareki()">変換する</button>
+<div class="result" id="wareki-result" style="display:none;"></div>
+<div class="note" id="wareki-today" style="margin-top:12px;"></div>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:20px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">元号一覧</h3>
+<div class="result" style="display:block; background:#f8fafc;">
+<div class="result-row"><span class="label">令和</span><span class="value">2019/5/1 〜</span></div>
+<div class="result-row"><span class="label">平成</span><span class="value">1989/1/8 〜 2019/4/30</span></div>
+<div class="result-row"><span class="label">昭和</span><span class="value">1926/12/25 〜 1989/1/7</span></div>
+<div class="result-row"><span class="label">大正</span><span class="value">1912/7/30 〜 1926/12/24</span></div>
+<div class="result-row"><span class="label">明治</span><span class="value">1868/10/23 〜 1912/7/29</span></div>
+</div>
+<p class="note">
+      ※ 改元日（元号が切り替わった日）を基準に判定します。改元年は同じ西暦でも月日により元号が異なります（例: 2019年は4/30まで平成31年・5/1から令和元年）。<br/>
+      ※ 明治より前（慶応以前）には対応していません。
+    </p>
+<div class="page-changelog">更新: v3.8.0 (2026-07-02) 初版作成</div>
+</div>
+</div>
+<script>
+// ===== 和暦⇔西暦変換 =====
+var warekiMode = 's2w';
+const WAREKI_ERAS = [
+  { id:'reiwa',  name:'令和', startYear:2019, start:{y:2019,m:5,d:1},   end:{y:9999,m:12,d:31} },
+  { id:'heisei', name:'平成', startYear:1989, start:{y:1989,m:1,d:8},   end:{y:2019,m:4,d:30} },
+  { id:'showa',  name:'昭和', startYear:1926, start:{y:1926,m:12,d:25}, end:{y:1989,m:1,d:7} },
+  { id:'taisho', name:'大正', startYear:1912, start:{y:1912,m:7,d:30},  end:{y:1926,m:12,d:24} },
+  { id:'meiji',  name:'明治', startYear:1868, start:{y:1868,m:10,d:23}, end:{y:1912,m:7,d:29} }
+];
+// 各元号の最大年（次の改元で切り替わる直前の年）
+const WAREKI_MAXYEAR = { reiwa:null, heisei:31, showa:64, taisho:15, meiji:45 };
 
+function cmpWDate(a, b){
+  if (a.y !== b.y) return a.y - b.y;
+  if (a.m !== b.m) return a.m - b.m;
+  return a.d - b.d;
+}
+function eraById(id){ return WAREKI_ERAS.filter(function(e){ return e.id === id; })[0]; }
+function eraForDate(y, m, d){
+  var date = {y:y, m:m, d:d};
+  for (var i=0; i<WAREKI_ERAS.length; i++){
+    if (cmpWDate(date, WAREKI_ERAS[i].start) >= 0) return WAREKI_ERAS[i];
+  }
+  return null;
+}
+function fmtWarekiYear(era, wy){ return era.name + (wy === 1 ? '元' : wy) + '年'; }
+function wRow(l, v){ return '<div class="result-row"><span class="label">'+l+'</span><span class="value">'+v+'</span></div>'; }
+function wRowHi(l, v){ return '<div class="result-row highlight"><span class="label">'+l+'</span><span class="value">'+v+'</span></div>'; }
+function wNote(t){ return '<p class="note" style="margin:0 0 8px;">'+t+'</p>'; }
+function wWarn(t){ return '<p class="note" style="color:#c0392b; margin:0;">'+t+'</p>'; }
+
+function warekiInt(id){
+  var v = (document.getElementById(id).value || '').replace(/[,，、\s]/g, '');
+  if (v === '') return null;
+  var n = parseInt(v, 10);
+  return isNaN(n) ? null : n;
+}
+function showWarekiResult(html){
+  var el = document.getElementById('wareki-result');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+function setWarekiMode(mode){
+  warekiMode = mode;
+  document.querySelectorAll('#wareki-mode-group button').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('#wareki-mode-group button')[mode === 's2w' ? 0 : 1].classList.add('active');
+  document.getElementById('wareki-s2w-inputs').style.display = (mode === 's2w') ? 'block' : 'none';
+  document.getElementById('wareki-w2s-inputs').style.display = (mode === 'w2s') ? 'block' : 'none';
+  document.getElementById('wareki-result').style.display = 'none';
+  convertWareki();
+}
+function convertWareki(){
+  if (warekiMode === 's2w') convertWarekiS2W();
+  else convertWarekiW2S();
+}
+function convertWarekiS2W(){
+  var y = warekiInt('s2w-year');
+  var m = warekiInt('s2w-month');
+  var d = warekiInt('s2w-day');
+  var el = document.getElementById('wareki-result');
+  if (y === null){ el.style.display = 'none'; return; }
+  if (m !== null && (m < 1 || m > 12)){ showWarekiResult(wWarn('月は1〜12で入力してください。')); return; }
+  if (d !== null && (d < 1 || d > 31)){ showWarekiResult(wWarn('日は1〜31で入力してください。')); return; }
+  if (y < 1868){ showWarekiResult(wWarn('明治より前（1868年より前）には対応していません。')); return; }
+
+  var boundary = { 1912:['meiji','taisho'], 1926:['taisho','showa'], 1989:['showa','heisei'], 2019:['heisei','reiwa'] };
+  var transMonth = { 1912:7, 1926:12, 1989:1 }; // 2019は改元日が5/1のため月単位では非曖昧
+  var ambiguous = !!boundary[y] && ( m === null || (transMonth[y] !== undefined && m === transMonth[y] && d === null) );
+
+  var html = '';
+  if (y === 1868 && (m === null || (m === 10 && d === null))){
+    html += wNote('1868年は慶応から明治への改元があった年です（明治元年 ＝ 慶応4年）。');
+    html += wRow('10/23〜', '明治元年');
+    html += wRow('〜10/22', '慶応4年（非対応）');
+    showWarekiResult(html); return;
+  }
+  if (ambiguous){
+    html += wNote(y + '年は改元があった年です。月日によって元号が変わります。');
+    boundary[y].forEach(function(id){
+      var e = eraById(id);
+      var wy = y - e.startYear + 1;
+      var range = (cmpWDate({y:y,m:1,d:1}, e.start) < 0) ? (e.start.m + '/' + e.start.d + '〜') : ('〜' + e.end.m + '/' + e.end.d);
+      html += wRow(range, fmtWarekiYear(e, wy));
+    });
+    showWarekiResult(html); return;
+  }
+  var mm = (m === null) ? 7 : m;
+  var dd = (d === null) ? 15 : d;
+  var era = eraForDate(y, mm, dd);
+  if (!era){ showWarekiResult(wWarn('1868年10月22日以前は慶応以前のため対応していません。')); return; }
+  var wy = y - era.startYear + 1;
+  var seiStr = y + '年' + (m !== null ? m + '月' : '') + (d !== null ? d + '日' : '');
+  var waStr = fmtWarekiYear(era, wy) + (m !== null ? m + '月' : '') + (d !== null ? d + '日' : '');
+  showWarekiResult(wRowHi(seiStr, waStr));
+}
+function convertWarekiW2S(){
+  var eraId = document.getElementById('w2s-era').value;
+  var wy = warekiInt('w2s-year');
+  var m = warekiInt('w2s-month');
+  var d = warekiInt('w2s-day');
+  var el = document.getElementById('wareki-result');
+  if (wy === null){ el.style.display = 'none'; return; }
+  if (wy < 1){ showWarekiResult(wWarn('和暦の年は1以上で入力してください（元年は 1）。')); return; }
+  if (m !== null && (m < 1 || m > 12)){ showWarekiResult(wWarn('月は1〜12で入力してください。')); return; }
+  if (d !== null && (d < 1 || d > 31)){ showWarekiResult(wWarn('日は1〜31で入力してください。')); return; }
+  var era = eraById(eraId);
+  var gy = era.startYear + wy - 1;
+  var waStr = fmtWarekiYear(era, wy) + (m !== null ? m + '月' : '') + (d !== null ? d + '日' : '');
+  var seiStr = gy + '年' + (m !== null ? m + '月' : '') + (d !== null ? d + '日' : '');
+  var html = wRowHi(waStr, '西暦 ' + seiStr);
+  var maxY = WAREKI_MAXYEAR[eraId];
+  if (maxY !== null && wy > maxY){
+    html += '<p class="note" style="color:#c0392b; margin:8px 0 0;">※ ' + era.name + 'は' + era.name + maxY + '年（' + (era.startYear + maxY - 1) + '年）までです。入力年は次の元号の期間に入ります。</p>';
+  }
+  showWarekiResult(html);
+}
+function showWarekiToday(){
+  var now = new Date();
+  var y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+  var era = eraForDate(y, m, d);
+  var w = era ? (fmtWarekiYear(era, y - era.startYear + 1) + m + '月' + d + '日') : '';
+  document.getElementById('wareki-today').innerHTML = '本日：' + y + '年' + m + '月' + d + '日（' + w + '）';
+}
+showWarekiToday();
+</script>
+<div class="tab-content" id="tab-references">
+<div class="card">
+<h2>参考資料・出典一覧</h2>
+<p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">受取利息逆算</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li>源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）</li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2880.htm" target="_blank">国税庁 No.2880 預貯金の利子所得と税金</a></li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">必要売上計算</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li>法人実効税率：所得800万以下 約25%、800万超 約35%（中小法人の概算）</li>
+<li>損益分岐点・安全余裕率の計算式は管理会計の一般的な手法</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">耐用年数検索</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm" target="_blank">国税庁 No.2100 減価償却のあらまし</a></li>
+<li><a href="https://www.tax.metro.tokyo.lg.jp/shisan/info/hyo01_01.pdf" target="_blank">東京都主税局 耐用年数表</a></li>
+<li>減価償却率：定額法・定率法（200%）の率表（平成24年4月以降取得分）</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税率一覧</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/zoyo/4408.htm" target="_blank">国税庁 No.4408 贈与税の計算と税率</a></li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/sozoku/4155.htm" target="_blank">国税庁 No.4155 相続税の税率</a></li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税務カレンダー</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/taxes/nozei/nofu/01.htm" target="_blank">国税庁 税の届出・申告・納付</a></li>
+<li>各税目の法定申告期限・納付期限を月別に整理</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">給与源泉税早見表</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2024/02.htm" target="_blank">国税庁 令和6年分 源泉徴収税額表</a></li>
+<li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2025/02.htm" target="_blank">国税庁 令和7年分 源泉徴収税額表</a></li>
+<li>月額表（甲欄）の税額データをExcelファイルから抽出・整形して使用</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">報酬源泉計算</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2795.htm" target="_blank">国税庁 No.2795 原稿料や講演料等を支払ったとき</a></li>
+<li>税率：100万円以下 10.21%、100万円超 20.42%（復興特別所得税含む）</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">修繕費判定フローチャート</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></li>
+<li>法人税基本通達 7-8-1〜7-8-6（修繕費と資本的支出の区分）</li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">役員報酬シミュレーション</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r08/r8ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和8年度保険料額表</a>（大阪府）</li>
+<li>健保料率：大阪府 10.13%（介護なし）/ 11.75%（介護あり・40〜64歳）</li>
+<li>厚生年金保険料率：18.300%（全国一律）</li>
+<li>子ども・子育て支援金率：0.23%（令和8年4月分〜新設・労使折半）</li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a>（令和7年分：最低65万円）</li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
+<li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
+</ul>
+<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">国保シミュレーション</h3>
+<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000624098.html" target="_blank">大阪市 保険料の決め方（令和7年度）</a></li>
+<li><a href="https://www.city.osaka.lg.jp/fukushima/page/0000624311.html" target="_blank">大阪市 令和7年度国民健康保険料のお知らせ</a></li>
+<li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000369751.html" target="_blank">大阪市 保険料の軽減・減免</a></li>
+<li>大阪府統一保険料率（令和7年度）：医療分9.30%・支援金分3.02%・介護分2.56%</li>
+<li>軽減判定基準：7割（43万円）・5割（43万+30.5万×人数）・2割（43万+56万×人数）</li>
+</ul>
+</div>
+</div>
 <!-- ===== ゴールデンテスト ===== -->
 <script>
 function runGoldenTests() {
@@ -4649,11 +4724,9 @@ function runGoldenTests() {
   document.getElementById('golden-test-result').innerHTML = html;
 }
 </script>
-
 <footer style="background:#1a5276; color:rgba(255,255,255,0.7); text-align:center; padding:16px 20px; font-size:0.75rem; line-height:1.8;">
-  <p style="margin-bottom:4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f39c12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
-  <p>© 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
+<p style="margin-bottom:4px;"><svg fill="none" stroke="#f39c12" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg> 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br/>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
+<p>© 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
 </footer>
-
 </body>
 </html>
