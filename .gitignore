@@ -23,3 +23,5 @@
 !/nozei-calendar.html
 !/beppyou4-keisan.html
 !/TEST_CASES.md
+!/tests/
+!/tests/*.test.js
