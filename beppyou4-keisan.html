@@ -705,7 +705,7 @@ function addRow(kind, presetKey, label, amount) {
   const amountInput = row.querySelector(".amount-input");
 
   labelInput.value = label || getPresetLabel(kind, presetKey) || "";
-  amountInput.value = amount || "";
+  amountInput.value = amount === null || typeof amount === "undefined" ? "" : String(amount);
   if (amountInput.value) formatInput(amountInput);
 
   select.addEventListener("change", function() {
@@ -762,15 +762,19 @@ function stripDecorations(value) {
 }
 
 function parseMoney(value) {
-  const text = normalizeMoneyText(value, true);
-  if (!text || text === "-") return 0;
+  const raw = value === null || typeof value === "undefined" ? "" : String(value);
+  if (!raw.trim()) return undefined;
+  const text = normalizeMoneyText(raw, true);
+  if (!text || text === "-") return null;
   const num = Number(text);
-  return Number.isFinite(num) ? Math.trunc(num) : 0;
+  return Number.isFinite(num) ? Math.trunc(num) : null;
 }
 
 function formatInput(input) {
   const value = parseMoney(input.value);
-  input.value = value === 0 ? "" : formatNumber(value);
+  if (value === null) return false;
+  input.value = typeof value === "undefined" ? "" : formatNumber(value);
+  return true;
 }
 
 function formatNumber(value) {
@@ -783,12 +787,20 @@ function formatYen(value) {
   return formatNumber(value) + "円";
 }
 
-function getRows(kind) {
-  return Array.from(lists[kind].querySelectorAll(".adjust-row")).map(function(row) {
+function getRows(kind, invalidFields) {
+  invalidFields = invalidFields || [];
+  const kindLabels = { additions: "加算", subtractions: "減算", afterTentative: "仮計後加算" };
+  return Array.from(lists[kind].querySelectorAll(".adjust-row")).map(function(row, index) {
+    const preset = row.querySelector(".preset-select").value || "custom";
+    const label = row.querySelector(".label-input").value.trim();
+    const parsedAmount = parseMoney(row.querySelector(".amount-input").value);
+    if (parsedAmount === null) {
+      invalidFields.push(label ? kindLabels[kind] + "「" + label + "」" : kindLabels[kind] + " " + (index + 1) + "行目");
+    }
     return {
-      preset: row.querySelector(".preset-select").value || "custom",
-      label: row.querySelector(".label-input").value.trim(),
-      amount: parseMoney(row.querySelector(".amount-input").value)
+      preset: preset,
+      label: label,
+      amount: typeof parsedAmount === "undefined" ? 0 : parsedAmount
     };
   }).filter(function(item) {
     return item.label || item.amount !== 0;
@@ -802,13 +814,24 @@ function sumRows(kind) {
 }
 
 function collectData() {
-  return {
-    currentProfit: parseMoney(document.getElementById("current-profit").value),
-    additions: getRows("additions"),
-    subtractions: getRows("subtractions"),
-    afterTentative: getRows("afterTentative"),
-    lossCarryforward: parseMoney(document.getElementById("loss-carryforward").value)
+  const invalidFields = [];
+  const parsedCurrentProfit = parseMoney(document.getElementById("current-profit").value);
+  const parsedLossCarryforward = parseMoney(document.getElementById("loss-carryforward").value);
+  if (parsedCurrentProfit === null) invalidFields.push("当期利益又は当期欠損の額");
+  if (parsedLossCarryforward === null) invalidFields.push("欠損金等の当期控除額");
+  const data = {
+    currentProfit: typeof parsedCurrentProfit === "undefined" ? 0 : parsedCurrentProfit,
+    additions: getRows("additions", invalidFields),
+    subtractions: getRows("subtractions", invalidFields),
+    afterTentative: getRows("afterTentative", invalidFields),
+    lossCarryforward: typeof parsedLossCarryforward === "undefined" ? 0 : parsedLossCarryforward
   };
+  if (invalidFields.length) {
+    setStorageStatus("無効な金額欄があります: " + invalidFields.join("、"));
+    return null;
+  }
+  setStorageStatus("");
+  return data;
 }
 
 function calculate(data) {
@@ -830,6 +853,7 @@ function calculate(data) {
 
 function updateResults() {
   const data = collectData();
+  if (!data) return false;
   const results = calculate(data);
   setText("addition-total", formatYen(results.additionTotal));
   setText("subtraction-total", formatYen(results.subtractionTotal));
@@ -844,6 +868,7 @@ function updateResults() {
   setText("r-income", formatYen(results.income));
   setText("income-amount", formatYen(results.income));
   document.getElementById("income-amount").classList.toggle("negative", results.income < 0);
+  return true;
 }
 
 function setText(id, text) {
@@ -851,10 +876,11 @@ function setText(id, text) {
 }
 
 function saveCurrent() {
+  const data = collectData();
+  if (!data) return false;
   const name = prompt("保存名を入力してください");
   if (!name) return;
   const store = readStore();
-  const data = collectData();
   const results = calculate(data);
   const key = makeStorageKey(name);
   store.savedSets[key] = {
@@ -866,6 +892,7 @@ function saveCurrent() {
   writeStore(store);
   refreshSavedList(key);
   setStorageStatus("保存しました: " + name.trim());
+  return true;
 }
 
 function makeStorageKey(name) {
@@ -963,8 +990,8 @@ function normalizeLoadedData(data) {
 }
 
 function applyData(data) {
-  document.getElementById("current-profit").value = data.currentProfit ? formatNumber(data.currentProfit) : "";
-  document.getElementById("loss-carryforward").value = data.lossCarryforward ? formatNumber(data.lossCarryforward) : "";
+  document.getElementById("current-profit").value = Number.isFinite(data.currentProfit) ? formatNumber(data.currentProfit) : "";
+  document.getElementById("loss-carryforward").value = Number.isFinite(data.lossCarryforward) ? formatNumber(data.lossCarryforward) : "";
   clearRows();
   fillRows("additions", data.additions);
   fillRows("subtractions", data.subtractions);
@@ -975,7 +1002,7 @@ function applyData(data) {
 
 function fillRows(kind, rows) {
   rows.forEach(function(item) {
-    addRow(kind, item.preset || "custom", item.label || "", item.amount ? String(item.amount) : "");
+    addRow(kind, item.preset || "custom", item.label || "", item.amount);
   });
 }
 
@@ -1004,6 +1031,7 @@ function ensureEmptyRows() {
 
 function copyResult() {
   const data = collectData();
+  if (!data) return;
   const r = calculate(data);
   const lines = [
     "別表4 所得金額計算",

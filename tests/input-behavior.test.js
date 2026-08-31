@@ -14,11 +14,13 @@ function inlineScript(fileName) {
 }
 
 function element() {
-  return {
+  const selectors = new Map();
+  const node = {
     value: "",
     textContent: "",
-    innerHTML: "",
+    _innerHTML: "",
     children: [],
+    dataset: {},
     classList: {
       add() {},
       remove() {},
@@ -26,13 +28,41 @@ function element() {
       contains() { return false; }
     },
     addEventListener() {},
-    appendChild(child) { this.children.push(child); },
+    appendChild(child) {
+      child.parentNode = this;
+      this.children.push(child);
+    },
     focus() {},
-    querySelector() { return element(); },
-    querySelectorAll() { return []; },
-    remove() {},
+    querySelector(selector) {
+      if (!selectors.has(selector)) {
+        const child = element();
+        if (selector === ".preset-select") {
+          const selected = this._innerHTML.match(/<option value="([^"]*)" selected>/);
+          child.value = selected ? selected[1] : "";
+        }
+        selectors.set(selector, child);
+      }
+      return selectors.get(selector);
+    },
+    querySelectorAll(selector) {
+      return selector === ".adjust-row"
+        ? this.children.filter((child) => child.className === "adjust-row")
+        : [];
+    },
+    remove() {
+      if (!this.parentNode) return;
+      this.parentNode.children = this.parentNode.children.filter((child) => child !== this);
+    },
     select() {}
   };
+  Object.defineProperty(node, "innerHTML", {
+    get() { return this._innerHTML; },
+    set(value) {
+      this._innerHTML = value;
+      if (value === "") this.children = [];
+    }
+  });
+  return node;
 }
 
 function documentStub() {
@@ -60,7 +90,9 @@ function loadBeppyou() {
     }
   });
   const expose = `\nglobalThis.testApi = {
-    parseMoney, formatInput, readStore, refreshSavedList, loadSelected
+    parseMoney, formatInput, getRows, collectData, calculate, updateResults, saveCurrent,
+    addRow, setup,
+    readStore, refreshSavedList, loadSelected
   };`;
   vm.runInContext(inlineScript("beppyou4-keisan.html") + expose, context);
   return { api: context.testApi, document, storage };
@@ -85,33 +117,97 @@ function moneyInput(value) {
   };
 }
 
-// これは現状固定であって望ましい挙動ではない。修正時は期待値を未入力と0の区別へ反転する。
-test("現状固定（望ましい挙動ではない）: 別表4の未入力と空文字は0になり、修正時は期待値を反転して未入力と0を区別する", () => {
-  const { api } = loadBeppyou();
+test("別表4の空欄と明示的な0はどちらも0として計算する", () => {
+  const { api, document } = loadBeppyou();
   for (const value of [undefined, ""]) {
     const input = { value };
-    assert.equal(api.parseMoney(value), 0);
-    api.formatInput(input);
+    assert.equal(api.parseMoney(value), undefined);
+    assert.equal(api.formatInput(input), true);
     assert.equal(input.value, "");
   }
+  assert.equal(api.parseMoney("0"), 0);
+  assert.equal(api.parseMoney(0), 0);
+  const zeroInput = { value: "0" };
+  assert.equal(api.formatInput(zeroInput), true);
+  assert.equal(zeroInput.value, "0");
+
+  assert.equal(api.updateResults(), true);
+  assert.equal(document.getElementById("income-amount").textContent, "0円");
+
+  document.getElementById("current-profit").value = "0";
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.updateResults(), true);
+  assert.equal(document.getElementById("income-amount").textContent, "0円");
 });
 
-// これは現状固定であって望ましい挙動ではない。修正時は期待値を入力エラーへ反転する。
-test("現状固定（望ましい挙動ではない）: 別表4の数字なし文字列は0と空欄になり、修正時は期待値を入力エラーへ反転する", () => {
+test("別表4の初期表示後に当期利益を入力すると所得金額を計算する", () => {
+  const { api, document } = loadBeppyou();
+  api.setup();
+
+  assert.equal(document.getElementById("additions-list").children.length, 1);
+  assert.equal(document.getElementById("subtractions-list").children.length, 1);
+  assert.equal(document.getElementById("afterTentative-list").children.length, 1);
+  document.getElementById("current-profit").value = "5,000,000";
+
+  assert.equal(api.updateResults(), true);
+  assert.equal(document.getElementById("income-amount").textContent, "5,000,000円");
+  assert.notEqual(document.getElementById("income-amount").textContent, "0円");
+});
+
+test("別表4の空行はgetRowsの集計対象に含めない", () => {
   const { api } = loadBeppyou();
+  api.addRow("additions");
+  assert.equal(api.getRows("additions").length, 0);
+});
+
+test("別表4の数字なし文字列は入力エラーになり、値を消さない", () => {
+  const { api, document } = loadBeppyou();
   const input = { value: "not-a-number" };
-  assert.equal(api.parseMoney(input.value), 0);
-  api.formatInput(input);
-  assert.equal(input.value, "");
+  assert.equal(api.parseMoney(input.value), null);
+  assert.equal(api.formatInput(input), false);
+  assert.equal(input.value, "not-a-number");
+  document.getElementById("current-profit").value = input.value;
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.updateResults(), false);
+  assert.match(document.getElementById("storage-status").textContent, /当期利益又は当期欠損の額/);
 });
 
-// これは現状固定であって望ましい挙動ではない。修正時は期待値を桁超過エラーへ反転する。
-test("現状固定（望ましい挙動ではない）: 別表4の巨大桁は0と空欄になり、修正時は期待値を桁超過エラーへ反転する", () => {
-  const { api } = loadBeppyou();
+test("別表4の巨大桁は入力エラーになり、値を消さない", () => {
+  const { api, document } = loadBeppyou();
   const input = { value: "9".repeat(400) };
-  assert.equal(api.parseMoney(input.value), 0);
-  api.formatInput(input);
-  assert.equal(input.value, "");
+  assert.equal(api.parseMoney(input.value), null);
+  assert.equal(api.formatInput(input), false);
+  assert.equal(input.value, "9".repeat(400));
+  document.getElementById("current-profit").value = input.value;
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.updateResults(), false);
+  assert.match(document.getElementById("storage-status").textContent, /当期利益又は当期欠損の額/);
+});
+
+test("別表4の無効入力はlocalStorageへ保存しない", () => {
+  const { api, document, storage } = loadBeppyou();
+  document.getElementById("current-profit").value = "-";
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.saveCurrent(), false);
+  assert.equal(storage.raw, null);
+  assert.match(document.getElementById("storage-status").textContent, /当期利益又は当期欠損の額/);
+});
+
+test("別表4の有効入力は従来の算式どおりに計算する", () => {
+  const { api } = loadBeppyou();
+  const result = api.calculate({
+    currentProfit: 1000000,
+    additions: [{ amount: 250000 }],
+    subtractions: [{ amount: 100000 }],
+    afterTentative: [{ amount: 50000 }],
+    lossCarryforward: 200000
+  });
+  assert.equal(result.additionTotal, 250000);
+  assert.equal(result.subtractionTotal, 100000);
+  assert.equal(result.tentative, 1150000);
+  assert.equal(result.afterTentativeTotal, 50000);
+  assert.equal(result.total, 1200000);
+  assert.equal(result.income, 1000000);
 });
 
 // 構文エラーだけは空の保存領域へ救済される現状を固定する。
