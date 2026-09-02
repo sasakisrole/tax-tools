@@ -211,6 +211,36 @@ test("別表4の有効入力は従来の算式どおりに計算する", () => {
 });
 
 // 構文エラーだけは空の保存領域へ救済される現状を固定する。
+test("別表4の空欄は0として計算しつつ、どの欄を0にしたか画面に出す", () => {
+  const { api, document } = loadBeppyou();
+  api.setup();
+  api.addRow("additions", "custom", "交際費", "");
+
+  assert.equal(api.updateResults(), true);
+  const notice = document.getElementById("input-notice");
+  assert.equal(notice.hidden, false);
+  assert.match(notice.textContent, /^空欄を0円として計算しました: /);
+  assert.ok(notice.textContent.includes("当期利益又は当期欠損の額"));
+  assert.ok(notice.textContent.includes("加算「交際費」"));
+});
+
+test("別表4の空欄を埋めると告知が消え、無効入力のときは結果の上に無効欄を出す", () => {
+  const { api, document } = loadBeppyou();
+  api.setup();
+  const notice = document.getElementById("input-notice");
+
+  document.getElementById("current-profit").value = "1,000,000";
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.updateResults(), true);
+  assert.equal(notice.hidden, true);
+  assert.equal(notice.textContent, "");
+
+  document.getElementById("current-profit").value = "not-a-number";
+  assert.equal(api.updateResults(), false);
+  assert.equal(notice.hidden, false);
+  assert.equal(notice.textContent, "無効な金額欄があります: 当期利益又は当期欠損の額");
+});
+
 test("現状固定: 別表4の壊れたJSONは空の保存領域として救済される", () => {
   const { api, storage } = loadBeppyou();
   storage.raw = "{";

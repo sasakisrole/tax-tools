@@ -301,6 +301,22 @@ select:focus {
   text-align: center;
 }
 
+.input-notice {
+  background: var(--surface-soft);
+  border: 1px solid var(--warning);
+  border-left-width: 3px;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  padding: 8px 10px;
+}
+
+.input-notice.invalid {
+  border-color: var(--danger);
+}
+
 .result-label {
   color: var(--muted);
   font-size: 0.8rem;
@@ -605,6 +621,7 @@ svg {
         <div class="result-label">所得金額</div>
         <div class="result-amount" id="income-amount">0円</div>
       </div>
+      <p class="input-notice" id="input-notice" role="status" aria-live="polite" hidden></p>
       <table class="calc-table" aria-label="計算過程">
         <tbody>
           <tr><th>① 当期利益又は当期欠損</th><td id="r-current">0円</td></tr>
@@ -787,8 +804,9 @@ function formatYen(value) {
   return formatNumber(value) + "円";
 }
 
-function getRows(kind, invalidFields) {
+function getRows(kind, invalidFields, blankFields) {
   invalidFields = invalidFields || [];
+  blankFields = blankFields || [];
   const kindLabels = { additions: "加算", subtractions: "減算", afterTentative: "仮計後加算" };
   return Array.from(lists[kind].querySelectorAll(".adjust-row")).map(function(row, index) {
     const preset = row.querySelector(".preset-select").value || "custom";
@@ -796,6 +814,11 @@ function getRows(kind, invalidFields) {
     const parsedAmount = parseMoney(row.querySelector(".amount-input").value);
     if (parsedAmount === null) {
       invalidFields.push(label ? kindLabels[kind] + "「" + label + "」" : kindLabels[kind] + " " + (index + 1) + "行目");
+    }
+    // 初期表示のプリセット行は名前だけ入っているのが既定なので、人が自分で項目名を書いた custom 行だけを
+    // 「金額の入れ忘れ」として数える（既定行を数えると起動直後から常に告知が出てノイズになる）
+    if (typeof parsedAmount === "undefined" && label && preset === "custom") {
+      blankFields.push(kindLabels[kind] + "「" + label + "」");
     }
     return {
       preset: preset,
@@ -813,17 +836,20 @@ function sumRows(kind) {
   }, 0);
 }
 
-function collectData() {
-  const invalidFields = [];
+function collectData(blankFields, invalidFieldsOut) {
+  blankFields = blankFields || [];
+  const invalidFields = invalidFieldsOut || [];
   const parsedCurrentProfit = parseMoney(document.getElementById("current-profit").value);
   const parsedLossCarryforward = parseMoney(document.getElementById("loss-carryforward").value);
   if (parsedCurrentProfit === null) invalidFields.push("当期利益又は当期欠損の額");
   if (parsedLossCarryforward === null) invalidFields.push("欠損金等の当期控除額");
+  // 欠損金等の当期控除額は空欄が普通なので数えない。所得金額が0円に見える原因になるのは当期利益側
+  if (typeof parsedCurrentProfit === "undefined") blankFields.push("当期利益又は当期欠損の額");
   const data = {
     currentProfit: typeof parsedCurrentProfit === "undefined" ? 0 : parsedCurrentProfit,
-    additions: getRows("additions", invalidFields),
-    subtractions: getRows("subtractions", invalidFields),
-    afterTentative: getRows("afterTentative", invalidFields),
+    additions: getRows("additions", invalidFields, blankFields),
+    subtractions: getRows("subtractions", invalidFields, blankFields),
+    afterTentative: getRows("afterTentative", invalidFields, blankFields),
     lossCarryforward: typeof parsedLossCarryforward === "undefined" ? 0 : parsedLossCarryforward
   };
   if (invalidFields.length) {
@@ -851,9 +877,24 @@ function calculate(data) {
   };
 }
 
+function renderInputNotice(text, invalid) {
+  const notice = document.getElementById("input-notice");
+  if (!notice) return;
+  notice.textContent = text;
+  notice.hidden = !text;
+  notice.classList.toggle("invalid", Boolean(invalid));
+}
+
 function updateResults() {
-  const data = collectData();
-  if (!data) return false;
+  const blankFields = [];
+  const invalidFields = [];
+  const data = collectData(blankFields, invalidFields);
+  if (!data) {
+    // 無効欄の説明は保存・読込欄にも出るが、結果の数字が古いまま残るので結果のすぐ上にも出す
+    renderInputNotice("無効な金額欄があります: " + invalidFields.join("、"), true);
+    return false;
+  }
+  renderInputNotice(blankFields.length ? "空欄を0円として計算しました: " + blankFields.join("、") : "", false);
   const results = calculate(data);
   setText("addition-total", formatYen(results.additionTotal));
   setText("subtraction-total", formatYen(results.subtractionTotal));
