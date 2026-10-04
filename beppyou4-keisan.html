@@ -651,6 +651,7 @@ svg {
 
 <script>
 const STORAGE_KEY = "beppyou4_savedSets";
+let storeReadBlocked = false;
 
 const presets = {
   additions: [
@@ -930,7 +931,7 @@ function saveCurrent() {
     data: data,
     results: results
   };
-  writeStore(store);
+  if (!writeStore(store)) return false;
   refreshSavedList(key);
   setStorageStatus("保存しました: " + name.trim());
   return true;
@@ -941,35 +942,52 @@ function makeStorageKey(name) {
   return safeName + "_" + Date.now();
 }
 
+function validSavedSet(item) {
+  return item && typeof item === "object" && !Array.isArray(item)
+    && typeof item.name === "string" && item.data && typeof item.data === "object" && !Array.isArray(item.data);
+}
+
 function readStore() {
+  storeReadBlocked = false;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { version: "1.0", savedSets: {} };
+    if (raw === null) return { version: "1.0", savedSets: {} };
     const parsed = JSON.parse(raw);
-    return {
-      version: parsed.version || "1.0",
-      savedSets: parsed.savedSets || {}
-    };
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)
+        || !parsed.savedSets || typeof parsed.savedSets !== "object" || Array.isArray(parsed.savedSets)) {
+      throw new Error("invalid saved sets");
+    }
+    return parsed;
   } catch (error) {
-    setStorageStatus("保存データを読めませんでした。新しい保存領域を使います。");
+    storeReadBlocked = true;
+    setStorageStatus("保存データを読み込めなかったため、読み飛ばしました。元の保存データは上書きしません。ブラウザの保存領域を確認してください。");
     return { version: "1.0", savedSets: {} };
   }
 }
 
 function writeStore(store) {
+  if (storeReadBlocked) {
+    setStorageStatus("保存できません。元の保存データを保護しています。入力はこの画面に残っています。ブラウザの保存領域を確認してください。");
+    return false;
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    return true;
   } catch (error) {
-    setStorageStatus("localStorageへ保存できませんでした。ブラウザの容量や設定を確認してください。");
+    setStorageStatus("保存できませんでした。入力はこの画面に残っています。ブラウザの容量や設定を確認して、もう一度保存してください。");
+    return false;
   }
 }
 
 function refreshSavedList(selectedKey) {
   const select = document.getElementById("saved-select");
   const store = readStore();
-  const entries = Object.entries(store.savedSets).sort(function(a, b) {
+  const allEntries = Object.entries(store.savedSets);
+  const entries = allEntries.filter(function(entry) { return validSavedSet(entry[1]); }).sort(function(a, b) {
     return String(b[1].savedAt || "").localeCompare(String(a[1].savedAt || ""));
   });
+  const skipped = allEntries.length - entries.length;
+  if (skipped) setStorageStatus("壊れた保存データ " + skipped + "件を読み飛ばしました。読み込めたデータを表示しています。");
   select.innerHTML = '<option value="">保存済みデータを選択</option>';
   entries.forEach(function(entry) {
     const key = entry[0];
@@ -994,7 +1012,7 @@ function loadSelected() {
   if (!key) return;
   const store = readStore();
   const saved = store.savedSets[key];
-  if (!saved) return;
+  if (!validSavedSet(saved)) return;
   applyData(normalizeLoadedData(saved.data));
   setStorageStatus("読込しました: " + saved.name);
 }
@@ -1007,7 +1025,7 @@ function deleteSelected() {
   const name = store.savedSets[key] ? store.savedSets[key].name : "";
   if (!confirm("保存データ「" + name + "」を削除しますか？")) return;
   delete store.savedSets[key];
-  writeStore(store);
+  if (!writeStore(store)) return false;
   refreshSavedList("");
   setStorageStatus("削除しました: " + name);
 }
@@ -1154,8 +1172,8 @@ function setup() {
   addRow("additions", "loss_corporate_tax", getPresetLabel("additions", "loss_corporate_tax"), "");
   addRow("subtractions", "business_tax_from_reserve", getPresetLabel("subtractions", "business_tax_from_reserve"), "");
   addRow("afterTentative", "withholding_tax", getPresetLabel("afterTentative", "withholding_tax"), "");
-  refreshSavedList("");
   updateResults();
+  refreshSavedList("");
 }
 
 setup();
