@@ -249,21 +249,19 @@ test("現状固定: 別表4の壊れたJSONは空の保存領域として救済�
   assert.equal(Object.keys(store.savedSets).length, 0);
 });
 
-// これは現状固定であって望ましい挙動ではない。修正時は期待値を安全な無視へ反転する。
-test("現状固定（望ましい挙動ではない）: 別表4の形が壊れたsavedSetsは例外になり、修正時は期待値を安全な無視へ反転する", () => {
+test("別表4の形が壊れたsavedSetsは例外にせず読み飛ばす", () => {
   const { api, storage } = loadBeppyou();
   storage.raw = JSON.stringify({ savedSets: { broken: null } });
-  assert.throws(() => api.refreshSavedList(""), /null|name/);
+  assert.doesNotThrow(() => api.refreshSavedList(""));
 });
 
-// これは現状固定であって望ましい挙動ではない。修正時は期待値を安全な拒否へ反転する。
-test("現状固定（望ましい挙動ではない）: 別表4の形が壊れたdataはfillRowsで例外になり、修正時は期待値を安全な拒否へ反転する", () => {
+test("別表4の形が壊れたdataは例外にせず読み込みを拒否する", () => {
   const { api, document, storage } = loadBeppyou();
   storage.raw = JSON.stringify({
     savedSets: { broken: { name: "Sample", data: "invalid-shape" } }
   });
   document.getElementById("saved-select").value = "broken";
-  assert.throws(() => api.loadSelected(), /forEach/);
+  assert.doesNotThrow(() => api.loadSelected());
 });
 
 // これは現状固定であって望ましい挙動ではない。修正時は期待値を未入力または入力エラーへ反転する。
