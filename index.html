@@ -14,24 +14,97 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>税務ツールボックス</title>
 <style>
+:root {
+  color-scheme: light;
+  --bg: #f0f2f5;
+  --surface: #fff;
+  --border: #d0d0d0;
+  --text: #333;
+  --accent: #226d9d;
+  --text-muted: #666;
+  --heading: #1a5276;
+  --action-bg: #1a5276;
+  --on-action: #fff;
+  --surface-soft: #f8fbff;
+  --surface-blue: #eef6ff;
+  --surface-hover: #e8f1fb;
+  --surface-neutral: #f9f9f9;
+  --success: #276749;
+  --success-bg: #f0fff4;
+  --success-action: #276749;
+  --danger: #b52c2c;
+  --danger-bg: #fff5f5;
+  --danger-action: #b52c2c;
+  --warning: #805b10;
+  --warning-bg: #fffff0;
+  --warning-action: #805b10;
+  --highlight-bg: #fff3cd;
+  --purple: #7d3c98;
+  --secondary-action: #526174;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #151b23;
+    --surface: #202a36;
+    --border: #526174;
+    --text: #edf2f7;
+    --accent: #8cc9f0;
+    --text-muted: #c0cad6;
+    --heading: #9ed1f1;
+    --action-bg: #244e6b;
+    --on-action: #fff;
+    --surface-soft: #243243;
+    --surface-blue: #293d54;
+    --surface-hover: #30465e;
+    --surface-neutral: #29333f;
+    --success: #8fe0b1;
+    --success-bg: #203d30;
+    --success-action: #276749;
+    --danger: #ffb5b5;
+    --danger-bg: #442b32;
+    --danger-action: #b52c2c;
+    --warning: #f1d17a;
+    --warning-bg: #403820;
+    --warning-action: #805b10;
+    --highlight-bg: #4b4024;
+    --purple: #d8adeb;
+    --secondary-action: #526174;
+  }
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.home-card { font: inherit; color: var(--text); width: 100%; min-width: 0; }
+.home-card .title, .home-card .subtitle { display: block; }
+.dep-result-button { width: 100%; background: var(--surface); color: var(--text); font: inherit; text-align: left; border: 0; border-bottom: 1px solid var(--border); }
+.dep-result-button:hover { background: var(--surface-hover); }
+button, summary { min-height: 44px; }
+input, select, textarea { background: var(--surface); color: var(--text); }
+input::placeholder { color: var(--text-muted); opacity: 1; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+.table-scroll, .gensen-table-wrap { max-width: 100%; min-width: 0; overflow-x: auto; }
+.home-grid > *, .card, .result-row > * { min-width: 0; }
+.result-row { gap: 8px; flex-wrap: wrap; }
+#dep-calc-table { white-space: nowrap; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-  background: #f0f2f5;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
 }
 header {
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--on-action);
   padding: 16px 20px;
   text-align: center;
 }
 header h1 { font-size: 1.3rem; font-weight: 600; }
 .tab-bar {
   display: flex;
-  background: #fff;
-  border-bottom: 2px solid #e0e0e0;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
   overflow-x: auto;
 }
 .tab-bar button {
@@ -39,17 +112,17 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
   min-width: 80px;
   padding: 12px 8px;
   border: none;
-  background: #fff;
+  background: var(--surface);
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-muted);
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   white-space: nowrap;
 }
 .tab-bar button.active {
-  color: #1a5276;
-  border-bottom-color: #2980b9;
+  color: var(--heading);
+  border-bottom-color: var(--accent);
   font-weight: 600;
 }
 /* ホーム画面 */
@@ -62,7 +135,7 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
   margin: 0 auto;
 }
 .home-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   padding: 20px 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -74,7 +147,7 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
 .home-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  border-color: #2980b9;
+  border-color: var(--accent);
 }
 .home-card .icon {
   font-size: 2rem;
@@ -91,12 +164,12 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
 .home-card .title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1a5276;
+  color: var(--heading);
   margin-bottom: 4px;
 }
 .home-card .subtitle {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 .back-btn {
@@ -105,19 +178,19 @@ header h1 { font-size: 1.3rem; font-weight: 600; }
   gap: 4px;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--on-action);
   font-size: 0.9rem;
   cursor: pointer;
-  position: absolute;
-  left: 16px;
-  top: 16px;
+  position: static;
+  min-width: 44px;
+  margin-right: 8px;
 }
 .back-btn:hover { opacity: 0.8; }
 header { position: relative; }
 .tab-content { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
 .tab-content.active { display: block; }
 .card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
@@ -125,12 +198,12 @@ header { position: relative; }
 }
 .card h2 {
   font-size: 1.05rem;
-  color: #1a5276;
+  color: var(--heading);
   margin-bottom: 4px;
 }
 .card .desc {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 .form-group { margin-bottom: 14px; }
@@ -139,26 +212,25 @@ header { position: relative; }
   font-size: 0.85rem;
   font-weight: 500;
   margin-bottom: 4px;
-  color: #555;
+  color: var(--text-muted);
 }
 .form-group input, .form-group select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
-  outline: none;
   transition: border-color 0.2s;
 }
 .form-group input:focus, .form-group select:focus {
-  border-color: #2980b9;
+  border-color: var(--accent);
 }
 .btn {
   display: block;
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--on-action);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -168,12 +240,12 @@ header { position: relative; }
 }
 .btn:hover { opacity: 0.9; }
 .checkbox-row { margin-bottom:14px; }
-.checkbox-row label { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:500; color:#555; cursor:pointer; }
-.checkbox-row input[type="checkbox"] { width:18px; height:18px; margin:0; accent-color:#2980b9; cursor:pointer; }
+.checkbox-row label { display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; font-weight:500; color:var(--text-muted); cursor:pointer; }
+.checkbox-row input[type="checkbox"] { width:18px; height:18px; margin:0; accent-color:var(--accent); cursor:pointer; }
 .result {
   margin-top: 16px;
-  background: #f8fbff;
-  border: 1px solid #d6e9f8;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
 }
@@ -181,17 +253,17 @@ header { position: relative; }
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid #eef3f8;
+  border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
 }
 .result-row:last-child { border-bottom: none; }
-.result-row .label { color: #666; }
-.result-row .value { font-weight: 600; color: #1a5276; }
-.result-row.highlight { background: #eef6ff; margin: 0 -16px; padding: 10px 16px; border-radius: 6px; }
-.result-row.highlight .value { font-size: 1.1rem; color: #c0392b; }
+.result-row .label { color: var(--text-muted); }
+.result-row .value { font-weight: 600; color: var(--heading); }
+.result-row.highlight { background: var(--surface-blue); margin: 0 -16px; padding: 10px 16px; border-radius: 6px; }
+.result-row.highlight .value { font-size: 1.1rem; color: var(--danger); }
 .note {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 10px;
   line-height: 1.5;
 }
@@ -207,7 +279,7 @@ header { position: relative; }
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 .input-suffix {
@@ -222,7 +294,7 @@ header { position: relative; }
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 /* 源泉税額表 */
@@ -230,7 +302,7 @@ header { position: relative; }
   overflow-x: auto;
   max-height: 420px;
   overflow-y: auto;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-top: 12px;
 }
@@ -244,8 +316,8 @@ header { position: relative; }
 .gensen-table th {
   position: sticky;
   top: 0;
-  background: #1a5276;
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--on-action);
   padding: 8px 6px;
   text-align: right;
   font-weight: 600;
@@ -256,15 +328,15 @@ header { position: relative; }
 .gensen-table td {
   padding: 6px;
   text-align: right;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
 }
 .gensen-table td:first-child { text-align: center; }
-.gensen-table tr:nth-child(even) { background: #f9f9f9; }
-.gensen-table tr.gensen-highlight { background: #fff3cd !important; }
+.gensen-table tr:nth-child(even) { background: var(--surface-neutral); }
+.gensen-table tr.gensen-highlight { background: var(--highlight-bg) !important; }
 .gensen-table tr.gensen-highlight td { font-weight: 600; }
 .gensen-result-card {
-  background: #eef6ff;
-  border: 2px solid #2980b9;
+  background: var(--surface-blue);
+  border: 2px solid var(--accent);
   border-radius: 10px;
   padding: 16px;
   text-align: center;
@@ -273,16 +345,16 @@ header { position: relative; }
 .gensen-result-card .amount {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #c0392b;
+  color: var(--danger);
 }
 .gensen-result-card .label {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 .toggle-group {
   display: flex;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -290,82 +362,82 @@ header { position: relative; }
   flex: 1;
   padding: 10px;
   border: none;
-  background: #fff;
+  background: var(--surface);
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #666;
+  color: var(--text-muted);
 }
 .toggle-group button.active {
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--on-action);
   font-weight: 600;
 }
-.tool-guide { background:#f0f7ff; border:1px solid #d6e4f0; border-radius:8px; margin-bottom:16px; font-size:0.82rem; line-height:1.7; }
-.tool-guide summary { cursor:pointer; padding:8px 12px; font-weight:600; color:#1a5276; font-size:0.82rem; }
-.tool-guide summary:hover { background:#e8f1fb; border-radius:8px; }
-.tool-guide .guide-body { padding:4px 14px 12px; color:#555; }
-.tool-guide .guide-body dt { font-weight:600; color:#1a5276; margin-top:8px; }
+.tool-guide { background:var(--surface-soft); border:1px solid var(--border); border-radius:8px; margin-bottom:16px; font-size:0.82rem; line-height:1.7; }
+.tool-guide summary { cursor:pointer; padding:8px 12px; font-weight:600; color:var(--heading); font-size:0.82rem; }
+.tool-guide summary:hover { background:var(--surface-hover); border-radius:8px; }
+.tool-guide .guide-body { padding:4px 14px 12px; color:var(--text-muted); }
+.tool-guide .guide-body dt { font-weight:600; color:var(--heading); margin-top:8px; }
 .tool-guide .guide-body dd { margin:2px 0 0 0; }
 .tool-guide .guide-body ul { padding-left:18px; margin:4px 0; }
-.about-box { grid-column:1/-1; background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-.about-box summary { cursor:pointer; font-weight:600; color:#1a5276; font-size:0.95rem; }
+.about-box { grid-column:1/-1; background:var(--surface); border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.about-box summary { cursor:pointer; font-weight:600; color:var(--heading); font-size:0.95rem; }
 .about-box summary:hover { opacity:0.8; }
-.about-box .about-body { margin-top:12px; font-size:0.82rem; color:#555; line-height:1.8; }
-.about-box .about-body h3 { font-size:0.88rem; color:#1a5276; margin:12px 0 4px; }
+.about-box .about-body { margin-top:12px; font-size:0.82rem; color:var(--text-muted); line-height:1.8; }
+.about-box .about-body h3 { font-size:0.88rem; color:var(--heading); margin:12px 0 4px; }
 .about-box .about-body ul { padding-left:18px; margin:4px 0; }
-.changelog { margin-top: 20px; font-size: 0.72rem; color: #999; line-height: 1.7; }
-.changelog summary { cursor: pointer; font-weight: 500; color: #888; }
+.changelog { margin-top: 20px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.7; }
+.changelog summary { cursor: pointer; font-weight: 500; color: var(--text-muted); }
 .changelog ul { list-style: none; padding: 8px 0 0 0; margin: 0; }
 .changelog li::before { content: '•'; margin-right: 6px; }
-.page-changelog { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; font-size: 0.7rem; color: #aaa; line-height: 1.6; }
-#dep-calc-table th { background:#1a5276; color:#fff; padding:8px 6px; text-align:right; font-size:0.78rem; white-space:nowrap; }
+.page-changelog { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-muted); line-height: 1.6; }
+#dep-calc-table th { background:var(--action-bg); color:var(--on-action); padding:8px 6px; text-align:right; font-size:0.78rem; white-space:nowrap; }
 #dep-calc-table th:first-child { text-align:center; }
-#dep-calc-table td { padding:7px 6px; text-align:right; border-bottom:1px solid #eef3f8; font-size:0.82rem; }
+#dep-calc-table td { padding:7px 6px; text-align:right; border-bottom:1px solid var(--border); font-size:0.82rem; }
 #dep-calc-table td:first-child { text-align:left; white-space:nowrap; }
-#dep-calc-table tr:nth-child(even) { background:#f8fbff; }
-#dep-calc-table tr.switch-row { background:#fff3cd; }
+#dep-calc-table tr:nth-child(even) { background:var(--surface-soft); }
+#dep-calc-table tr.switch-row { background:var(--highlight-bg); }
 
 /* ===== 修繕費フローチャート ===== */
-.flow-step { background:#f8fbff; border:2px solid #d6e4f0; border-radius:12px; padding:20px; margin-bottom:16px; transition:all 0.3s ease; }
+.flow-step { background:var(--surface-soft); border:2px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; transition:all 0.3s ease; }
 .flow-step.answered { opacity:0.5; pointer-events:none; }
 .flow-step-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.flow-step-num { background:#1a5276; color:#fff; font-weight:700; padding:4px 12px; border-radius:20px; font-size:0.85rem; }
-.flow-ref { color:#888; font-size:0.75rem; }
-.flow-question { font-size:1.05rem; font-weight:600; color:#1a5276; margin-bottom:8px; line-height:1.6; }
-.flow-hint { font-size:0.8rem; color:#666; margin:4px 0 12px; line-height:1.5; }
+.flow-step-num { background:var(--action-bg); color:var(--on-action); font-weight:700; padding:4px 12px; border-radius:20px; font-size:0.85rem; }
+.flow-ref { color:var(--text-muted); font-size:0.75rem; }
+.flow-question { font-size:1.05rem; font-weight:600; color:var(--heading); margin-bottom:8px; line-height:1.6; }
+.flow-hint { font-size:0.8rem; color:var(--text-muted); margin:4px 0 12px; line-height:1.5; }
 .flow-buttons { display:flex; gap:10px; flex-wrap:wrap; }
-.flow-btn { padding:10px 20px; border:2px solid #ccc; border-radius:8px; background:#fff; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.flow-btn { padding:10px 20px; border:2px solid var(--border); border-radius:8px; background:var(--surface); font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
 .flow-btn:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-.flow-btn.flow-yes { border-color:#38a169; color:#38a169; }
-.flow-btn.flow-yes:hover { background:#38a169; color:#fff; }
-.flow-btn.flow-no { border-color:#e53e3e; color:#e53e3e; }
-.flow-btn.flow-no:hover { background:#e53e3e; color:#fff; }
-.flow-btn.flow-unsure { border-color:#d69e2e; color:#d69e2e; }
-.flow-btn.flow-unsure:hover { background:#d69e2e; color:#fff; }
-.flow-btn.selected { color:#fff !important; }
-.flow-btn.flow-yes.selected { background:#38a169; }
-.flow-btn.flow-no.selected { background:#e53e3e; }
-.flow-btn.flow-unsure.selected { background:#d69e2e; }
-.flow-conditions { background:#fff; border-radius:8px; padding:12px 16px; margin:8px 0; }
+.flow-btn.flow-yes { border-color:var(--success); color:var(--success); }
+.flow-btn.flow-yes:hover { background:var(--success-action); color:var(--on-action); }
+.flow-btn.flow-no { border-color:var(--danger); color:var(--danger); }
+.flow-btn.flow-no:hover { background:var(--danger-action); color:var(--on-action); }
+.flow-btn.flow-unsure { border-color:var(--warning); color:var(--warning); }
+.flow-btn.flow-unsure:hover { background:var(--warning-action); color:var(--on-action); }
+.flow-btn.selected { color:var(--on-action) !important; }
+.flow-btn.flow-yes.selected { background:var(--success-action); }
+.flow-btn.flow-no.selected { background:var(--danger-action); }
+.flow-btn.flow-unsure.selected { background:var(--warning-action); }
+.flow-conditions { background:var(--surface); border-radius:8px; padding:12px 16px; margin:8px 0; }
 .flow-condition { font-size:0.95rem; font-weight:600; padding:4px 0; }
-.flow-or { text-align:center; color:#888; font-size:0.8rem; margin:4px 0; }
-.flow-calc-box { background:#fff; border-radius:8px; padding:16px; margin-top:12px; }
-.flow-calc-box label { display:block; font-size:0.85rem; font-weight:600; margin:8px 0 4px; color:#555; }
+.flow-or { text-align:center; color:var(--text-muted); font-size:0.8rem; margin:4px 0; }
+.flow-calc-box { background:var(--surface); border-radius:8px; padding:16px; margin-top:12px; }
+.flow-calc-box label { display:block; font-size:0.85rem; font-weight:600; margin:8px 0 4px; color:var(--text-muted); }
 .flow-calc-box label:first-child { margin-top:0; }
 .flow-result { border-radius:12px; padding:24px; margin-top:16px; text-align:center; }
-.flow-result.shuzenhi { background:#f0fff4; border:3px solid #38a169; }
-.flow-result.shihon { background:#fff5f5; border:3px solid #e53e3e; }
-.flow-result.anbun { background:#fffff0; border:3px solid #d69e2e; }
-.flow-result.jitshitsu { background:#f7fafc; border:3px solid #718096; }
-.flow-result-label { font-size:0.8rem; color:#666; margin-bottom:4px; }
+.flow-result.shuzenhi { background:var(--success-bg); border:3px solid var(--success); }
+.flow-result.shihon { background:var(--danger-bg); border:3px solid var(--danger); }
+.flow-result.anbun { background:var(--warning-bg); border:3px solid var(--warning); }
+.flow-result.jitshitsu { background:var(--surface-neutral); border:3px solid var(--border); }
+.flow-result-label { font-size:0.8rem; color:var(--text-muted); margin-bottom:4px; }
 .flow-result-title { font-size:1.5rem; font-weight:700; margin-bottom:8px; }
-.flow-result.shuzenhi .flow-result-title { color:#38a169; }
-.flow-result.shihon .flow-result-title { color:#e53e3e; }
-.flow-result.anbun .flow-result-title { color:#d69e2e; }
-.flow-result.jitshitsu .flow-result-title { color:#718096; }
-.flow-result-desc { font-size:0.9rem; color:#555; line-height:1.6; }
-.flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:#888; }
+.flow-result.shuzenhi .flow-result-title { color:var(--success); }
+.flow-result.shihon .flow-result-title { color:var(--danger); }
+.flow-result.anbun .flow-result-title { color:var(--warning); }
+.flow-result.jitshitsu .flow-result-title { color:var(--text-muted); }
+.flow-result-desc { font-size:0.9rem; color:var(--text-muted); line-height:1.6; }
+.flow-path { margin-top:16px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1); font-size:0.78rem; color:var(--text-muted); }
 
 /* フロー全体図はインラインSVGで描画 */
 
@@ -401,20 +473,21 @@ header { position: relative; }
 }
 /* ===== 印刷用 ===== */
 @media print {
+  :root { color-scheme: light; --bg: #f0f2f5; --surface: #fff; --border: #d0d0d0; --text: #333; --accent: #226d9d; --text-muted: #666; --heading: #1a5276; --action-bg: #1a5276; --on-action: #fff; --surface-soft: #f8fbff; --surface-blue: #eef6ff; --surface-hover: #e8f1fb; --surface-neutral: #f9f9f9; --success: #276749; --success-bg: #f0fff4; --success-action: #276749; --danger: #b52c2c; --danger-bg: #fff5f5; --danger-action: #b52c2c; --warning: #805b10; --warning-bg: #fffff0; --warning-action: #805b10; --highlight-bg: #fff3cd; --purple: #7d3c98; --secondary-action: #526174; }
   header, .tab-bar, .back-btn, #home-screen, footer, .btn, .tool-guide, .page-changelog, .note { display: none !important; }
-  body { background: #fff; }
+  body { background: var(--surface); }
   .tab-content.active { display: block !important; padding: 0; max-width: 100%; }
   .card { box-shadow: none; padding: 0; }
   .card h2 { font-size: 1.1rem; margin-bottom: 8px; }
   .form-group { margin-bottom: 8px; }
-  .result { background: #f8f8f8 !important; border: 1px solid #ddd; }
+  .result { background: var(--surface-neutral) !important; border: 1px solid var(--border); }
   .result-row { font-size: 0.9rem; }
   @page { margin: 15mm; }
 }
 </style>
 </head>
 <body>
-<header>
+<header class="page-header">
 <button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;">← 戻る</button>
 <h1>税務ツールボックス</h1>
 <p style="font-size:0.7rem; opacity:0.75; margin-top:4px;">最終更新: <span id="header-version">-</span> ｜ 社保料率: 令和8年度 ｜ 国保料率: 令和7年度</p>
@@ -467,71 +540,71 @@ header { position: relative; }
 </ul>
 </div>
 </details>
-<div class="home-card" onclick="switchTab('interest')">
-<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg></div>
-<div class="title">受取利息逆算</div>
-<div class="subtitle">入金額から税引前利息・源泉税を逆算</div>
-</div>
-<div class="home-card" onclick="switchTab('sales')">
-<div class="icon"><svg fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg></div>
-<div class="title">必要売上計算</div>
-<div class="subtitle">法人・個人対応。目標利益から必要売上高を算出</div>
-</div>
-<div class="home-card" onclick="switchTab('depreciation')">
-<div class="icon"><svg fill="none" stroke="#8e44ad" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg></div>
-<div class="title">耐用年数検索</div>
-<div class="subtitle">資産の法定耐用年数を検索</div>
-</div>
-<div class="home-card" onclick="switchTab('tax-rates')">
-<div class="icon"><svg fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg></div>
-<div class="title">税率一覧</div>
-<div class="subtitle">所得税・贈与税・相続税の速算表</div>
-</div>
-<div class="home-card" onclick="switchTab('tax-calendar')">
-<div class="icon"><svg fill="none" stroke="#c0392b" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></div>
-<div class="title">税務カレンダー</div>
-<div class="subtitle">月別の申告・納付期限一覧</div>
-</div>
-<div class="home-card" onclick="switchTab('wareki')">
-<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></svg></div>
-<div class="title">和暦⇔西暦変換</div>
-<div class="subtitle">改元年も月日で正確に相互変換</div>
-</div>
-<div class="home-card" onclick="switchTab('gensen-salary')">
-<div class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
-<div class="title">給与源泉税早見表</div>
-<div class="subtitle">月額表・金額入力でハイライト</div>
-</div>
-<div class="home-card" onclick="switchTab('gensen-hoshu')">
-<div class="icon"><svg fill="none" stroke="#16a085" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="9" x2="15" y1="15" y2="15"></line></svg></div>
-<div class="title">報酬源泉計算</div>
-<div class="subtitle">正算・逆算対応（10.21%/20.42%）</div>
-</div>
-<div class="home-card" onclick="switchTab('shuzenhi')">
-<div class="icon"><svg fill="none" stroke="#d35400" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"></path></svg></div>
-<div class="title">修繕費判定</div>
-<div class="subtitle">修繕費 or 資本的支出をフローチャートで判定</div>
-</div>
-<div class="home-card" onclick="switchTab('yakuin')">
-<div class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-<div class="title">役員報酬シミュレーション</div>
-<div class="subtitle">社保・所得税控除後の手取りを計算</div>
-</div>
-<div class="home-card" onclick="switchTab('kokuho')">
-<div class="icon"><svg fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
-<div class="title">国保シミュレーション</div>
-<div class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</div>
-</div>
-<div class="home-card" onclick="location.href='beta.html'" style="border:2px dashed #7d3c98;">
-<div class="icon"><svg fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg></div>
-<div class="title" style="color:#7d3c98;">Beta Lab</div>
-<div class="subtitle">試験中のツールを先行公開</div>
-</div>
-<div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
-<div class="icon"><svg fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></div>
-<div class="title">参考資料</div>
-<div class="subtitle">各ツールの出典・参考URL一覧</div>
-</div>
+<button type="button" class="home-card" onclick="switchTab('interest')">
+<span class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg></span>
+<span class="title">受取利息逆算</span>
+<span class="subtitle">入金額から税引前利息・源泉税を逆算</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('sales')">
+<span class="icon"><svg fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg></span>
+<span class="title">必要売上計算</span>
+<span class="subtitle">法人・個人対応。目標利益から必要売上高を算出</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('depreciation')">
+<span class="icon"><svg fill="none" stroke="#8e44ad" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg></span>
+<span class="title">耐用年数検索</span>
+<span class="subtitle">資産の法定耐用年数を検索</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('tax-rates')">
+<span class="icon"><svg fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg></span>
+<span class="title">税率一覧</span>
+<span class="subtitle">所得税・贈与税・相続税の速算表</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('tax-calendar')">
+<span class="icon"><svg fill="none" stroke="#c0392b" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></span>
+<span class="title">税務カレンダー</span>
+<span class="subtitle">月別の申告・納付期限一覧</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('wareki')">
+<span class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></svg></span>
+<span class="title">和暦⇔西暦変換</span>
+<span class="subtitle">改元年も月日で正確に相互変換</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('gensen-salary')">
+<span class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span>
+<span class="title">給与源泉税早見表</span>
+<span class="subtitle">月額表・金額入力でハイライト</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('gensen-hoshu')">
+<span class="icon"><svg fill="none" stroke="#16a085" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="9" x2="15" y1="15" y2="15"></line></svg></span>
+<span class="title">報酬源泉計算</span>
+<span class="subtitle">正算・逆算対応（10.21%/20.42%）</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('shuzenhi')">
+<span class="icon"><svg fill="none" stroke="#d35400" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"></path></svg></span>
+<span class="title">修繕費判定</span>
+<span class="subtitle">修繕費 or 資本的支出をフローチャートで判定</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('yakuin')">
+<span class="icon"><svg fill="none" stroke="#2c3e50" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+<span class="title">役員報酬シミュレーション</span>
+<span class="subtitle">社保・所得税控除後の手取りを計算</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('kokuho')">
+<span class="icon"><svg fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></span>
+<span class="title">国保シミュレーション</span>
+<span class="subtitle">大阪市の国民健康保険料を試算（軽減判定付き）</span>
+</button>
+<button type="button" class="home-card" onclick="location.href='beta.html'" style="border:2px dashed var(--purple);">
+<span class="icon"><svg fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg></span>
+<span class="title" style="color:var(--purple);">Beta Lab</span>
+<span class="subtitle">試験中のツールを先行公開</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('references')">
+<span class="icon"><svg fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></span>
+<span class="title">参考資料</span>
+<span class="subtitle">各ツールの出典・参考URL一覧</span>
+</button>
 <div style="grid-column: 1 / -1;">
 <details class="changelog">
 <summary>更新履歴</summary>
@@ -565,7 +638,7 @@ header { position: relative; }
 </details>
 <details class="changelog" style="margin-top:8px;">
 <summary>計算エンジン検証</summary>
-<p style="font-size:0.78rem; color:#666; margin:8px 0 6px;">公式例と照合して計算ロジックの正常性を確認します。</p>
+<p style="font-size:0.78rem; color:var(--text-muted); margin:8px 0 6px;">公式例と照合して計算ロジックの正常性を確認します。</p>
 <button class="btn" onclick="runGoldenTests()" style="font-size:0.78rem; padding:6px 16px;">検証実行</button>
 <div id="golden-test-result" style="margin-top:8px;"></div>
 </details>
@@ -664,7 +737,7 @@ header { position: relative; }
 <button class="btn" id="btn-sales" onclick="calcSales()">計算する</button>
 <div class="result" id="sales-result" style="display:none;"></div>
 <div id="sales-print-btn" style="display:none; margin-top:12px;">
-<button class="btn" onclick="printSales()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+<button class="btn" onclick="printSales()" style="background:var(--success-action);">資料を印刷</button>
 </div>
 <p class="note" id="sales-note">
       ※ 法人：所得800万以下を25%、800万超を35%で自動計算します<br/>
@@ -716,10 +789,10 @@ header { position: relative; }
 </select>
 </div>
 <div style="margin-bottom:12px;">
-<a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:#2980b9;"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg> 耐用年数を直接入力して償却計算 →</a>
+<a href="javascript:void(0)" onclick="openDepCalcManual()" style="font-size:0.85rem; color:var(--accent);"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg> 耐用年数を直接入力して償却計算 →</a>
 </div>
 <div id="dep-result"></div>
-<div class="card" id="dep-calc" style="display:none; margin-top:12px; border: 2px solid #2980b9;">
+<div class="card" id="dep-calc" style="display:none; margin-top:12px; border: 2px solid var(--accent);">
 <h2 id="dep-calc-title">償却計算</h2>
 <p class="desc" id="dep-calc-desc"></p>
 <div class="form-group">
@@ -734,7 +807,7 @@ header { position: relative; }
 <input id="dep-used-check" onchange="toggleUsedAsset()" type="checkbox"/> 中古資産（簡便法で耐用年数を計算）
         </label>
 </div>
-<div id="dep-used-section" style="display:none; background:#fef9e7; border:1px solid #f9e79f; border-radius:8px; padding:12px; margin-bottom:12px;">
+<div id="dep-used-section" style="display:none; background:var(--warning-bg); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px;">
 <div class="form-group" style="margin-bottom:8px;">
 <label style="font-size:0.82rem;">経過年数</label>
 <div style="display:flex; align-items:center; gap:8px;">
@@ -744,14 +817,14 @@ header { position: relative; }
 <span>ヶ月</span>
 </div>
 </div>
-<div id="dep-used-result" style="font-size:0.82rem; color:#7d6608;"></div>
+<div id="dep-used-result" style="font-size:0.82rem; color:var(--warning);"></div>
 </div>
 <div class="form-group">
 <label>取得価額（円）</label>
 <div class="input-prefix">
 <input id="dep-calc-cost" inputmode="numeric" oninput="formatDepCost(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();calcDepSchedule();}" placeholder="例: 1,000,000" type="text"/>
 </div>
-<div id="dep-cost-notes" style="font-size:0.78rem; color:#38a169; margin-top:4px;"></div>
+<div id="dep-cost-notes" style="font-size:0.78rem; color:var(--success); margin-top:4px;"></div>
 </div>
 <div class="form-group">
 <label>初年度の償却月数</label>
@@ -775,12 +848,12 @@ header { position: relative; }
 <input id="dep-kojin-check" onchange="toggleKojin()" type="checkbox"/> 個人（定額法に変更）
         </label>
 </div>
-<div id="dep-method-info" style="font-size:0.78rem; color:#666; margin-bottom:12px;"></div>
+<div id="dep-method-info" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;"></div>
 <button class="btn" id="btn-dep" onclick="calcDepSchedule()">計算する</button>
 <div id="dep-calc-result" style="display:none; margin-top:16px;">
 <div id="dep-calc-summary"></div>
-<div style="overflow-x:auto; margin-top:12px;">
-<table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:520px;"></table>
+<div class="table-scroll" tabindex="0" role="region" aria-label="減価償却計算結果" style="margin-top:12px;">
+<table id="dep-calc-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;"></table>
 </div>
 </div>
 </div>
@@ -878,7 +951,7 @@ header { position: relative; }
 </details>
 <div class="form-group">
 <label>年度</label>
-<select id="gensen-year" onchange="calcGensenSalary()" style="width:100%; padding:10px 12px; border:1px solid #d0d0d0; border-radius:8px; font-size:1rem;">
+<select id="gensen-year" onchange="calcGensenSalary()" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-size:1rem;">
 <option selected="" value="2026">令和8年（2026年）</option>
 <option value="2024">令和6年（2024年）※令和7年も同一</option>
 </select>
@@ -977,10 +1050,10 @@ header { position: relative; }
 </div>
 </details>
 <div style="margin-bottom:16px;">
-<button class="btn" onclick="toggleFlowOverview()" style="background:#718096; font-size:0.85rem; padding:8px 16px;"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg> フロー全体図を表示</button>
+<button class="btn" onclick="toggleFlowOverview()" style="background:var(--secondary-action); font-size:0.85rem; padding:8px 16px;"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><line x1="8" x2="16" y1="13" y2="13"></line><line x1="8" x2="16" y1="17" y2="17"></line></svg> フロー全体図を表示</button>
 </div>
 <div id="flow-overview" style="display:none; margin-bottom:20px;">
-<div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:20px 8px; overflow-x:auto;">
+<div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px 8px; overflow-x:auto;">
 <svg style="width:100%; max-width:540px; display:block; margin:0 auto; font-family:'Hiragino Sans','Hiragino Kaku Gothic ProN','Meiryo',sans-serif;" viewbox="0 0 540 780" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <marker id="ah" markerheight="6" markerwidth="8" orient="auto" refx="8" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#a0aec0"></path></marker>
@@ -1096,7 +1169,7 @@ header { position: relative; }
 <!-- 注釈 -->
 <text fill="#a0aec0" font-size="8.5" text-anchor="middle" x="270" y="756">※「取得価額」＝前年末の固定資産の取得価額＋既往の資本的支出額</text>
 </svg>
-<p style="font-size:0.72rem; color:#a0aec0; text-align:center; margin-top:10px;">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" style="color:#4a90b8;" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></p>
+<p style="font-size:0.72rem; color:var(--text-muted); text-align:center; margin-top:10px;">出典：<a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" style="color:var(--accent);" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></p>
 </div>
 </div>
 <div id="shuzenhi-flow">
@@ -1257,8 +1330,8 @@ header { position: relative; }
 <!-- 結果表示 -->
 <div class="flow-result" id="flow-result" style="display:none;"></div>
 </div>
-<button class="btn" id="flow-reset-btn" onclick="flowReset()" style="display:none; margin-top:16px; background:#718096;">最初からやり直す</button>
-<button class="btn" id="flow-print-btn" onclick="printFlow()" style="display:none; margin-top:16px; margin-left:8px; background:linear-gradient(135deg,#27ae60,#2ecc71);">判定結果を印刷</button>
+<button class="btn" id="flow-reset-btn" onclick="flowReset()" style="display:none; margin-top:16px; background:var(--secondary-action);">最初からやり直す</button>
+<button class="btn" id="flow-print-btn" onclick="printFlow()" style="display:none; margin-top:16px; background:var(--success-action);">判定結果を印刷</button>
 <p class="note" style="margin-top:24px;">
       ※ 国税庁 No.1379「修繕費とならないものの判定」に基づく判定フローです<br/>
       ※ 前年末取得価額＝固定資産の最初の取得価額＋既往の資本的支出額<br/>
@@ -1410,13 +1483,13 @@ function calcInterest() {
   html += '<div class="result-row"><span class="label">差引手取額（検算）</span><span class="value">¥' + fmt(netAmount) + '</span></div>';
 
   if (!found) {
-    html += '<p class="note" style="color:#c0392b;">※ 端数処理の関係で入金額と完全一致する金額が見つかりませんでした。最も近い値を表示しています。</p>';
+    html += '<p class="note" style="color:var(--danger);">※ 端数処理の関係で入金額と完全一致する金額が見つかりませんでした。最も近い値を表示しています。</p>';
   }
 
   // 仕訳例
-  html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid #e0e0e0;">';
-  html += '<div style="font-size:0.85rem; font-weight:600; color:#1a5276; margin-bottom:8px;">仕訳例</div>';
-  html += '<div style="font-size:0.8rem; color:#555; font-family:monospace; line-height:1.8;">';
+  html += '<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border);">';
+  html += '<div style="font-size:0.85rem; font-weight:600; color:var(--heading); margin-bottom:8px;">仕訳例</div>';
+  html += '<div style="font-size:0.8rem; color:var(--text-muted); font-family:monospace; line-height:1.8;">';
   html += '普通預金　　　' + fmt(deposit).padStart(10) + ' ／ ' + t.account + '　' + fmt(grossAmount).padStart(10) + '<br>';
   html += '仮払法人税等　' + fmt(nationalTax).padStart(10);
   html += '</div></div>';
@@ -1595,7 +1668,7 @@ function showCalendar() {
   const renderMonth = (m) => {
     const items = taxCalendarData[m];
     html += '<div style="margin-bottom:16px;">';
-    html += '<div style="font-weight:600; color:#1a5276; font-size:0.95rem; margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid #2980b9;">' + m + '月</div>';
+    html += '<div style="font-weight:600; color:var(--heading); font-size:0.95rem; margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent);">' + m + '月</div>';
     items.forEach(item => {
       html += '<div class="result-row"><span class="label">' + item.day + '</span><span class="value" style="font-size:0.85rem; text-align:right;">' + item.item + '</span></div>';
     });
@@ -2305,17 +2378,17 @@ function searchDepreciation() {
 
   let html = '';
   if (filtered.length === 0) {
-    html = '<div style="text-align:center; padding:20px; color:#999;">該当する資産が見つかりません</div>';
+    html = '<div style="text-align:center; padding:20px; color:var(--text-muted);">該当する資産が見つかりません</div>';
   } else {
-    html += '<div style="font-size:0.8rem; color:#888; margin-bottom:8px;">' + filtered.length + '件ヒット</div>';
+    html += '<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">' + filtered.length + '件ヒット</div>';
     filtered.forEach(d => {
-      html += '<div class="result-row" style="flex-wrap:wrap; gap:4px; cursor:pointer;" onclick="selectForCalc(\'' + d.category + '\',' + d.years + ',\'' + d.name.replace(/'/g, "\\'") + '\')">';
-      html += '<div><span style="display:inline-block; background:#e8f0fe; color:#1a5276; font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-right:6px;">' + d.category + '</span>';
-      html += '<span style="font-size:0.85rem;">' + d.name + '</span></div>';
+      html += '<button type="button" class="result-row dep-result-button" style="flex-wrap:wrap; gap:4px; cursor:pointer;" onclick="selectForCalc(\'' + d.category + '\',' + d.years + ',\'' + d.name.replace(/'/g, "\\'") + '\')">';
+      html += '<span><span style="display:inline-block; background:var(--surface-blue); color:var(--heading); font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-right:6px;">' + d.category + '</span>';
+      html += '<span style="font-size:0.85rem;">' + d.name + '</span></span>';
       html += '<span class="value">' + d.years + '年</span>';
-      html += '</div>';
+      html += '</button>';
       if (d.note) {
-        html += '<div style="font-size:0.7rem; color:#999; padding:0 0 6px 0;">※ ' + d.note + '</div>';
+        html += '<div style="font-size:0.7rem; color:var(--text-muted); padding:0 0 6px 0;">※ ' + d.note + '</div>';
       }
     });
   }
@@ -2379,7 +2452,7 @@ function toggleUsedAsset() {
 function calcUsedLife() {
   const statutoryLife = depOriginalLife || parseInt(document.getElementById('dep-calc-life').value) || 0;
   if (statutoryLife <= 0) {
-    document.getElementById('dep-used-result').innerHTML = '<span style="color:#e74c3c;">先に耐用年数を入力してください</span>';
+    document.getElementById('dep-used-result').innerHTML = '<span style="color:var(--danger);">先に耐用年数を入力してください</span>';
     return;
   }
 
@@ -2414,7 +2487,7 @@ function calcUsedLife() {
 
   document.getElementById('dep-used-result').innerHTML =
     '<div style="margin-bottom:4px;"><b>簡便法による耐用年数: ' + result + '年</b></div>' +
-    '<div style="font-size:0.75rem; color:#999;">' + formula + note + '</div>';
+    '<div style="font-size:0.75rem; color:var(--text-muted);">' + formula + note + '</div>';
 
   document.getElementById('dep-calc-life').value = result;
 }
@@ -2588,22 +2661,22 @@ function showDepScheduleResult(cost, life, methodName, rate, revisedRate, guaran
 
   // Summary
   let summaryHTML = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; margin-bottom:12px; font-size:0.85rem;">';
-  summaryHTML += '<div style="color:#888;">取得価額</div><div style="font-weight:600;">' + fmt(cost) + ' 円</div>';
-  summaryHTML += '<div style="color:#888;">耐用年数</div><div style="font-weight:600;">' + life + ' 年</div>';
-  summaryHTML += '<div style="color:#888;">償却方法</div><div style="font-weight:600;">' + methodName + '（償却率 ' + rate + '）</div>';
+  summaryHTML += '<div style="color:var(--text-muted);">取得価額</div><div style="font-weight:600;">' + fmt(cost) + ' 円</div>';
+  summaryHTML += '<div style="color:var(--text-muted);">耐用年数</div><div style="font-weight:600;">' + life + ' 年</div>';
+  summaryHTML += '<div style="color:var(--text-muted);">償却方法</div><div style="font-weight:600;">' + methodName + '（償却率 ' + rate + '）</div>';
   if (revisedRate !== null) {
-    summaryHTML += '<div style="color:#888;">改定償却率</div><div style="font-weight:600;">' + revisedRate + '</div>';
-    summaryHTML += '<div style="color:#888;">保証額</div><div style="font-weight:600;">' + fmt(guaranteeAmt) + ' 円（保証率 ' + guaranteeRate + '）</div>';
+    summaryHTML += '<div style="color:var(--text-muted);">改定償却率</div><div style="font-weight:600;">' + revisedRate + '</div>';
+    summaryHTML += '<div style="color:var(--text-muted);">保証額</div><div style="font-weight:600;">' + fmt(guaranteeAmt) + ' 円（保証率 ' + guaranteeRate + '）</div>';
   }
   summaryHTML += '</div>';
 
   // Highlight first year
   if (schedule.length > 0) {
     const first = schedule[0];
-    summaryHTML += '<div style="background:#eef6ff; border:2px solid #2980b9; border-radius:10px; padding:12px; text-align:center; margin-bottom:12px;">';
-    summaryHTML += '<div style="font-size:0.8rem; color:#666;">初年度償却額</div>';
-    summaryHTML += '<div style="font-size:1.6rem; font-weight:700; color:#c0392b; margin:4px 0;">¥' + fmt(first.dep) + '</div>';
-    summaryHTML += '<div style="font-size:0.8rem; color:#888;">期末簿価 ¥' + fmt(first.endBV) + '</div>';
+    summaryHTML += '<div style="background:var(--surface-blue); border:2px solid var(--accent); border-radius:10px; padding:12px; text-align:center; margin-bottom:12px;">';
+    summaryHTML += '<div style="font-size:0.8rem; color:var(--text-muted);">初年度償却額</div>';
+    summaryHTML += '<div style="font-size:1.6rem; font-weight:700; color:var(--danger); margin:4px 0;">¥' + fmt(first.dep) + '</div>';
+    summaryHTML += '<div style="font-size:0.8rem; color:var(--text-muted);">期末簿価 ¥' + fmt(first.endBV) + '</div>';
     summaryHTML += '</div>';
   }
 
@@ -2694,26 +2767,26 @@ function showTaxRates() {
   const table = taxRateTables[type];
 
   let html = '';
-  html += '<div style="font-weight:600; color:#1a5276; font-size:0.95rem; margin-bottom:12px;">' + table.title + '</div>';
+  html += '<div style="font-weight:600; color:var(--heading); font-size:0.95rem; margin-bottom:12px;">' + table.title + '</div>';
 
   if (table.exemptionLabel) {
-    html += '<div style="font-size:0.8rem; background:#fff3cd; padding:8px 12px; border-radius:6px; margin-bottom:12px; color:#856404;">' + table.exemptionLabel + '</div>';
+    html += '<div style="font-size:0.8rem; background:var(--highlight-bg); padding:8px 12px; border-radius:6px; margin-bottom:12px; color:var(--warning);">' + table.exemptionLabel + '</div>';
   }
 
   // 税率テーブル
   html += '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.8rem;">';
-  html += '<tr style="background:#1a5276; color:#fff;"><th style="padding:8px; text-align:left;">' + table.baseLabel + '</th><th style="padding:8px; text-align:center;">税率</th><th style="padding:8px; text-align:right;">控除額</th></tr>';
+  html += '<tr style="background:var(--action-bg); color:var(--on-action);"><th style="padding:8px; text-align:left;">' + table.baseLabel + '</th><th style="padding:8px; text-align:center;">税率</th><th style="padding:8px; text-align:right;">控除額</th></tr>';
 
   table.brackets.forEach((b, i) => {
     const isTarget = amount > 0 && (type.startsWith('gift') ? (amount - (table.exemption || 0)) : amount) > b.over && (type.startsWith('gift') ? (amount - (table.exemption || 0)) : amount) <= b.upto;
-    const bg = isTarget ? 'background:#eef6ff; font-weight:600;' : (i % 2 === 0 ? 'background:#f9f9f9;' : '');
+    const bg = isTarget ? 'background:var(--surface-blue); font-weight:600;' : (i % 2 === 0 ? 'background:var(--surface-neutral);' : '');
     const overStr = b.over === 0 ? '' : fmt(b.over) + '円超';
     const uptoStr = b.upto === Infinity ? '' : fmt(b.upto) + '円以下';
     const rangeStr = overStr + (overStr && uptoStr ? ' ～ ' : '') + uptoStr;
     html += '<tr style="' + bg + '">';
-    html += '<td style="padding:8px; border-bottom:1px solid #eee;">' + (rangeStr || '全額') + '</td>';
-    html += '<td style="padding:8px; text-align:center; border-bottom:1px solid #eee;">' + b.rate + '%</td>';
-    html += '<td style="padding:8px; text-align:right; border-bottom:1px solid #eee;">¥' + fmt(b.deduction) + '</td>';
+    html += '<td style="padding:8px; border-bottom:1px solid var(--border);">' + (rangeStr || '全額') + '</td>';
+    html += '<td style="padding:8px; text-align:center; border-bottom:1px solid var(--border);">' + b.rate + '%</td>';
+    html += '<td style="padding:8px; text-align:right; border-bottom:1px solid var(--border);">¥' + fmt(b.deduction) + '</td>';
     html += '</tr>';
   });
   html += '</table></div>';
@@ -3160,7 +3233,7 @@ function calcGensenSalary() {
     resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount">' + fmt(highBracketResult.tax) + ' 円</div><div class="label">' + highBracketResult.label + '</div></div>';
     resultCard.style.display = 'block';
   } else if (salary > 0) {
-    resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount" style="font-size:1rem; color:#666;">該当する範囲がありません</div><div class="label">表の範囲外（' + fmt(yearData.data[0][0]) + '〜' + fmt(tableMax) + '円に対応）</div></div>';
+    resultCard.innerHTML = '<div class="gensen-result-card"><div class="amount" style="font-size:1rem; color:var(--text-muted);">該当する範囲がありません</div><div class="label">表の範囲外（' + fmt(yearData.data[0][0]) + '〜' + fmt(tableMax) + '円に対応）</div></div>';
     resultCard.style.display = 'block';
   } else {
     resultCard.style.display = 'none';
@@ -3172,14 +3245,14 @@ function calcGensenSalary() {
     const r = highBracketResult;
     const ratePct = (r.rate * 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
     let html = '<div class="gensen-table-wrap" style="padding:16px;">';
-    html += '<div style="font-size:0.85rem; font-weight:600; color:#1a5276; margin-bottom:12px;">税率計算の内訳</div>';
+    html += '<div style="font-size:0.85rem; font-weight:600; color:var(--heading); margin-bottom:12px;">税率計算の内訳</div>';
     html += '<table class="gensen-table" style="font-size:0.85rem;">';
     html += '<tr class="gensen-highlight"><td style="text-align:left;">基準額（' + fmt(r.baseAmount) + '円）の税額</td><td style="text-align:right;">' + fmt(r.baseTax) + ' 円</td></tr>';
     html += '<tr><td style="text-align:left;">超過額: ' + fmt(salary) + ' − ' + fmt(r.baseAmount) + ' = ' + fmt(r.excess) + '円</td><td style="text-align:right;"></td></tr>';
     html += '<tr><td style="text-align:left;">超過分の税額: ' + fmt(r.excess) + ' × ' + ratePct + '%</td><td style="text-align:right;">' + fmt(r.excessTax) + ' 円</td></tr>';
-    html += '<tr style="font-weight:700; border-top:2px solid #1a5276;"><td style="text-align:left;">合計税額</td><td style="text-align:right;">' + fmt(r.tax) + ' 円</td></tr>';
+    html += '<tr style="font-weight:700; border-top:2px solid var(--border);"><td style="text-align:left;">合計税額</td><td style="text-align:right;">' + fmt(r.tax) + ' 円</td></tr>';
     html += '</table>';
-    html += '<p style="font-size:0.72rem; color:#999; margin-top:8px;">※ 税額表の範囲（〜' + fmt(tableMax) + '円）を超えるため、税率による算出式を適用しています。</p>';
+    html += '<p style="font-size:0.72rem; color:var(--text-muted); margin-top:8px;">※ 税額表の範囲（〜' + fmt(tableMax) + '円）を超えるため、税率による算出式を適用しています。</p>';
     html += '</div>';
     tableDiv.innerHTML = html;
   } else {
@@ -3315,14 +3388,14 @@ function calcHoshu() {
     const tax1 = Math.floor(1000000 * 0.1021);
     const tax2 = Math.floor((gross - 1000000) * 0.2042);
     html += '<div style="height:8px;"></div>';
-    html += '<div style="font-size:0.85rem; font-weight:600; color:#1a5276; margin-bottom:4px;">税額内訳</div>';
+    html += '<div style="font-size:0.85rem; font-weight:600; color:var(--heading); margin-bottom:4px;">税額内訳</div>';
     html += '<div class="result-row"><span class="label">100万円以下の部分（10.21%）</span><span class="value">¥' + fmt(tax1) + '</span></div>';
     html += '<div class="result-row"><span class="label">100万円超の部分（20.42%）</span><span class="value">¥' + fmt(tax2) + '</span></div>';
     html += '<div class="result-row"><span class="label">超過部分の金額</span><span class="value">¥' + fmt(gross - 1000000) + '</span></div>';
   }
 
   if (approx) {
-    html += '<p class="note" style="color:#c0392b;">※ 端数処理の関係で手取額と完全一致する金額が見つかりませんでした。最も近い値を表示しています。</p>';
+    html += '<p class="note" style="color:var(--danger);">※ 端数処理の関係で手取額と完全一致する金額が見つかりませんでした。最も近い値を表示しています。</p>';
   }
 
   const el = document.getElementById('hoshu-result');
@@ -3443,7 +3516,7 @@ function flowReset() {
 function calcAnbunDisaster() {
   const expense = parseInt(document.getElementById('flow-expense-d').value.replace(/[,，]/g, ''));
   if (isNaN(expense) || expense <= 0) {
-    document.getElementById('flow-anbun-result-d').innerHTML = '<span style="color:#e53e3e;">支出額を入力してください</span>';
+    document.getElementById('flow-anbun-result-d').innerHTML = '<span style="color:var(--danger);">支出額を入力してください</span>';
     document.getElementById('flow-anbun-result-d').style.display = 'block';
     return;
   }
@@ -3451,8 +3524,8 @@ function calcAnbunDisaster() {
   const shihon = expense - shuzenhi;
   const el = document.getElementById('flow-anbun-result-d');
   el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;">' +
-    '<tr style="border-bottom:2px solid #d69e2e;"><td style="padding:8px 0;font-weight:700;color:#38a169;">→ 修繕費（70%）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#38a169;">¥' + fmt(shuzenhi) + '</td></tr>' +
-    '<tr><td style="padding:6px 0;font-weight:700;color:#e53e3e;">→ 資本的支出（30%）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#e53e3e;">¥' + fmt(shihon) + '</td></tr>' +
+    '<tr style="border-bottom:2px solid var(--warning);"><td style="padding:8px 0;font-weight:700;color:var(--success);">→ 修繕費（70%）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:var(--success);">¥' + fmt(shuzenhi) + '</td></tr>' +
+    '<tr><td style="padding:6px 0;font-weight:700;color:var(--danger);">→ 資本的支出（30%）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:var(--danger);">¥' + fmt(shihon) + '</td></tr>' +
     '</table>';
   el.style.display = 'block';
 }
@@ -3461,7 +3534,7 @@ function calcAnbun() {
   const expense = parseInt(document.getElementById('flow-expense').value.replace(/[,，]/g, ''));
   const bookVal = parseInt(document.getElementById('flow-book-value').value.replace(/[,，]/g, ''));
   if (isNaN(expense) || isNaN(bookVal) || expense <= 0 || bookVal <= 0) {
-    document.getElementById('flow-anbun-result').innerHTML = '<span style="color:#e53e3e;">金額を入力してください</span>';
+    document.getElementById('flow-anbun-result').innerHTML = '<span style="color:var(--danger);">金額を入力してください</span>';
     document.getElementById('flow-anbun-result').style.display = 'block';
     return;
   }
@@ -3473,8 +3546,8 @@ function calcAnbun() {
   el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:0.9rem;">' +
     '<tr><td style="padding:6px 0;">支出額の30%</td><td style="text-align:right;font-weight:600;">¥' + fmt(a) + '</td></tr>' +
     '<tr><td style="padding:6px 0;">取得価額の10%</td><td style="text-align:right;font-weight:600;">¥' + fmt(b) + '</td></tr>' +
-    '<tr style="border-top:2px solid #d69e2e;"><td style="padding:8px 0;font-weight:700;color:#38a169;">→ 修繕費（A）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#38a169;">¥' + fmt(shuzenhi) + '</td></tr>' +
-    '<tr><td style="padding:6px 0;font-weight:700;color:#e53e3e;">→ 資本的支出</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:#e53e3e;">¥' + fmt(shihon) + '</td></tr>' +
+    '<tr style="border-top:2px solid var(--warning);"><td style="padding:8px 0;font-weight:700;color:var(--success);">→ 修繕費（A）</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:var(--success);">¥' + fmt(shuzenhi) + '</td></tr>' +
+    '<tr><td style="padding:6px 0;font-weight:700;color:var(--danger);">→ 資本的支出</td><td style="text-align:right;font-weight:700;font-size:1.1rem;color:var(--danger);">¥' + fmt(shihon) + '</td></tr>' +
     '</table>';
   el.style.display = 'block';
 }
@@ -3641,16 +3714,16 @@ function calcYakuin() {
   const takeHome2nd = takeHome1st - juminzeiJuly; // 2年目以降（住民税あり・7月〜）
 
   let html = '';
-  html += '<div style="font-size:0.78rem; color:#888; margin-bottom:8px;">標準報酬月額：第' + h.grade + '等級 ¥' + fmt(h.health) + (h.health !== h.pension ? '（厚年：¥' + fmt(h.pension) + '）' : '') + '</div>';
+  html += '<div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px;">標準報酬月額：第' + h.grade + '等級 ¥' + fmt(h.health) + (h.health !== h.pension ? '（厚年：¥' + fmt(h.pension) + '）' : '') + '</div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:12px 0 6px;">社会保険料（月額）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin:12px 0 6px;">社会保険料（月額）</div>';
   html += '<div class="result-row"><span class="label">健康保険料' + (ageType === '40to64' ? '（介護込）' : '') + '</span><span class="value">¥' + fmt(healthSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">厚生年金保険料</span><span class="value">¥' + fmt(pensionSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">子ども・子育て支援金</span><span class="value">¥' + fmt(kosodateSelf) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">社保等合計（本人負担）</span><span class="value">¥' + fmt(socialSelf) + '</span></div>';
-  html += '<div class="result-row" style="color:#888;"><span class="label">社保等合計（会社負担）</span><span class="value">¥' + fmt(socialComp) + '</span></div>';
+  html += '<div class="result-row" style="color:var(--text-muted);"><span class="label">社保等合計（会社負担）</span><span class="value">¥' + fmt(socialComp) + '</span></div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">所得税（概算）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin:16px 0 6px;">所得税（概算）</div>';
   html += '<div class="result-row"><span class="label">年間報酬</span><span class="value">¥' + fmt(annualSalary) + '</span></div>';
   html += '<div class="result-row"><span class="label">給与所得控除</span><span class="value">−¥' + fmt(kyuyoKojo) + '</span></div>';
   html += '<div class="result-row"><span class="label">給与所得</span><span class="value">¥' + fmt(kyuyoShotoku) + '</span></div>';
@@ -3658,29 +3731,29 @@ function calcYakuin() {
   html += '<div class="result-row"><span class="label">課税所得</span><span class="value">¥' + fmt(taxableIncome) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">所得税（月額概算・復興税込）</span><span class="value">¥' + fmt(incomeTaxMonthly) + '</span></div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">住民税（翌年課税・大阪市 概算）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin:16px 0 6px;">住民税（翌年課税・大阪市 概算）</div>';
   html += '<div class="result-row"><span class="label">住民税 課税所得</span><span class="value">¥' + fmt(juminTaxableIncome) + '</span></div>';
   html += '<div class="result-row"><span class="label">所得割（10%）− 調整控除</span><span class="value">¥' + fmt(juminShotokuWari) + '</span></div>';
   html += '<div class="result-row"><span class="label">均等割（市3,000+府1,000+森林1,000）</span><span class="value">¥' + fmt(juminKintoWari) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">住民税 年額概算</span><span class="value">¥' + fmt(juminzeiAnnual) + '</span></div>';
   html += '<div class="result-row"><span class="label">特別徴収 6月（端数調整）</span><span class="value">¥' + fmt(juminzeiJune) + '</span></div>';
   html += '<div class="result-row"><span class="label">特別徴収 7月〜翌5月（×11回）</span><span class="value">¥' + fmt(juminzeiJuly) + '</span></div>';
-  html += '<div style="font-size:0.72rem; color:#999; margin-top:4px;">※ 翌年6月〜翌々年5月に特別徴収。税額控除（ふるさと納税等）は未考慮</div>';
+  html += '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">※ 翌年6月〜翌々年5月に特別徴収。税額控除（ふるさと納税等）は未考慮</div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り（1年目・住民税なし）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin:16px 0 6px;">手取り（1年目・住民税なし）</div>';
   html += '<div class="result-row"><span class="label">額面</span><span class="value">¥' + fmt(monthly) + '</span></div>';
   html += '<div class="result-row"><span class="label">社保（本人）</span><span class="value">−¥' + fmt(socialSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">所得税</span><span class="value">−¥' + fmt(incomeTaxMonthly) + '</span></div>';
-  html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:#38a169;">¥' + fmt(takeHome1st) + '</span></div>';
+  html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:var(--success);">¥' + fmt(takeHome1st) + '</span></div>';
 
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#1a5276; margin:16px 0 6px;">手取り（2年目以降・7月〜翌5月）</div>';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin:16px 0 6px;">手取り（2年目以降・7月〜翌5月）</div>';
   html += '<div class="result-row"><span class="label">額面</span><span class="value">¥' + fmt(monthly) + '</span></div>';
   html += '<div class="result-row"><span class="label">社保（本人）</span><span class="value">−¥' + fmt(socialSelf) + '</span></div>';
   html += '<div class="result-row"><span class="label">所得税</span><span class="value">−¥' + fmt(incomeTaxMonthly) + '</span></div>';
   html += '<div class="result-row"><span class="label">住民税（7月〜翌5月）</span><span class="value">−¥' + fmt(juminzeiJuly) + '</span></div>';
-  html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:#38a169;">¥' + fmt(takeHome2nd) + '</span></div>';
+  html += '<div class="result-row highlight" style="font-size:1.1rem;"><span class="label">手取り概算（月額）</span><span class="value" style="color:var(--success);">¥' + fmt(takeHome2nd) + '</span></div>';
 
-  html += '<div class="result-row" style="color:#888; margin-top:8px;"><span class="label">会社の総コスト（月額）</span><span class="value">¥' + fmt(monthly + socialComp) + '</span></div>';
+  html += '<div class="result-row" style="color:var(--text-muted); margin-top:8px;"><span class="label">会社の総コスト（月額）</span><span class="value">¥' + fmt(monthly + socialComp) + '</span></div>';
 
   document.getElementById('yakuin-result').innerHTML = html;
   document.getElementById('yakuin-result').style.display = 'block';
@@ -3904,49 +3977,49 @@ function calcKokuho() {
 
   // 軽減表示
   if (keigen > 0) {
-    html += '<div style="background:#e8f5e9; border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:0.85rem; color:#2e7d32;">';
+    html += '<div style="background:var(--success-bg); border-radius:6px; padding:8px 12px; margin-bottom:12px; font-size:0.85rem; color:var(--success);">';
     html += '<strong>' + keigen + '割軽減</strong>が適用されます（均等割・平等割が' + (keigen * 10) + '%減額）';
     html += '</div>';
   }
 
-  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">算定基礎所得金額</div>';
+  html += '<div style="font-size:0.85rem; color:var(--heading); font-weight:600; margin-bottom:4px;">算定基礎所得金額</div>';
   html += '<div class="result-row"><span class="label">総所得金額等 − 基礎控除43万円</span><span class="value">¥' + fmt(santeiKiso) + '</span></div>';
-  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+  html += '<div style="border-top:1px solid var(--border); margin:12px 0;"></div>';
 
   // 医療分
-  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">医療分（賦課限度額 65万円）</div>';
+  html += '<div style="font-size:0.85rem; color:var(--heading); font-weight:600; margin-bottom:4px;">医療分（賦課限度額 65万円）</div>';
   html += '<div class="result-row"><span class="label">所得割（9.30%）</span><span class="value">¥' + fmt(iryo.shotokuWari) + '</span></div>';
   html += '<div class="result-row"><span class="label">均等割（34,424円×' + members + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(iryo.kintoAfter) + '</span></div>';
   html += '<div class="result-row"><span class="label">平等割（33,574円）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(iryo.byodoAfter) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">医療分 小計</span><span class="value">¥' + fmt(iryo.total) + '</span></div>';
   if (iryo.shotokuWari + iryo.kintoAfter + iryo.byodoAfter > RATE.iryo.limit) {
-    html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（65万円）に達しています</div>';
+    html += '<div style="font-size:0.75rem; color:var(--warning); margin-top:2px;">※ 賦課限度額（65万円）に達しています</div>';
   }
-  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+  html += '<div style="border-top:1px solid var(--border); margin:12px 0;"></div>';
 
   // 後期高齢者支援金分
-  html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">後期高齢者支援金分（賦課限度額 24万円）</div>';
+  html += '<div style="font-size:0.85rem; color:var(--heading); font-weight:600; margin-bottom:4px;">後期高齢者支援金分（賦課限度額 24万円）</div>';
   html += '<div class="result-row"><span class="label">所得割（3.02%）</span><span class="value">¥' + fmt(shien.shotokuWari) + '</span></div>';
   html += '<div class="result-row"><span class="label">均等割（11,034円×' + members + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(shien.kintoAfter) + '</span></div>';
   html += '<div class="result-row"><span class="label">平等割（10,761円）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(shien.byodoAfter) + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">支援金分 小計</span><span class="value">¥' + fmt(shien.total) + '</span></div>';
   if (shien.shotokuWari + shien.kintoAfter + shien.byodoAfter > RATE.shien.limit) {
-    html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（24万円）に達しています</div>';
+    html += '<div style="font-size:0.75rem; color:var(--warning); margin-top:2px;">※ 賦課限度額（24万円）に達しています</div>';
   }
-  html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+  html += '<div style="border-top:1px solid var(--border); margin:12px 0;"></div>';
 
   // 介護分
   if (kaigo) {
-    html += '<div style="font-size:0.85rem; color:#1a5276; font-weight:600; margin-bottom:4px;">介護分（賦課限度額 17万円）</div>';
+    html += '<div style="font-size:0.85rem; color:var(--heading); font-weight:600; margin-bottom:4px;">介護分（賦課限度額 17万円）</div>';
     html += '<div class="result-row"><span class="label">所得割（2.56%）</span><span class="value">¥' + fmt(kaigo.shotokuWari) + '</span></div>';
     html += '<div class="result-row"><span class="label">均等割（18,784円×' + kaigoMembers + '人）' + (keigen > 0 ? ' → ' + keigen + '割軽減' : '') + '</span><span class="value">¥' + fmt(kaigo.kintoAfter) + '</span></div>';
     html += '<div class="result-row highlight"><span class="label">介護分 小計</span><span class="value">¥' + fmt(kaigo.total) + '</span></div>';
     if (kaigo.shotokuWari + kaigo.kintoAfter > RATE.kaigo.limit) {
-      html += '<div style="font-size:0.75rem; color:#e65100; margin-top:2px;">※ 賦課限度額（17万円）に達しています</div>';
+      html += '<div style="font-size:0.75rem; color:var(--warning); margin-top:2px;">※ 賦課限度額（17万円）に達しています</div>';
     }
-    html += '<div style="border-top:1px solid #e2e8f0; margin:12px 0;"></div>';
+    html += '<div style="border-top:1px solid var(--border); margin:12px 0;"></div>';
   } else {
-    html += '<div style="font-size:0.85rem; color:#888; margin-bottom:12px;">介護分：対象者なし（40〜64歳が0人）</div>';
+    html += '<div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">介護分：対象者なし（40〜64歳が0人）</div>';
   }
 
   // 合計
@@ -4259,8 +4332,8 @@ calcGensenSalary();
 <button class="btn" id="btn-yakuin" onclick="calcYakuin()">計算する</button>
 <div class="result" id="yakuin-result" style="display:none;"></div>
 <div id="yakuin-print-btn" style="display:none; margin-top:12px;">
-<button class="btn" onclick="printYakuin()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
-<a href="beta.html#furusato" style="display:inline-block; margin-left:12px; font-size:0.85rem; color:#7d6b9e; text-decoration:none; vertical-align:middle;">ふるさと納税の限度額も試算する →</a>
+<button class="btn" onclick="printYakuin()" style="background:var(--success-action);">資料を印刷</button>
+<a href="beta.html#furusato" style="display:inline-block; margin-left:12px; font-size:0.85rem; color:var(--purple); text-decoration:none; vertical-align:middle;">ふるさと納税の限度額も試算する →</a>
 </div>
 <p class="note">
       ※ 協会けんぽ大阪府の料率で計算（年度は上のプルダウンで切替可能）<br/>
@@ -4306,7 +4379,7 @@ calcGensenSalary();
 <div class="input-prefix">
 <input id="kokuho-income" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcKokuho();}" placeholder="例: 4000000" type="text"/>
 </div>
-<span style="font-size:0.75rem; color:#888;">※ 事業所得・給与所得・不動産所得等の合計（世帯主＋被保険者全員分）</span>
+<span style="font-size:0.75rem; color:var(--text-muted);">※ 事業所得・給与所得・不動産所得等の合計（世帯主＋被保険者全員分）</span>
 </div>
 <div class="form-group">
 <label>被保険者数（世帯主を含む）</label>
@@ -4333,12 +4406,12 @@ calcGensenSalary();
 <option value="2">2人</option>
 <option value="3">3人</option>
 </select>
-<span style="font-size:0.75rem; color:#888;">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
+<span style="font-size:0.75rem; color:var(--text-muted);">※ 給与収入55万超 or 公的年金収入60万超（65歳未満）/125万超（65歳以上）の人数（軽減判定用）</span>
 </div>
 <button class="btn" id="btn-kokuho" onclick="calcKokuho()">計算する</button>
 <div class="result" id="kokuho-result" style="display:none;"></div>
 <div id="kokuho-print-btn" style="display:none; margin-top:12px;">
-<button class="btn" onclick="printKokuho()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+<button class="btn" onclick="printKokuho()" style="background:var(--success-action);">資料を印刷</button>
 </div>
 <p class="note">
       ※ 大阪府統一保険料率で計算（年度は上のプルダウンで切替可能）<br/>
@@ -4380,11 +4453,11 @@ calcGensenSalary();
 <label>西暦</label>
 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
 <input id="s2w-year" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();convertWareki();}" oninput="convertWareki()" placeholder="例: 2026" style="max-width:120px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">年</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">年</span>
 <input id="s2w-month" inputmode="numeric" oninput="convertWareki()" placeholder="月" style="max-width:70px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">月</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">月</span>
 <input id="s2w-day" inputmode="numeric" oninput="convertWareki()" placeholder="日" style="max-width:70px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">日</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">日</span>
 </div>
 <p class="note" style="margin-top:6px;">月・日は任意（改元年の判定に使用）</p>
 </div>
@@ -4402,11 +4475,11 @@ calcGensenSalary();
 <option value="meiji">明治</option>
 </select>
 <input id="w2s-year" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();convertWareki();}" oninput="convertWareki()" placeholder="年" style="max-width:90px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">年</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">年</span>
 <input id="w2s-month" inputmode="numeric" oninput="convertWareki()" placeholder="月" style="max-width:70px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">月</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">月</span>
 <input id="w2s-day" inputmode="numeric" oninput="convertWareki()" placeholder="日" style="max-width:70px;" type="text"/>
-<span style="color:#555; font-size:0.9rem;">日</span>
+<span style="color:var(--text-muted); font-size:0.9rem;">日</span>
 </div>
 <p class="note" style="margin-top:6px;">「元年」は 1 を入力してください</p>
 </div>
@@ -4414,8 +4487,8 @@ calcGensenSalary();
 <button class="btn" id="btn-wareki" onclick="convertWareki()">変換する</button>
 <div class="result" id="wareki-result" style="display:none;"></div>
 <div class="note" id="wareki-today" style="margin-top:12px;"></div>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:20px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">元号一覧</h3>
-<div class="result" style="display:block; background:#f8fafc;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:20px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">元号一覧</h3>
+<div class="result" style="display:block; background:var(--surface-soft);">
 <div class="result-row"><span class="label">令和</span><span class="value">2019/5/1 〜</span></div>
 <div class="result-row"><span class="label">平成</span><span class="value">1989/1/8 〜 2019/4/30</span></div>
 <div class="result-row"><span class="label">昭和</span><span class="value">1926/12/25 〜 1989/1/7</span></div>
@@ -4459,7 +4532,7 @@ function fmtWarekiYear(era, wy){ return era.name + (wy === 1 ? '元' : wy) + '�
 function wRow(l, v){ return '<div class="result-row"><span class="label">'+l+'</span><span class="value">'+v+'</span></div>'; }
 function wRowHi(l, v){ return '<div class="result-row highlight"><span class="label">'+l+'</span><span class="value">'+v+'</span></div>'; }
 function wNote(t){ return '<p class="note" style="margin:0 0 8px;">'+t+'</p>'; }
-function wWarn(t){ return '<p class="note" style="color:#c0392b; margin:0;">'+t+'</p>'; }
+function wWarn(t){ return '<p class="note" style="color:var(--danger); margin:0;">'+t+'</p>'; }
 
 function warekiInt(id){
   var v = (document.getElementById(id).value || '').replace(/[,，、\s]/g, '');
@@ -4542,7 +4615,7 @@ function convertWarekiW2S(){
   var html = wRowHi(waStr, '西暦 ' + seiStr);
   var maxY = WAREKI_MAXYEAR[eraId];
   if (maxY !== null && wy > maxY){
-    html += '<p class="note" style="color:#c0392b; margin:8px 0 0;">※ ' + era.name + 'は' + era.name + maxY + '年（' + (era.startYear + maxY - 1) + '年）までです。入力年は次の元号の期間に入ります。</p>';
+    html += '<p class="note" style="color:var(--danger); margin:8px 0 0;">※ ' + era.name + 'は' + era.name + maxY + '年（' + (era.startYear + maxY - 1) + '年）までです。入力年は次の元号の期間に入ります。</p>';
   }
   showWarekiResult(html);
 }
@@ -4559,51 +4632,51 @@ showWarekiToday();
 <div class="card">
 <h2>参考資料・出典一覧</h2>
 <p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">受取利息逆算</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">受取利息逆算</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li>源泉所得税率 15.315%（所得税15% + 復興特別所得税0.315%）</li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2880.htm" target="_blank">国税庁 No.2880 預貯金の利子所得と税金</a></li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">必要売上計算</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">必要売上計算</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li>法人実効税率：所得800万以下 約25%、800万超 約35%（中小法人の概算）</li>
 <li>損益分岐点・安全余裕率の計算式は管理会計の一般的な手法</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">耐用年数検索</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">耐用年数検索</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2100.htm" target="_blank">国税庁 No.2100 減価償却のあらまし</a></li>
 <li><a href="https://www.tax.metro.tokyo.lg.jp/shisan/info/hyo01_01.pdf" target="_blank">東京都主税局 耐用年数表</a></li>
 <li>減価償却率：定額法・定率法（200%）の率表（平成24年4月以降取得分）</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税率一覧</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">税率一覧</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/zoyo/4408.htm" target="_blank">国税庁 No.4408 贈与税の計算と税率</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/sozoku/4155.htm" target="_blank">国税庁 No.4155 相続税の税率</a></li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">税務カレンダー</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">税務カレンダー</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/taxes/nozei/nofu/01.htm" target="_blank">国税庁 税の届出・申告・納付</a></li>
 <li>各税目の法定申告期限・納付期限を月別に整理</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">給与源泉税早見表</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">給与源泉税早見表</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2024/02.htm" target="_blank">国税庁 令和6年分 源泉徴収税額表</a></li>
 <li><a href="https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2025/02.htm" target="_blank">国税庁 令和7年分 源泉徴収税額表</a></li>
 <li>月額表（甲欄）の税額データをExcelファイルから抽出・整形して使用</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">報酬源泉計算</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">報酬源泉計算</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/gensen/2795.htm" target="_blank">国税庁 No.2795 原稿料や講演料等を支払ったとき</a></li>
 <li>税率：100万円以下 10.21%、100万円超 20.42%（復興特別所得税含む）</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">修繕費判定フローチャート</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">修繕費判定フローチャート</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1379.htm" target="_blank">国税庁 No.1379 修繕費とならないものの判定</a></li>
 <li>法人税基本通達 7-8-1〜7-8-6（修繕費と資本的支出の区分）</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">役員報酬シミュレーション</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">役員報酬シミュレーション</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.kyoukaikenpo.or.jp/g7/cat330/sb3150/r08/r8ryougakuhyou3gatukara/" target="_blank">協会けんぽ 令和8年度保険料額表</a>（大阪府）</li>
 <li>健保料率：大阪府 10.13%（介護なし）/ 11.75%（介護あり・40〜64歳）</li>
 <li>厚生年金保険料率：18.300%（全国一律）</li>
@@ -4612,8 +4685,8 @@ showWarekiToday();
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1199.htm" target="_blank">国税庁 No.1199 基礎控除</a>（令和7年分：58万円）</li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
 </ul>
-<h3 style="font-size:0.9rem; color:#1a5276; margin:16px 0 8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px;">国保シミュレーション</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">国保シミュレーション</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000624098.html" target="_blank">大阪市 保険料の決め方（令和7年度）</a></li>
 <li><a href="https://www.city.osaka.lg.jp/fukushima/page/0000624311.html" target="_blank">大阪市 令和7年度国民健康保険料のお知らせ</a></li>
 <li><a href="https://www.city.osaka.lg.jp/fukushi/page/0000369751.html" target="_blank">大阪市 保険料の軽減・減免</a></li>
@@ -4709,22 +4782,22 @@ function runGoldenTests() {
       var actual = t.fn();
       var ok = actual === t.expected;
       if (ok) { pass++; } else { fail++; }
-      html += '<div style="color:' + (ok ? '#27ae60' : '#c0392b') + ';">'
+      html += '<div style="color:' + (ok ? 'var(--success)' : 'var(--danger)') + ';">'
         + (ok ? 'PASS' : 'FAIL') + ' ' + t.name
         + (ok ? '' : ' (期待: ' + t.expected.toLocaleString() + ', 実際: ' + actual.toLocaleString() + ')')
-        + ' <span style="color:#999; font-size:0.7rem;">— ' + t.source + '</span></div>';
+        + ' <span style="color:var(--text-muted); font-size:0.7rem;">— ' + t.source + '</span></div>';
     } catch(e) {
       fail++;
-      html += '<div style="color:#c0392b;">ERROR ' + t.name + ': ' + e.message + '</div>';
+      html += '<div style="color:var(--danger);">ERROR ' + t.name + ': ' + e.message + '</div>';
     }
   }
-  html += '<div style="margin-top:8px; font-weight:600; color:' + (fail === 0 ? '#27ae60' : '#c0392b') + ';">'
+  html += '<div style="margin-top:8px; font-weight:600; color:' + (fail === 0 ? 'var(--success)' : 'var(--danger)') + ';">'
     + pass + '/' + (pass + fail) + ' 件 PASS' + (fail > 0 ? ' (' + fail + ' 件 FAIL)' : ' — 全件正常') + '</div>';
   html += '</div>';
   document.getElementById('golden-test-result').innerHTML = html;
 }
 </script>
-<footer style="background:#1a5276; color:rgba(255,255,255,0.7); text-align:center; padding:16px 20px; font-size:0.75rem; line-height:1.8;">
+<footer style="background:var(--action-bg); color:rgba(255,255,255,0.7); text-align:center; padding:16px 20px; font-size:0.75rem; line-height:1.8;">
 <p style="margin-bottom:4px;"><svg fill="none" stroke="#f39c12" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg> 本ツールの計算結果は簡易的な参考値です。実際の税務判断は必ず税理士等の専門家にご相談ください。<br/>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
 <p>© 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
 </footer>
