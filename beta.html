@@ -14,34 +14,114 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>税務ツールボックス Beta</title>
 <style>
+:root {
+  color-scheme: light;
+  --bg: #f0f2f5;
+  --surface: #fff;
+  --border: #d0d0d0;
+  --text: #333;
+  --accent: #226d9d;
+  --text-muted: #666;
+  --heading: #1a5276;
+  --action-bg: #1a5276;
+  --on-action: #fff;
+  --surface-soft: #f8fbff;
+  --surface-blue: #eef6ff;
+  --surface-hover: #e8f1fb;
+  --surface-neutral: #f9f9f9;
+  --success: #276749;
+  --success-bg: #f0fff4;
+  --success-action: #276749;
+  --danger: #b52c2c;
+  --danger-bg: #fff5f5;
+  --danger-action: #b52c2c;
+  --warning: #805b10;
+  --warning-bg: #fffff0;
+  --warning-action: #805b10;
+  --highlight-bg: #fff3cd;
+  --purple: #7d3c98;
+  --secondary-action: #526174;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #151b23;
+    --surface: #202a36;
+    --border: #526174;
+    --text: #edf2f7;
+    --accent: #8cc9f0;
+    --text-muted: #c0cad6;
+    --heading: #9ed1f1;
+    --action-bg: #244e6b;
+    --on-action: #fff;
+    --surface-soft: #243243;
+    --surface-blue: #293d54;
+    --surface-hover: #30465e;
+    --surface-neutral: #29333f;
+    --success: #8fe0b1;
+    --success-bg: #203d30;
+    --success-action: #276749;
+    --danger: #ffb5b5;
+    --danger-bg: #442b32;
+    --danger-action: #b52c2c;
+    --warning: #f1d17a;
+    --warning-bg: #403820;
+    --warning-action: #805b10;
+    --highlight-bg: #4b4024;
+    --purple: #d8adeb;
+    --secondary-action: #526174;
+  }
+}
+
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.page-header :focus-visible, footer :focus-visible { outline-color: var(--on-action); }
+button, summary { min-height: 44px; }
+button { font-family: inherit; }
+input, select, textarea { background: var(--surface); color: var(--text); }
+input::placeholder { color: var(--text-muted); opacity: 1; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+.home-grid > *, .card, .result-row > * { min-width: 0; }
+.home-card { width: 100%; min-width: 0; font: inherit; color: var(--text); }
+.home-card .title, .home-card .subtitle { display: block; }
+.result-row { gap: 8px; flex-wrap: wrap; }
+.result-row .value, .wall-ref-table { font-variant-numeric: tabular-nums; }
+.mf-notes-toggle, .be-notes-toggle {
+  width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text-muted); font: inherit;
+  font-size: 0.78rem; text-align: left; padding: 8px 12px; cursor: pointer;
+}
+.mf-notes-toggle:hover, .be-notes-toggle:hover { background: var(--surface-hover); }
+.google-visualization-tooltip { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border) !important; }
+.google-visualization-tooltip text { fill: var(--text) !important; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-  background: #f0f2f5;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
 }
-header {
-  background: linear-gradient(135deg, #4a235a, #7d3c98);
-  color: #fff;
+.page-header {
+  background: var(--action-bg);
+  color: var(--on-action);
   padding: 16px 20px;
   text-align: center;
   position: relative;
 }
-header h1 { font-size: 1.3rem; font-weight: 600; }
-header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+.page-header h1 { font-size: 1.3rem; font-weight: 600; }
+.page-header .subtitle { font-size: 0.75rem; margin-top: 2px; }
 .back-to-main {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
+  position: static;
+  min-height: 44px;
+  margin-right: 12px;
+  color: var(--on-action);
   text-decoration: none;
   font-size: 0.85rem;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  opacity: 0.9;
 }
 .back-to-main:hover { opacity: 1; }
 .back-btn {
@@ -50,12 +130,11 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
   gap: 4px;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--on-action);
   font-size: 0.9rem;
   cursor: pointer;
-  position: absolute;
-  right: 16px;
-  top: 16px;
+  position: static;
+  min-width: 44px;
 }
 .back-btn:hover { opacity: 0.8; }
 /* ホーム画面 */
@@ -68,8 +147,8 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
   margin: 0 auto;
 }
 .home-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
   padding: 20px 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   cursor: pointer;
@@ -80,7 +159,7 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
 .home-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  border-color: #7d3c98;
+  border-color: var(--accent);
 }
 .home-card .icon {
   font-size: 2rem;
@@ -97,19 +176,19 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
 .home-card .title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #4a235a;
+  color: var(--heading);
   margin-bottom: 4px;
 }
 .home-card .subtitle {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 /* タブバー */
 .tab-bar {
   display: flex;
-  background: #fff;
-  border-bottom: 2px solid #e0e0e0;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
   overflow-x: auto;
 }
 .tab-bar button {
@@ -117,17 +196,17 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
   min-width: 80px;
   padding: 12px 8px;
   border: none;
-  background: #fff;
+  background: var(--surface);
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-muted);
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   white-space: nowrap;
 }
 .tab-bar button.active {
-  color: #4a235a;
-  border-bottom-color: #7d3c98;
+  color: var(--heading);
+  border-bottom-color: var(--accent);
   font-weight: 600;
 }
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -176,14 +255,14 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
 .pt-left, .pt-right { min-width: 0; }
 .pt-section-title {
   font-size: 0.9rem;
-  color: #4a235a;
+  color: var(--heading);
   margin: 18px 0 10px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #e0d4e8;
+  border-bottom: 1px solid var(--border);
 }
 .pt-section-title:first-child { margin-top: 0; }
 .pt-fieldset { border: 0; min-width: 0; margin-bottom: 14px; }
-.pt-fieldset legend { font-size: 0.85rem; font-weight: 500; color: #555; margin-bottom: 6px; }
+.pt-fieldset legend { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
 .pt-radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .pt-radio-group label {
   display: inline-flex;
@@ -191,70 +270,71 @@ header .subtitle { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
   gap: 7px;
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   cursor: pointer;
   font-size: 0.84rem;
 }
-.pt-radio-group input { width: 18px; height: 18px; accent-color: #7d3c98; }
-.pt-help { margin-top: 5px; font-size: 0.74rem; color: #666; line-height: 1.65; }
+.pt-radio-group input { width: 18px; height: 18px; accent-color: var(--accent); }
+.pt-help { margin-top: 5px; font-size: 0.74rem; color: var(--text-muted); line-height: 1.65; }
 .pt-help ol { margin: 5px 0 0 20px; }
 .pt-result-block {
-  border: 1px solid #e1e5e8;
-  border-left: 5px solid #7d3c98;
-  border-radius: 9px;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: var(--radius);
   padding: 14px;
   margin-bottom: 12px;
-  background: #fff;
+  background: var(--surface);
   overflow-wrap: anywhere;
 }
-.pt-result-block h3 { font-size: 0.92rem; color: #4a235a; margin-bottom: 8px; }
-.pt-result-block p { font-size: 0.82rem; color: #444; line-height: 1.7; margin-top: 5px; }
-.pt-result-block .pt-main { font-size: 1.12rem; font-weight: 700; color: #4a235a; }
-.pt-result-block.pt-good { border-left-color: #27ae60; }
-.pt-result-block.pt-warn { border-left-color: #e67e22; background: #fffaf4; }
-.pt-result-block.pt-bad { border-left-color: #e74c3c; background: #fff7f6; }
-.pt-status-good { color: #19733f; font-weight: 700; }
-.pt-status-warn { color: #9a4d08; font-weight: 700; }
-.pt-status-bad { color: #b83227; font-weight: 700; }
-.pt-notices { font-size: 0.77rem; color: #555; line-height: 1.75; }
+.pt-result-block h3 { font-size: 0.92rem; color: var(--heading); margin-bottom: 8px; }
+.pt-result-block p { font-size: 0.82rem; color: var(--text); line-height: 1.7; margin-top: 5px; }
+.pt-result-block .pt-main { font-size: 1.12rem; font-weight: 700; color: var(--heading); }
+.pt-result-block.pt-good { border-left-color: var(--success); }
+.pt-result-block.pt-warn { border-left-color: var(--warning); background: var(--warning-bg); }
+.pt-result-block.pt-bad { border-left-color: var(--danger); background: var(--danger-bg); }
+.pt-status-good { color: var(--success); font-weight: 700; }
+.pt-status-warn { color: var(--warning); font-weight: 700; }
+.pt-status-bad { color: var(--danger); font-weight: 700; }
+.pt-notices { font-size: 0.77rem; color: var(--text-muted); line-height: 1.75; }
 .pt-notices ul { padding-left: 18px; }
 .pt-disabled { opacity: 0.55; }
 .pt-input-card .form-group input, .pt-input-card .form-group select { min-height: 44px; }
 .pt-input-card details.tool-guide summary { min-height: 44px; display: flex; align-items: center; }
 button.home-card { width: 100%; font: inherit; color: inherit; }
 button.home-card .title, button.home-card .subtitle { display: block; }
-button.home-card .subtitle, #tab-parttime .desc, #tab-parttime .page-changelog { color: #666; }
+button.home-card .subtitle, #tab-parttime .desc, #tab-parttime .page-changelog { color: var(--text-muted); }
 .pt-reference-list a { display: inline-flex; align-items: center; min-height: 44px; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
-  outline: 3px solid #1a73e8;
-  outline-offset: 3px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 @media (min-width: 900px) {
   .pt-layout { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); align-items: start; }
 }
 @media (max-width: 430px) {
+  .home-grid { grid-template-columns: minmax(0, 1fr); }
   .tab-content { padding: 12px; }
   .card { padding: 16px; }
   .pt-radio-group { flex-direction: column; }
   .pt-radio-group label { width: 100%; }
 }
 .card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
   padding: 20px;
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .card h2 {
   font-size: 1.05rem;
-  color: #4a235a;
+  color: var(--heading);
   margin-bottom: 4px;
 }
 .card .desc {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 .form-group { margin-bottom: 14px; }
@@ -263,26 +343,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   font-size: 0.85rem;
   font-weight: 500;
   margin-bottom: 4px;
-  color: #555;
+  color: var(--text-muted);
 }
 .form-group input, .form-group select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 1rem;
-  outline: none;
   transition: border-color 0.2s;
 }
 .form-group input:focus, .form-group select:focus {
-  border-color: #7d3c98;
+  border-color: var(--accent);
 }
 .btn {
   display: block;
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #4a235a, #7d3c98);
-  color: #fff;
+  background: var(--action-bg);
+  color: var(--on-action);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -299,19 +378,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
-.tool-guide { background:#f5f0f7; border:1px solid #e0d4e8; border-radius:8px; margin-bottom:16px; font-size:0.82rem; line-height:1.7; }
-.tool-guide summary { cursor:pointer; padding:8px 12px; font-weight:600; color:#4a235a; font-size:0.82rem; }
-.tool-guide summary:hover { background:#ede5f2; border-radius:8px; }
-.tool-guide .guide-body { padding:4px 14px 12px; color:#555; }
-.tool-guide .guide-body dt { font-weight:600; color:#4a235a; margin-top:8px; }
+.tool-guide { background:var(--surface-blue); border:1px solid var(--border); border-radius:8px; margin-bottom:16px; font-size:0.82rem; line-height:1.7; }
+.tool-guide summary { cursor:pointer; padding:8px 12px; font-weight:600; color:var(--heading); font-size:0.82rem; }
+.tool-guide summary:hover { background:var(--surface-hover); border-radius:8px; }
+.tool-guide .guide-body { padding:4px 14px 12px; color:var(--text-muted); }
+.tool-guide .guide-body dt { font-weight:600; color:var(--heading); margin-top:8px; }
 .tool-guide .guide-body dd { margin:2px 0 0 0; }
 .tool-guide .guide-body ul { padding-left:18px; margin:4px 0; }
 .note {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 10px;
   line-height: 1.5;
 }
@@ -319,23 +398,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ===== 結果表示・入力プレフィックス ===== */
 .result {
   margin-top: 16px;
-  background: #f8fbff;
-  border: 1px solid #d6e9f8;
-  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 16px;
 }
 .result-row {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid #eef3f8;
+  border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
 }
 .result-row:last-child { border-bottom: none; }
-.result-row .label { color: #666; }
-.result-row .value { font-weight: 600; color: #4a235a; }
-.result-row.highlight { background: #f5f0f7; margin: 0 -16px; padding: 10px 16px; border-radius: 6px; }
-.result-row.highlight .value { font-size: 1.1rem; color: #c0392b; }
+.result-row .label { color: var(--text-muted); }
+.result-row .value { font-weight: 600; color: var(--heading); }
+.result-row.highlight { background: var(--surface-blue); margin: 0 -16px; padding: 10px 16px; border-radius: 6px; }
+.result-row.highlight .value { font-size: 1.1rem; color: var(--danger); }
 .input-prefix {
   position: relative;
 }
@@ -348,7 +427,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #999;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -360,7 +439,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .wall-bar {
   position: relative;
   height: 8px;
-  background: #e8e8e8;
+  background: var(--border);
   border-radius: 4px;
   margin: 0 0 8px 0;
 }
@@ -377,13 +456,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   transition: background 0.3s, opacity 0.3s;
 }
 .wall-item.active {
-  background: #fff8e1;
+  background: var(--warning-bg);
 }
 .wall-item.exceeded {
-  background: #fce4ec;
+  background: var(--danger-bg);
 }
 .wall-item.safe {
-  background: #f1f8e9;
+  background: var(--success-bg);
 }
 .wall-item .wall-amount {
   font-size: 1.1rem;
@@ -397,7 +476,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .wall-item .wall-detail {
   font-size: 0.78rem;
-  color: #666;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 .wall-item .wall-impact {
@@ -409,16 +488,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   font-weight: 600;
 }
 .wall-item.exceeded .wall-impact {
-  background: #ffcdd2;
-  color: #c62828;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 .wall-item.safe .wall-impact {
-  background: #dcedc8;
-  color: #33691e;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .wall-item.active .wall-impact {
-  background: #fff9c4;
-  color: #f57f17;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 .legend {
   display: flex;
@@ -439,15 +518,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .category-header {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #4a235a;
+  color: var(--heading);
   margin: 16px 0 8px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #e0d4e8;
+  border-bottom: 1px solid var(--border);
 }
 .summary-box {
-  background: #f5f0f7;
-  border: 2px solid #7d3c98;
-  border-radius: 10px;
+  background: var(--surface-blue);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
   padding: 16px;
   margin-bottom: 16px;
   text-align: center;
@@ -455,11 +534,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .summary-box .income-display {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #4a235a;
+  color: var(--heading);
 }
 .summary-box .summary-text {
   font-size: 0.82rem;
-  color: #666;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 .wall-section { margin-bottom: 20px; }
@@ -472,16 +551,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   margin-bottom: 16px;
 }
 .wall-ref-table th {
-  background: #f5f0f7;
-  color: #4a235a;
+  background: var(--surface-blue);
+  color: var(--heading);
   text-align: left;
   padding: 8px 10px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   font-size: 0.78rem;
 }
 .wall-ref-table td {
   padding: 7px 10px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border);
   vertical-align: top;
   line-height: 1.5;
 }
@@ -496,28 +575,28 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .wall-ref-table .col-detail {
   font-size: 0.78rem;
-  color: #444;
+  color: var(--text);
 }
 .wall-ref-table .col-note {
   font-size: 0.72rem;
-  color: #888;
+  color: var(--text-muted);
   width: 25%;
 }
 .wall-ref-cat {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #4a235a;
+  color: var(--heading);
   margin: 14px 0 6px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #e0d4e8;
+  border-bottom: 1px solid var(--border);
 }
 
 /* ===== 壁マップ（数直線チャート） ===== */
 .wall-map {
   position: relative;
-  background: #f9f6fc;
-  border: 1px solid #e0d4e8;
-  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 24px 20px 16px;
   margin-bottom: 20px;
   overflow-x: auto;
@@ -525,7 +604,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .wall-map-title {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #4a235a;
+  color: var(--heading);
   margin-bottom: 12px;
 }
 .wall-map-axis {
@@ -539,7 +618,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   left: 0;
   right: 0;
   height: 4px;
-  background: #d5c8e0;
+  background: var(--border);
   border-radius: 2px;
 }
 .wall-map-fill {
@@ -547,7 +626,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   top: 28px;
   left: 0;
   height: 4px;
-  background: linear-gradient(90deg, #66bb6a, #ffca28, #ef5350);
+  background: var(--accent);
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -569,7 +648,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   height: 12px;
   border-radius: 50%;
   margin: 0 auto;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 .wall-map-marker .marker-label {
@@ -597,14 +676,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 10px solid #4a235a;
+  border-top: 10px solid var(--action-bg);
   margin: 0 auto;
 }
 .wall-map-you .you-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #fff;
-  background: #4a235a;
+  color: var(--on-action);
+  background: var(--action-bg);
   padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
@@ -614,29 +693,59 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   gap: 12px;
   margin-top: 8px;
   font-size: 0.65rem;
-  color: #888;
+  color: var(--text-muted);
   justify-content: center;
 }
-.page-changelog { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; font-size: 0.7rem; color: #aaa; line-height: 1.6; }
-.changelog { margin-top: 20px; font-size: 0.72rem; color: #999; line-height: 1.7; }
-.changelog summary { cursor: pointer; font-weight: 500; color: #888; }
+.page-changelog { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-muted); line-height: 1.6; }
+.changelog { margin-top: 20px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.7; }
+.changelog summary { cursor: pointer; font-weight: 500; color: var(--text-muted); }
 .changelog ul { list-style: none; padding: 8px 0 0 0; margin: 0; }
 .changelog li::before { content: '•'; margin-right: 6px; }
 
 footer {
-  background: #4a235a;
-  color: rgba(255,255,255,0.7);
+  background: var(--action-bg);
+  color: var(--on-action);
   text-align: center;
   padding: 16px 20px;
   font-size: 0.75rem;
   line-height: 1.8;
 }
+@media print {
+:root {
+  color-scheme: light;
+  --bg: #f0f2f5;
+  --surface: #fff;
+  --border: #d0d0d0;
+  --text: #333;
+  --accent: #226d9d;
+  --text-muted: #666;
+  --heading: #1a5276;
+  --action-bg: #1a5276;
+  --on-action: #fff;
+  --surface-soft: #f8fbff;
+  --surface-blue: #eef6ff;
+  --surface-hover: #e8f1fb;
+  --surface-neutral: #f9f9f9;
+  --success: #276749;
+  --success-bg: #f0fff4;
+  --success-action: #276749;
+  --danger: #b52c2c;
+  --danger-bg: #fff5f5;
+  --danger-action: #b52c2c;
+  --warning: #805b10;
+  --warning-bg: #fffff0;
+  --warning-action: #805b10;
+  --highlight-bg: #fff3cd;
+  --purple: #7d3c98;
+  --secondary-action: #526174;
+}
+}
 </style>
 </head>
 <body>
-<header>
-<a class="back-to-main" href="index.html"><svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg> Main</a>
-<button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;"><svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
+<header class="page-header">
+<a class="back-to-main" href="index.html"><svg aria-hidden="true" focusable="false" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg> Main</a>
+<button class="back-btn" id="back-btn" onclick="goHome()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Home</button>
 <h1>Tax Toolbox Beta</h1>
 <div class="subtitle">試験的なツールを先行公開しています</div>
 </header>
@@ -650,46 +759,46 @@ footer {
 </div>
 <!-- ===== ホーム画面 ===== -->
 <div class="home-grid" id="home-screen">
-<div class="home-card" onclick="switchTab('walls')">
-<div class="icon"><svg fill="none" stroke="#7d3c98" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><line x1="3" x2="21" y1="9" y2="9"></line><line x1="3" x2="21" y1="15" y2="15"></line></svg></div>
-<div class="title">各種の壁一覧</div>
-<div class="subtitle">年収と税金・社保の壁を一目で確認</div>
-</div>
-<div class="home-card" onclick="switchTab('furusato')">
-<div class="icon"><svg fill="none" stroke="#e67e22" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg></div>
-<div class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:#e67e22; font-weight:400;">β</span></div>
-<div class="subtitle">控除上限額シミュレーション＋資料印刷</div>
-</div>
-<div class="home-card" onclick="switchTab('moneyflow')">
-<div class="icon"><svg fill="none" stroke="#27ae60" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 2v20h20"></path><path d="M6 16l4-4 4 4 6-8"></path></svg></div>
-<div class="title">マネーフロー <span style="font-size:0.65rem; color:#27ae60; font-weight:400;">β</span></div>
-<div class="subtitle">法人・個人の税金と手取りをサンキー図で可視化</div>
-</div>
-<div class="home-card" onclick="switchTab('breakeven')">
-<div class="icon"><svg fill="none" stroke="#e74c3c" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"></line></svg></div>
-<div class="title">損益分岐点 <span style="font-size:0.65rem; color:#e74c3c; font-weight:400;">β</span></div>
-<div class="subtitle">売上・費用から損益分岐点をチャートで可視化</div>
-</div>
+<button type="button" class="home-card" onclick="switchTab('walls')">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="3"></rect><line x1="3" x2="21" y1="9" y2="9"></line><line x1="3" x2="21" y1="15" y2="15"></line></svg></span>
+<span class="title">各種の壁一覧</span>
+<span class="subtitle">年収と税金・社保の壁を一目で確認</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('furusato')">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg></span>
+<span class="title">ふるさと納税限度額 <span style="font-size:0.65rem; color:var(--warning); font-weight:400;">β</span></span>
+<span class="subtitle">控除上限額シミュレーション＋資料印刷</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('moneyflow')">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 2v20h20"></path><path d="M6 16l4-4 4 4 6-8"></path></svg></span>
+<span class="title">マネーフロー <span style="font-size:0.65rem; color:var(--success); font-weight:400;">β</span></span>
+<span class="subtitle">法人・個人の税金と手取りをサンキー図で可視化</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('breakeven')">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"></line></svg></span>
+<span class="title">損益分岐点 <span style="font-size:0.65rem; color:var(--danger); font-weight:400;">β</span></span>
+<span class="subtitle">売上・費用から損益分岐点をチャートで可視化</span>
+</button>
 <button class="home-card" onclick="switchTab('parttime')" type="button">
-<span class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="m8 15 2 2 5-5"></path></svg></span>
-<span class="title">パート労務チェック <span style="font-size:0.65rem; color:#2980b9; font-weight:400;">β</span></span>
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="m8 15 2 2 5-5"></path></svg></span>
+<span class="title">パート労務チェック <span style="font-size:0.65rem; color:var(--accent); font-weight:400;">β</span></span>
 <span class="subtitle">有給の付与日数・賃金と最低賃金を確認</span>
 </button>
-<div class="home-card" onclick="location.href='beppyou4-keisan.html'">
-<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="20" rx="2" width="16" x="4" y="2"></rect><path d="M8 6h8"></path><path d="M8 10h8"></path><path d="M8 14h2"></path><path d="M14 14h2"></path><path d="M8 18h2"></path><path d="M14 18h2"></path></svg></div>
-<div class="title">別表4 所得金額計算 <span style="font-size:0.65rem; color:#7d3c98; font-weight:400;">β</span></div>
-<div class="subtitle">税引後利益と加減算から所得金額を計算</div>
-</div>
-<div class="home-card" onclick="location.href='nozei-calendar.html'">
-<div class="icon"><svg fill="none" stroke="#2980b9" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg></div>
-<div class="title">納税予測カレンダー <span style="font-size:0.65rem; color:#7d3c98; font-weight:400;">β</span></div>
-<div class="subtitle">前期確定額から年間納税予定を自動配置</div>
-</div>
-<div class="home-card" onclick="switchTab('references')" style="opacity:0.7;">
-<div class="icon"><svg fill="none" stroke="#7f8c8d" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></div>
-<div class="title">参考資料</div>
-<div class="subtitle">各ツールの出典・参考URL一覧</div>
-</div>
+<button type="button" class="home-card" onclick="location.href='beppyou4-keisan.html'">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="20" rx="2" width="16" x="4" y="2"></rect><path d="M8 6h8"></path><path d="M8 10h8"></path><path d="M8 14h2"></path><path d="M14 14h2"></path><path d="M8 18h2"></path><path d="M14 18h2"></path></svg></span>
+<span class="title">別表4 所得金額計算 <span style="font-size:0.65rem; color:var(--accent); font-weight:400;">β</span></span>
+<span class="subtitle">税引後利益と加減算から所得金額を計算</span>
+</button>
+<button type="button" class="home-card" onclick="location.href='nozei-calendar.html'">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect height="18" rx="2" width="18" x="3" y="4"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg></span>
+<span class="title">納税予測カレンダー <span style="font-size:0.65rem; color:var(--accent); font-weight:400;">β</span></span>
+<span class="subtitle">前期確定額から年間納税予定を自動配置</span>
+</button>
+<button type="button" class="home-card" onclick="switchTab('references')">
+<span class="icon"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></span>
+<span class="title">参考資料</span>
+<span class="subtitle">各ツールの出典・参考URL一覧</span>
+</button>
 <div style="grid-column: 1 / -1;">
 <details class="changelog">
 <summary>更新履歴（サイト）</summary>
@@ -767,13 +876,13 @@ footer {
 </div>
 <div style="display:flex; gap:10px; flex-wrap:wrap;">
 <button class="btn" onclick="calcWalls()">判定する</button>
-<button class="btn" onclick="showWallRef()" style="background:linear-gradient(135deg,#4a235a,#7d3c98);">一覧表を見る</button>
+<button class="btn" onclick="showWallRef()" style="background:var(--action-bg);">一覧表を見る</button>
 </div>
 <!-- 壁リファレンス一覧表（年収入力不要） -->
 <div id="wall-ref" style="display:none; margin-top:16px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-<h3 id="wall-ref-title" style="margin:0; font-size:1rem; color:#4a235a;"></h3>
-<button class="btn" onclick="printWallRef()" style="background:linear-gradient(135deg,#27ae60,#2ecc71); padding:6px 14px; font-size:0.78rem;">この一覧表を印刷</button>
+<h3 id="wall-ref-title" style="margin:0; font-size:1rem; color:var(--heading);"></h3>
+<button class="btn" onclick="printWallRef()" style="background:var(--action-bg); padding:6px 14px; font-size:0.78rem;">この一覧表を印刷</button>
 </div>
 <div id="wall-ref-body"></div>
 </div>
@@ -797,9 +906,9 @@ footer {
 </div>
 </div>
 <div class="legend">
-<div class="legend-item"><div class="legend-dot" style="background:#66bb6a;"></div> セーフ</div>
-<div class="legend-item"><div class="legend-dot" style="background:#ffca28;"></div> 接近中</div>
-<div class="legend-item"><div class="legend-dot" style="background:#ef5350;"></div> 超過</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div> セーフ</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--warning);"></div> 接近中</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--danger);"></div> 超過</div>
 </div>
 <!-- 本人の税金 -->
 <div class="wall-section">
@@ -818,7 +927,7 @@ footer {
 </div>
 </div>
 <div id="wall-print-btn" style="display:none; margin-top:12px;">
-<button class="btn" onclick="printWalls()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">壁一覧を印刷</button>
+<button class="btn" onclick="printWalls()" style="background:var(--action-bg);">壁一覧を印刷</button>
 </div>
 <div class="note" id="wall-note">
     ※ 令和8年分（2026年分）の税制改正大綱に基づく概算です。基礎控除95万円（本則62万+上乗せ）・給与所得控除最低74万円（本則69万+特例5万）で計算しています。<br/>
@@ -833,7 +942,7 @@ footer {
 <!-- ===== ふるさと納税限度額シミュレーション ===== -->
 <div class="tab-content" id="tab-furusato">
 <div class="card">
-<h2>ふるさと納税 控除上限額シミュレーション <span style="font-size:0.7rem; color:#e67e22; font-weight:400;">β版</span></h2>
+<h2>ふるさと納税 控除上限額シミュレーション <span style="font-size:0.7rem; color:var(--warning); font-weight:400;">β版</span></h2>
 <p class="desc">自己負担2,000円で済む寄附上限額を概算します（簡易版）</p>
 <details class="tool-guide">
 <summary>使い方</summary>
@@ -863,37 +972,37 @@ footer {
 </select>
 </div>
 <div id="furusato-import-area" style="margin-bottom:12px;">
-<div style="margin-bottom:8px; font-size:0.85rem; color:#555;">
-<a href="index.html#yakuin" style="color:#7d6b9e; text-decoration:none;">役員報酬シミュレーションの金額をもとに計算する →</a>
+<div style="margin-bottom:8px; font-size:0.85rem; color:var(--text-muted);">
+<a href="index.html#yakuin" style="color:var(--accent); text-decoration:none;">役員報酬シミュレーションの金額をもとに計算する →</a>
 </div>
-<button class="btn" onclick="importFromYakuin()" style="background:linear-gradient(135deg,#7d6b9e,#a084ca); font-size:0.85rem; padding:8px 16px;">役員報酬シミュレーションの数値を取り込む</button>
-<div id="furusato-import-msg" style="display:none; margin-top:6px; font-size:0.8rem; color:#7d6b9e;"></div>
+<button class="btn" onclick="importFromYakuin()" style="background:var(--action-bg); font-size:0.85rem; padding:8px 16px;">役員報酬シミュレーションの数値を取り込む</button>
+<div id="furusato-import-msg" style="display:none; margin-top:6px; font-size:0.8rem; color:var(--accent);"></div>
 </div>
 <div class="form-group">
 <label>総所得金額等（年額）</label>
 <div class="input-prefix">
 <input id="furusato-income" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 6000000" type="text"/>
 </div>
-<span style="font-size:0.75rem; color:#888;">※ 給与所得・事業所得・不動産所得等の合計</span>
+<span style="font-size:0.75rem; color:var(--text-muted);">※ 給与所得・事業所得・不動産所得等の合計</span>
 </div>
 <div class="form-group">
 <label>所得控除合計額</label>
 <div class="input-prefix">
 <input id="furusato-deduction" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 1500000" type="text"/>
 </div>
-<span style="font-size:0.75rem; color:#888;">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
+<span style="font-size:0.75rem; color:var(--text-muted);">※ 社保・扶養・基礎控除等の合計（確定申告書 or 源泉徴収票の所得控除額）</span>
 </div>
 <div class="form-group">
 <label>住民税所得割額（任意・入力すると精度が上がります）</label>
 <div class="input-prefix">
 <input id="furusato-jumin-shotokuwari" inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();calcFurusato();}" placeholder="例: 280000" type="text"/>
 </div>
-<span style="font-size:0.75rem; color:#888;">※ 特別徴収税額決定通知書の「所得割」欄 or 役員報酬シミュレーションから自動取込</span>
+<span style="font-size:0.75rem; color:var(--text-muted);">※ 特別徴収税額決定通知書の「所得割」欄 or 役員報酬シミュレーションから自動取込</span>
 </div>
 <button class="btn" id="btn-furusato" onclick="calcFurusato()">計算する</button>
 <div class="result" id="furusato-result" style="display:none;"></div>
 <div id="furusato-print-btn" style="display:none; margin-top:12px;">
-<button class="btn" onclick="printFurusato()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);">資料を印刷</button>
+<button class="btn" onclick="printFurusato()" style="background:var(--action-bg);">資料を印刷</button>
 </div>
 <p class="note">
     ※ 住宅ローン控除は考慮していません。該当する場合は上限額が<strong>過大</strong>に算出されます<br/>
@@ -934,16 +1043,16 @@ footer {
 </div>
 </details>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">法人売上高（年間）: <span id="mf-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
-<input id="mf-revenue" max="10000" min="500" oninput="updateMoneyFlow()" step="100" style="width:100%; accent-color:#4a235a;" type="range" value="3000"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">法人売上高（年間）: <span id="mf-revenue-val" style="font-weight:700; color:var(--heading);">3,000万円</span></label>
+<input id="mf-revenue" max="10000" min="500" oninput="updateMoneyFlow()" step="100" style="width:100%; accent-color:var(--heading);" type="range" value="3000"/>
 </div>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">役員報酬（年間）: <span id="mf-salary-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
-<input id="mf-salary" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="1200"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">役員報酬（年間）: <span id="mf-salary-val" style="font-weight:700; color:var(--heading);">1,200万円</span></label>
+<input id="mf-salary" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:var(--heading);" type="range" value="1200"/>
 </div>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">その他経費（年間）: <span id="mf-expenses-val" style="font-weight:700; color:#4a235a;">300万円</span></label>
-<input id="mf-expenses" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="300"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">その他経費（年間）: <span id="mf-expenses-val" style="font-weight:700; color:var(--heading);">300万円</span></label>
+<input id="mf-expenses" max="5000" min="0" oninput="updateMoneyFlow()" step="50" style="width:100%; accent-color:var(--heading);" type="range" value="300"/>
 </div>
 </div>
 <div class="mf-right">
@@ -951,10 +1060,10 @@ footer {
 <div id="mf-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
 </div>
 <div class="mf-notes">
-<div class="mf-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
-<span class="mf-notes-arrow">▸</span> 計算条件・注意事項
-      </div>
-<div class="mf-notes-body note" style="margin-top:4px;">
+<button type="button" class="mf-notes-toggle" aria-expanded="false" aria-controls="mf-notes-body" onclick="this.setAttribute('aria-expanded', String(this.parentElement.classList.toggle('open')))">
+<span class="mf-notes-arrow" aria-hidden="true">▸</span> 計算条件・注意事項
+      </button>
+<div class="mf-notes-body note" id="mf-notes-body" style="margin-top:4px;">
         ※ 税率・料率は「役員報酬シミュレーション」「必要売上計算」と同一のデータベースを使用しています。<br/>
         ※ 消費税、各種税額控除、配偶者・扶養控除、賞与等は考慮していません。<br/>
         ※ 社会保険料は協会けんぽ（大阪・令和8年度）の料率で計算。40〜64歳（介護保険あり）想定です。<br/>
@@ -1163,14 +1272,17 @@ function updateMoneyFlow() {
   }
   data.addRows(rows);
 
+  var theme = getComputedStyle(document.documentElement);
+  var chartColor = name => theme.getPropertyValue(name).trim();
   var options = {
+    backgroundColor: chartColor('--surface'),
     height: 400,
     sankey: {
       node: {
-        label: { fontSize: 13, color: '#333' },
+        label: { fontSize: 13, color: chartColor('--text') },
         nodePadding: 16,
         width: 12,
-        colors: ['#3498db', '#5dade2', '#bdc3c7', '#e74c3c', '#f39c12', '#27ae60', '#f39c12', '#e74c3c', '#e74c3c', '#27ae60']
+        colors: [chartColor('--accent'), chartColor('--accent'), chartColor('--text-muted'), chartColor('--danger'), chartColor('--warning'), chartColor('--success'), chartColor('--warning'), chartColor('--danger'), chartColor('--danger'), chartColor('--success')]
       },
       link: {
         colorMode: 'gradient'
@@ -1185,15 +1297,15 @@ function updateMoneyFlow() {
 
   // サマリー
   var sumHtml = '';
-  sumHtml += '<div style="flex:1; min-width:120px; background:#eaf6ff; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">個人手取り (NET)</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#2980b9;">' + d.personalTakeHome.toLocaleString() + '万円</div></div>';
-  sumHtml += '<div style="flex:1; min-width:120px; background:#eafaf1; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">内部留保 (PROFIT)</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#27ae60;">' + d.corpRetained.toLocaleString() + '万円</div></div>';
-  sumHtml += '<div style="flex:1; min-width:120px; background:#fef5f5; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">税・社保合計 (TAX)</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#e74c3c;">' + d.totalTax.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:120px; background:var(--surface-blue); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">個人手取り (NET)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:var(--accent);">' + d.personalTakeHome.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:120px; background:var(--success-bg); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">内部留保 (PROFIT)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:var(--success);">' + d.corpRetained.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:120px; background:var(--danger-bg); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">税・社保合計 (TAX)</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:var(--danger);">' + d.totalTax.toLocaleString() + '万円</div></div>';
   document.getElementById('mf-summary').innerHTML = sumHtml;
 }
 </script>
@@ -1225,16 +1337,16 @@ function updateMoneyFlow() {
 </div>
 </details>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">売上高（年間）: <span id="be-revenue-val" style="font-weight:700; color:#4a235a;">3,000万円</span></label>
-<input id="be-revenue" max="20000" min="100" oninput="updateBreakeven()" step="100" style="width:100%; accent-color:#4a235a;" type="range" value="3000"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">売上高（年間）: <span id="be-revenue-val" style="font-weight:700; color:var(--heading);">3,000万円</span></label>
+<input id="be-revenue" max="20000" min="100" oninput="updateBreakeven()" step="100" style="width:100%; accent-color:var(--heading);" type="range" value="3000"/>
 </div>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">売上原価・変動費（年間）: <span id="be-variable-val" style="font-weight:700; color:#4a235a;">1,200万円</span></label>
-<input id="be-variable" max="15000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="1200"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">売上原価・変動費（年間）: <span id="be-variable-val" style="font-weight:700; color:var(--heading);">1,200万円</span></label>
+<input id="be-variable" max="15000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:var(--heading);" type="range" value="1200"/>
 </div>
 <div style="margin-bottom:16px;">
-<label style="font-size:0.85rem; font-weight:500; color:#555;">販管費・固定費（年間）: <span id="be-fixed-val" style="font-weight:700; color:#4a235a;">800万円</span></label>
-<input id="be-fixed" max="10000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:#4a235a;" type="range" value="800"/>
+<label style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">販管費・固定費（年間）: <span id="be-fixed-val" style="font-weight:700; color:var(--heading);">800万円</span></label>
+<input id="be-fixed" max="10000" min="0" oninput="updateBreakeven()" step="50" style="width:100%; accent-color:var(--heading);" type="range" value="800"/>
 </div>
 </div>
 <div class="be-right">
@@ -1242,10 +1354,10 @@ function updateMoneyFlow() {
 <div id="be-summary" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;"></div>
 </div>
 <div class="be-notes">
-<div class="be-notes-toggle" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer; font-size:0.78rem; color:#999; padding:4px 0;">
-<span class="be-notes-arrow">▸</span> 計算条件・注意事項
-      </div>
-<div class="be-notes-body note" style="margin-top:4px;">
+<button type="button" class="be-notes-toggle" aria-expanded="false" aria-controls="be-notes-body" onclick="this.setAttribute('aria-expanded', String(this.parentElement.classList.toggle('open')))">
+<span class="be-notes-arrow" aria-hidden="true">▸</span> 計算条件・注意事項
+      </button>
+<div class="be-notes-body note" id="be-notes-body" style="margin-top:4px;">
         ※ 変動費率 = 変動費 ÷ 売上高。売上高がゼロの場合は0%として計算します。<br/>
         ※ 損益分岐点売上高 = 固定費 ÷ 限界利益率（限界利益率 = 1 − 変動費率）。<br/>
         ※ 限界利益率が0%以下の場合、固定費を回収できないため損益分岐点は算出できません。<br/>
@@ -1291,31 +1403,36 @@ function updateBreakeven() {
   data.addColumn('number', '総費用');
   data.addRows(rows);
 
+  var theme = getComputedStyle(document.documentElement);
+  var chartColor = name => theme.getPropertyValue(name).trim();
   var options = {
+    backgroundColor: chartColor('--surface'),
     height: 400,
-    legend: { position: 'top', textStyle: { fontSize: 12 } },
+    legend: { position: 'top', textStyle: { fontSize: 12, color: chartColor('--text') } },
     hAxis: {
       title: '売上高（万円）',
       format: '#,##0',
-      titleTextStyle: { fontSize: 12, color: '#666' },
-      textStyle: { fontSize: 11 },
-      gridlines: { color: '#eee' }
+      titleTextStyle: { fontSize: 12, color: chartColor('--text-muted') },
+      textStyle: { fontSize: 11, color: chartColor('--text-muted') },
+      baselineColor: chartColor('--text-muted'),
+      gridlines: { color: chartColor('--border') }
     },
     vAxis: {
       title: '金額（万円）',
       format: '#,##0',
-      titleTextStyle: { fontSize: 12, color: '#666' },
-      textStyle: { fontSize: 11 },
-      gridlines: { color: '#eee' },
+      titleTextStyle: { fontSize: 12, color: chartColor('--text-muted') },
+      textStyle: { fontSize: 11, color: chartColor('--text-muted') },
+      baselineColor: chartColor('--text-muted'),
+      gridlines: { color: chartColor('--border') },
       minValue: 0
     },
     series: {
-      0: { color: '#3498db', lineWidth: 3 },
-      1: { color: '#e74c3c', lineWidth: 3 }
+      0: { color: chartColor('--accent'), lineWidth: 3 },
+      1: { color: chartColor('--danger'), lineWidth: 3 }
     },
     chartArea: { left: 70, right: 20, top: 40, bottom: 50, width: '100%' },
     tooltip: { trigger: 'both' },
-    crosshair: { trigger: 'focus', orientation: 'vertical', color: '#999', opacity: 0.3 }
+    crosshair: { trigger: 'focus', orientation: 'vertical', color: chartColor('--text-muted'), opacity: 0.3 }
   };
 
   var chartEl = document.getElementById('be-chart');
@@ -1324,17 +1441,17 @@ function updateBreakeven() {
 
   // サマリー
   var sumHtml = '';
-  sumHtml += '<div style="flex:1; min-width:100px; background:#fef9e7; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">営業利益</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:' + (operatingProfit >= 0 ? '#27ae60' : '#e74c3c') + ';">' + operatingProfit.toLocaleString() + '万円</div></div>';
+  sumHtml += '<div style="flex:1; min-width:100px; background:var(--warning-bg); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">営業利益</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:' + (operatingProfit >= 0 ? 'var(--success)' : 'var(--danger)') + ';">' + operatingProfit.toLocaleString() + '万円</div></div>';
 
-  sumHtml += '<div style="flex:1; min-width:100px; background:#fef5f5; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">損益分岐点売上</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#e67e22;">' + (bep !== null ? bep.toLocaleString() + '万円' : '算出不可') + '</div></div>';
+  sumHtml += '<div style="flex:1; min-width:100px; background:var(--danger-bg); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">損益分岐点売上</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:var(--warning);">' + (bep !== null ? bep.toLocaleString() + '万円' : '算出不可') + '</div></div>';
 
-  sumHtml += '<div style="flex:1; min-width:100px; background:#eaf6ff; border-radius:8px; padding:12px; text-align:center;">';
-  sumHtml += '<div style="font-size:0.72rem; color:#666;">限界利益率</div>';
-  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:#3498db;">' + (marginalRate * 100).toFixed(1) + '%</div></div>';
+  sumHtml += '<div style="flex:1; min-width:100px; background:var(--surface-blue); border-radius:8px; padding:12px; text-align:center;">';
+  sumHtml += '<div style="font-size:0.72rem; color:var(--text-muted);">限界利益率</div>';
+  sumHtml += '<div style="font-size:1.3rem; font-weight:700; color:var(--accent);">' + (marginalRate * 100).toFixed(1) + '%</div></div>';
 
   document.getElementById('be-summary').innerHTML = sumHtml;
 }
@@ -1866,8 +1983,8 @@ initParttime();
 <div class="card">
 <h2>参考資料・出典一覧</h2>
 <p class="desc">各ツールの作成にあたって参考にした資料・URL・ファイルの一覧です</p>
-<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">各種の壁一覧</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">各種の壁一覧</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.nta.go.jp/users/gensen/2025kiso/index.htm" target="_blank">国税庁 令和7年度税制改正による所得税の基礎控除の見直し等について</a></li>
 <li><a href="https://www.mof.go.jp/tax_policy/tax_reform/outline/fy2026/08taikou_gaiyou.pdf" target="_blank">財務省 令和8年度税制改正の大綱の概要（PDF）</a></li>
 <li><a href="https://www.ht-tax.or.jp/topics/nenshunokabe178man-hikiage/" target="_blank">辻・本郷 税理士法人 178万円への引上げ解説</a></li>
@@ -1879,16 +1996,16 @@ initParttime();
 <li>130万の壁: 2026年4月から労働契約書ベースの判定に変更</li>
 <li>配偶者特別控除満額上限: 令和7年分150万円 → 令和8年分160万円</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">ふるさと納税限度額</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">ふるさと納税限度額</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://www.soumu.go.jp/main_sosiki/jichi_zeisei/czaisei/czaisei_seido/furusato/mechanism/deduction.html" target="_blank">総務省 ふるさと納税のしくみ（税金の控除について）</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1155.htm" target="_blank">国税庁 No.1155 ふるさと納税（寄附金控除）</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
 <li>計算式: 限度額 = 住民税所得割額 × 20% ÷ (90% - 所得税率 × 1.021) + 2,000円</li>
 <li>住民税所得割額: 課税所得 × 10% - 調整控除2,500円（概算）</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">マネーフロー シミュレーター</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">マネーフロー シミュレーター</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://x.com/shikajiro/status/2039252859796291878" target="_blank">@shikajiro「欲しいツールはgeminiに作ってもらえる」（着想元）</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2260.htm" target="_blank">国税庁 No.2260 所得税の税率</a></li>
 <li><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1410.htm" target="_blank">国税庁 No.1410 給与所得控除</a></li>
@@ -1897,15 +2014,15 @@ initParttime();
 <li>法人税等: 実効税率方式（800万以下25%・超35%）— 「必要売上計算」と同一ロジック</li>
 <li>所得税・住民税・給与所得控除: 「役員報酬シミュレーション」と同一ロジック</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">損益分岐点シミュレーター</h3>
-<ul style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">損益分岐点シミュレーター</h3>
+<ul style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://x.com/ecogrammer/status/2039312139366875557" target="_blank">@ecogrammer 損益分岐点シミュレーター（着想元）</a></li>
 <li>損益分岐点売上高 = 固定費 ÷ 限界利益率</li>
 <li>限界利益率 = 1 − 変動費率（変動費率 = 変動費 ÷ 売上高）</li>
 <li>税引前の営業利益ベース。法人税等は考慮していません。</li>
 </ul>
-<h3 style="font-size:0.9rem; color:#4a235a; margin:16px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">パート労務チェック</h3>
-<ul class="pt-reference-list" style="font-size:0.82rem; color:#555; line-height:2; padding-left:20px;">
+<h3 style="font-size:0.9rem; color:var(--heading); margin:16px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">パート労務チェック</h3>
+<ul class="pt-reference-list" style="font-size:0.82rem; color:var(--text-muted); line-height:2; padding-left:20px;">
 <li><a href="https://laws.e-gov.go.jp/law/322AC0000000049" target="_blank">労働基準法 39条（年次有給休暇）・12条（平均賃金）・115条（時効）</a></li>
 <li><a href="https://laws.e-gov.go.jp/law/322M40000100023" target="_blank">労働基準法施行規則 24条の3（比例付与の日数）・25条（通常の賃金の算定）</a></li>
 <li><a href="https://laws.e-gov.go.jp/law/334AC0000000137" target="_blank">最低賃金法 4条（最低賃金の効力）・6条（最低賃金の競合）</a></li>
@@ -1918,10 +2035,16 @@ initParttime();
 </div>
 </div>
 <footer>
-<p><svg fill="none" stroke="#f39c12" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg> Beta版は試験的なツールです。計算結果は参考値としてご利用ください。<br/>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
-<p>© 2026 s.role　｜　<a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">プライバシーポリシー</a></p>
+<p><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="width:14px;height:14px;vertical-align:middle;margin-right:2px;" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg> Beta版は試験的なツールです。計算結果は参考値としてご利用ください。<br/>本ツールの利用により生じたいかなる損害についても、作者は一切の責任を負いません。</p>
+<p>© 2026 s.role　｜　<a href="privacy.html" style="color:var(--on-action);text-decoration:none;">プライバシーポリシー</a></p>
 </footer>
 <script>
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (document.getElementById('tab-moneyflow').classList.contains('active')) updateMoneyFlow();
+  if (document.getElementById('tab-breakeven').classList.contains('active')) updateBreakeven();
+});
+
 // ===== タブ切替 =====
 function switchTab(name) {
   showTab(name);
@@ -2175,7 +2298,7 @@ function renderWallSection(containerId, walls, income, employerSize) {
 
     const div = document.createElement('div');
     div.className = 'wall-item ' + statusClass;
-    div.style.borderLeftColor = wall.color;
+    div.style.borderLeftColor = 'var(--accent)';
 
     let marginText = '';
     if (exceeded) {
@@ -2185,11 +2308,11 @@ function renderWallSection(containerId, walls, income, employerSize) {
     }
 
     div.innerHTML =
-      '<div class="wall-amount" style="color:' + wall.color + '">' + wall.amount + '万円</div>' +
+      '<div class="wall-amount" style="color:var(--heading)">' + wall.amount + '万円</div>' +
       '<div class="wall-name">' + wall.name + '</div>' +
       '<div class="wall-detail">' + wall.detail + '</div>' +
       '<div class="wall-impact">' + (exceeded ? wall.impact_over : wall.impact_safe) + ' (' + marginText + ')</div>' +
-      (wall.note ? '<div style="font-size:0.7rem; color:#999; margin-top:4px;">' + wall.note + '</div>' : '');
+      (wall.note ? '<div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">' + wall.note + '</div>' : '');
 
     container.appendChild(div);
   });
@@ -2218,7 +2341,7 @@ function showWallRef() {
       var cond = '';
       if (w.condition === 'large') cond = '※ 51人以上の事業所';
       html += '<tr>';
-      html += '<td class="col-amount" style="color:' + w.color + ';">' + w.amount + '万円</td>';
+      html += '<td class="col-amount" style="color:var(--heading);">' + w.amount + '万円</td>';
       html += '<td class="col-name">' + w.name + '</td>';
       html += '<td class="col-detail">' + w.detail + '</td>';
       html += '<td class="col-note">' + (w.note || '') + (cond ? (w.note ? '<br>' : '') + cond : '') + '</td>';
@@ -2227,7 +2350,7 @@ function showWallRef() {
     html += '</table>';
   });
 
-  html += '<div style="font-size:0.72rem; color:#999; margin-top:8px; line-height:1.6;">';
+  html += '<div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; line-height:1.6;">';
   html += '※ 概算値です。社会保険の判定は勤務先・健保組合の運用により異なる場合があります。<br>';
   html += '※ 配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下であることが前提です。<br>';
   html += '※ 住民税の非課税基準は自治体により異なります。';
@@ -2250,33 +2373,33 @@ function printWallRef() {
     { title: '配偶者控除・配偶者特別控除（世帯主側の控除）', items: walls.spouse }
   ];
 
-  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:750px; margin:0 auto; padding:30px; color:#333; line-height:1.7;">';
-  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #4a235a; padding-bottom:10px; color:#4a235a;">年収の壁 一覧表</h1>';
-  html += '<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#666; margin:10px 0 16px;">';
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:750px; margin:0 auto; padding:30px; color:var(--text); line-height:1.7;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid var(--heading); padding-bottom:10px; color:var(--heading);">年収の壁 一覧表</h1>';
+  html += '<div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin:10px 0 16px;">';
   html += '<span>' + walls.label + '</span><span>' + dateStr + ' 作成</span></div>';
 
   sections.forEach(function(sec) {
-    html += '<h2 style="font-size:0.95rem; color:#4a235a; margin:18px 0 6px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">' + sec.title + '</h2>';
+    html += '<h2 style="font-size:0.95rem; color:var(--heading); margin:18px 0 6px; border-bottom:1px solid var(--border); padding-bottom:4px;">' + sec.title + '</h2>';
     html += '<table style="width:100%; border-collapse:collapse; font-size:0.82rem; margin-bottom:10px;">';
-    html += '<tr style="background:#f5f0f7;"><th style="text-align:left; padding:7px 8px; border:1px solid #ccc; width:10%;">金額</th>';
-    html += '<th style="text-align:left; padding:7px 8px; border:1px solid #ccc; width:18%;">壁の名称</th>';
-    html += '<th style="text-align:left; padding:7px 8px; border:1px solid #ccc;">内容</th>';
-    html += '<th style="text-align:left; padding:7px 8px; border:1px solid #ccc; width:25%;">備考</th></tr>';
+    html += '<tr style="background:var(--surface-blue);"><th style="text-align:left; padding:7px 8px; border:1px solid var(--border); width:10%;">金額</th>';
+    html += '<th style="text-align:left; padding:7px 8px; border:1px solid var(--border); width:18%;">壁の名称</th>';
+    html += '<th style="text-align:left; padding:7px 8px; border:1px solid var(--border);">内容</th>';
+    html += '<th style="text-align:left; padding:7px 8px; border:1px solid var(--border); width:25%;">備考</th></tr>';
 
     sec.items.forEach(function(w) {
       var cond = w.condition === 'large' ? '※ 51人以上の事業所' : '';
       html += '<tr>';
-      html += '<td style="padding:6px 8px; border:1px solid #ccc; font-weight:700; color:' + w.color + '; white-space:nowrap;">' + w.amount + '万円</td>';
-      html += '<td style="padding:6px 8px; border:1px solid #ccc; font-weight:600;">' + w.name + '</td>';
-      html += '<td style="padding:6px 8px; border:1px solid #ccc; font-size:0.78rem;">' + w.detail + '</td>';
-      html += '<td style="padding:6px 8px; border:1px solid #ccc; font-size:0.72rem; color:#666;">' + (w.note || '') + (cond ? (w.note ? '<br>' : '') + cond : '') + '</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-weight:700; color:var(--heading); white-space:nowrap;">' + w.amount + '万円</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-weight:600;">' + w.name + '</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-size:0.78rem;">' + w.detail + '</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-size:0.72rem; color:var(--text-muted);">' + (w.note || '') + (cond ? (w.note ? '<br>' : '') + cond : '') + '</td>';
       html += '</tr>';
     });
     html += '</table>';
   });
 
-  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:12px; font-size:0.72rem; color:#777; line-height:1.8; margin-top:16px;">';
-  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<div style="background:var(--surface-neutral); border:1px solid var(--border); border-radius:6px; padding:12px; font-size:0.72rem; color:var(--text-muted); line-height:1.8; margin-top:16px;">';
+  html += '<p style="font-weight:600; color:var(--text-muted); margin-bottom:4px;">ご注意</p>';
   html += '<ul style="padding-left:18px; margin:0;">';
   html += '<li>上記は概算値です。社会保険の判定は勤務先・健保組合の運用により異なる場合があります。</li>';
   html += '<li>配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下であることが前提です。</li>';
@@ -2321,7 +2444,7 @@ function renderWallMap(walls, income, employerSize) {
     var pct = ((w.amount - minAmount) / (maxAmount - minAmount)) * 100;
     var exceeded = income >= w.amount;
     var approaching = !exceeded && (w.amount - income) <= 5;
-    var dotColor = exceeded ? '#ef5350' : approaching ? '#ffca28' : '#66bb6a';
+    var dotColor = exceeded ? 'var(--danger)' : approaching ? 'var(--warning)' : 'var(--success)';
 
     var marker = document.createElement('div');
     marker.className = 'wall-map-marker';
@@ -2329,7 +2452,7 @@ function renderWallMap(walls, income, employerSize) {
     marker.innerHTML =
       '<div class="marker-line" style="background:' + dotColor + ';"></div>' +
       '<div class="marker-dot" style="background:' + dotColor + ';"></div>' +
-      '<div class="marker-amount" style="color:' + w.color + ';">' + w.amount + '万</div>' +
+      '<div class="marker-amount" style="color:var(--heading);">' + w.amount + '万</div>' +
       '<div class="marker-label">' + w.name.replace(/（.*）/, '').replace(/の壁/, '') + '</div>';
     axis.appendChild(marker);
   });
@@ -2358,12 +2481,12 @@ function printWalls() {
     { title: '配偶者控除・配偶者特別控除（世帯主側の控除）', items: walls.spouse }
   ];
 
-  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:30px; color:#333; line-height:1.7;">';
-  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #4a235a; padding-bottom:10px; color:#4a235a;">年収の壁 一覧表</h1>';
-  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
-  html += '<p style="font-size:0.9rem; color:#555; margin-bottom:6px;"><strong>対象年分:</strong> ' + walls.label + '</p>';
+  var html = '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:30px; color:var(--text); line-height:1.7;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid var(--heading); padding-bottom:10px; color:var(--heading);">年収の壁 一覧表</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:var(--text-muted); margin:10px 0;">' + dateStr + ' 作成</div>';
+  html += '<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:6px;"><strong>対象年分:</strong> ' + walls.label + '</p>';
   if (!isNaN(income) && income > 0) {
-    html += '<p style="font-size:0.9rem; color:#555; margin-bottom:16px;"><strong>判定対象年収:</strong> ' + income + ' 万円</p>';
+    html += '<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:16px;"><strong>判定対象年収:</strong> ' + income + ' 万円</p>';
   }
 
   // 壁マップ（数直線図）
@@ -2372,37 +2495,37 @@ function printWalls() {
     .sort(function(a, b) { return a.amount - b.amount; });
   var maxAmt = Math.max(allWalls[allWalls.length - 1].amount, isNaN(income) ? 0 : income) * 1.1;
 
-  html += '<div style="margin:20px 0 24px; padding:16px; background:#f9f6fc; border:1px solid #e0d4e8; border-radius:8px;">';
-  html += '<div style="font-size:0.82rem; font-weight:600; color:#4a235a; margin-bottom:10px;">壁マップ</div>';
+  html += '<div style="margin:20px 0 24px; padding:16px; background:var(--surface-soft); border:1px solid var(--border); border-radius:8px;">';
+  html += '<div style="font-size:0.82rem; font-weight:600; color:var(--heading); margin-bottom:10px;">壁マップ</div>';
   html += '<div style="position:relative; height:50px; margin:0 10px;">';
-  html += '<div style="position:absolute; top:24px; left:0; right:0; height:4px; background:#d5c8e0; border-radius:2px;"></div>';
+  html += '<div style="position:absolute; top:24px; left:0; right:0; height:4px; background:var(--border); border-radius:2px;"></div>';
 
   if (!isNaN(income) && income > 0) {
     var incPct = Math.min((income / maxAmt) * 100, 100);
-    html += '<div style="position:absolute; top:24px; left:0; width:' + incPct + '%; height:4px; background:linear-gradient(90deg,#66bb6a,#ffca28,#ef5350); border-radius:2px;"></div>';
+    html += '<div style="position:absolute; top:24px; left:0; width:' + incPct + '%; height:4px; background:var(--accent); border-radius:2px;"></div>';
     html += '<div style="position:absolute; top:-6px; left:' + incPct + '%; transform:translateX(-50%); text-align:center; z-index:10;">';
-    html += '<div style="font-size:0.6rem; font-weight:700; color:#fff; background:#4a235a; padding:1px 5px; border-radius:3px;">' + income + '万</div>';
-    html += '<div style="width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:8px solid #4a235a; margin:0 auto;"></div></div>';
+    html += '<div style="font-size:0.6rem; font-weight:700; color:var(--on-action); background:var(--action-bg); padding:1px 5px; border-radius:3px;">' + income + '万</div>';
+    html += '<div style="width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:8px solid var(--action-bg); margin:0 auto;"></div></div>';
   }
 
   allWalls.forEach(function(w) {
     var pct = (w.amount / maxAmt) * 100;
     var exceeded = !isNaN(income) && income > 0 && income >= w.amount;
     var approaching = !exceeded && !isNaN(income) && income > 0 && (w.amount - income) <= 5;
-    var dotCol = exceeded ? '#ef5350' : approaching ? '#ffca28' : '#66bb6a';
+    var dotCol = exceeded ? 'var(--danger)' : approaching ? 'var(--warning)' : 'var(--success)';
     html += '<div style="position:absolute; top:4px; left:' + pct + '%; transform:translateX(-50%); text-align:center;">';
     html += '<div style="width:2px; height:14px; background:' + dotCol + '; margin:0 auto 1px; border-radius:1px;"></div>';
-    html += '<div style="width:10px; height:10px; border-radius:50%; background:' + dotCol + '; margin:0 auto; border:1.5px solid #fff; box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>';
-    html += '<div style="font-size:0.55rem; font-weight:700; color:' + w.color + '; white-space:nowrap; margin-top:1px;">' + w.amount + '万</div>';
+    html += '<div style="width:10px; height:10px; border-radius:50%; background:' + dotCol + '; margin:0 auto; border:1.5px solid var(--surface); box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>';
+    html += '<div style="font-size:0.55rem; font-weight:700; color:var(--heading); white-space:nowrap; margin-top:1px;">' + w.amount + '万</div>';
     html += '</div>';
   });
   html += '</div></div>';
 
   allSections.forEach(function(section) {
-    html += '<h2 style="font-size:1rem; color:#4a235a; margin:20px 0 8px; border-bottom:1px solid #e0d4e8; padding-bottom:4px;">' + section.title + '</h2>';
+    html += '<h2 style="font-size:1rem; color:var(--heading); margin:20px 0 8px; border-bottom:1px solid var(--border); padding-bottom:4px;">' + section.title + '</h2>';
     html += '<table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-bottom:12px;">';
-    html += '<tr style="background:#f5f0f7;"><th style="text-align:left; padding:8px; border:1px solid #d0d8e0; width:15%;">金額</th><th style="text-align:left; padding:8px; border:1px solid #d0d8e0; width:20%;">壁の名称</th><th style="text-align:left; padding:8px; border:1px solid #d0d8e0;">内容</th>';
-    if (!isNaN(income) && income > 0) html += '<th style="text-align:center; padding:8px; border:1px solid #d0d8e0; width:12%;">判定</th>';
+    html += '<tr style="background:var(--surface-blue);"><th style="text-align:left; padding:8px; border:1px solid var(--border); width:15%;">金額</th><th style="text-align:left; padding:8px; border:1px solid var(--border); width:20%;">壁の名称</th><th style="text-align:left; padding:8px; border:1px solid var(--border);">内容</th>';
+    if (!isNaN(income) && income > 0) html += '<th style="text-align:center; padding:8px; border:1px solid var(--border); width:12%;">判定</th>';
     html += '</tr>';
 
     section.items.forEach(function(w) {
@@ -2411,26 +2534,26 @@ function printWalls() {
       var statusText = '';
       var statusBg = '';
       if (!isNaN(income) && income > 0) {
-        if (exceeded) { statusText = '超過'; statusBg = '#ffcdd2'; }
-        else if (w.amount - income <= 5) { statusText = '注意'; statusBg = '#fff9c4'; }
-        else { statusText = 'OK'; statusBg = '#dcedc8'; }
+        if (exceeded) { statusText = '超過'; statusBg = 'var(--danger-bg)'; }
+        else if (w.amount - income <= 5) { statusText = '注意'; statusBg = 'var(--warning-bg)'; }
+        else { statusText = 'OK'; statusBg = 'var(--success-bg)'; }
       }
       html += '<tr>';
-      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-weight:600; white-space:nowrap;">' + w.amount + '万円</td>';
-      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-weight:600;">' + w.name + '</td>';
-      html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; font-size:0.8rem;">' + w.detail;
-      if (w.note) html += '<br><span style="color:#888; font-size:0.75rem;">' + w.note + '</span>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-weight:600; white-space:nowrap;">' + w.amount + '万円</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-weight:600;">' + w.name + '</td>';
+      html += '<td style="padding:6px 8px; border:1px solid var(--border); font-size:0.8rem;">' + w.detail;
+      if (w.note) html += '<br><span style="color:var(--text-muted); font-size:0.75rem;">' + w.note + '</span>';
       html += '</td>';
       if (!isNaN(income) && income > 0) {
-        html += '<td style="padding:6px 8px; border:1px solid #d0d8e0; text-align:center; font-weight:600; background:' + statusBg + ';">' + statusText + '</td>';
+        html += '<td style="padding:6px 8px; border:1px solid var(--border); text-align:center; font-weight:600; background:' + statusBg + ';">' + statusText + '</td>';
       }
       html += '</tr>';
     });
     html += '</table>';
   });
 
-  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8; margin-top:20px;">';
-  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<div style="background:var(--surface-neutral); border:1px solid var(--border); border-radius:6px; padding:14px; font-size:0.78rem; color:var(--text-muted); line-height:1.8; margin-top:20px;">';
+  html += '<p style="font-weight:600; color:var(--text-muted); margin-bottom:4px;">ご注意</p>';
   html += '<ul style="padding-left:18px; margin:0;">';
   html += '<li>上記は概算値です。社会保険の判定は勤務先・健保組合の運用により異なる場合があります。</li>';
   html += '<li>配偶者控除・配偶者特別控除は世帯主の合計所得が1,000万円以下であることが前提です。</li>';
@@ -2463,7 +2586,7 @@ function importFromYakuin() {
     var raw = localStorage.getItem('yakuin_furusato');
     if (!raw) {
       msg.style.display = 'block';
-      msg.style.color = '#c0392b';
+      msg.style.color = 'var(--danger)';
       msg.textContent = '役員報酬シミュレーションのデータが見つかりません。先にindex.htmlで計算してください。';
       return;
     }
@@ -2473,12 +2596,12 @@ function importFromYakuin() {
     if (d.juminShotokuWari) document.getElementById('furusato-jumin-shotokuwari').value = d.juminShotokuWari;
     if (d.clientName) document.getElementById('furusato-client').value = d.clientName;
     msg.style.display = 'block';
-    msg.style.color = '#7d6b9e';
+    msg.style.color = 'var(--accent)';
     var label = d.clientName ? d.clientName + '　' : '';
     msg.textContent = label + '月額' + d.monthly.toLocaleString() + '円　取込日時: ' + d.savedAt;
   } catch(e) {
     msg.style.display = 'block';
-    msg.style.color = '#c0392b';
+    msg.style.color = 'var(--danger)';
     msg.textContent = 'データの読み込みに失敗しました。';
   }
 }
@@ -2557,14 +2680,14 @@ function calcFurusato() {
   html += '<div class="result-row"><span class="label">所得控除合計額</span><span class="value">' + fmt(deduction) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">課税所得金額</span><span class="value">' + fmt(taxableIncome) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">適用所得税率</span><span class="value">' + (incomeTaxRate * 100) + '%</span></div>';
-  html += '<div class="result-row"><span class="label">住民税所得割額' + (juuminMode === 'exact' ? '' : '（概算）') + '</span><span class="value">' + fmt(juuminTaxBase) + ' 円' + (juuminMode === 'exact' ? ' <span style="font-size:0.75rem; color:#27ae60;">実額</span>' : ' <span style="font-size:0.75rem; color:#e67e22;">概算</span>') + '</span></div>';
+  html += '<div class="result-row"><span class="label">住民税所得割額' + (juuminMode === 'exact' ? '' : '（概算）') + '</span><span class="value">' + fmt(juuminTaxBase) + ' 円' + (juuminMode === 'exact' ? ' <span style="font-size:0.75rem; color:var(--success);">実額</span>' : ' <span style="font-size:0.75rem; color:var(--warning);">概算</span>') + '</span></div>';
   html += '<div class="result-row highlight"><span class="label">ふるさと納税 控除上限額（目安）</span><span class="value">' + fmt(limit) + ' 円</span></div>';
   // R8+概算モード時の注記
   if (yearKey === 'R8' && juuminMode === 'approx') {
-    html += '<div style="margin-top:8px; padding:8px 10px; background:#e8f4fd; border:1px solid #aed6f1; border-radius:4px; font-size:0.78rem; color:#1a5276;">ℹ️ R8は所得税の基礎控除（104万）と住民税（43万）の差61万を自動補正して住民税所得割を推計しています。生命保険料控除等の住民税固有の控除差は未反映のため、「住民税所得割額」を直接入力するとさらに精度が上がります。</div>';
+    html += '<div style="margin-top:8px; padding:8px 10px; background:var(--surface-blue); border:1px solid var(--border); border-radius:4px; font-size:0.78rem; color:var(--heading);">補足: R8は所得税の基礎控除（104万）と住民税（43万）の差61万を自動補正して住民税所得割を推計しています。生命保険料控除等の住民税固有の控除差は未反映のため、「住民税所得割額」を直接入力するとさらに精度が上がります。</div>';
   }
-  html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #e0e8f0; font-size:0.82rem; color:#666;">';
-  html += '<div style="font-weight:600; margin-bottom:6px; color:#4a235a;">控除内訳（参考）</div>';
+  html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:0.82rem; color:var(--text-muted);">';
+  html += '<div style="font-weight:600; margin-bottom:6px; color:var(--heading);">控除内訳（参考）</div>';
   html += '<div class="result-row"><span class="label">所得税からの控除（税率 × 1.021）</span><span class="value">' + fmt(incomeTaxDeduction) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">住民税からの控除（基本分 10%）</span><span class="value">' + fmt(juuminBasicDeduction) + ' 円</span></div>';
   html += '<div class="result-row"><span class="label">住民税からの控除（特例分）</span><span class="value">' + fmt(juuminSpecialDeduction) + ' 円</span></div>';
@@ -2601,37 +2724,37 @@ function printFurusato() {
   var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + d.clientName + '</p>' : '';
 
   var html = '';
-  html += '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#333; line-height:1.8;">';
-  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid #4a235a; padding-bottom:10px; color:#4a235a;">ふるさと納税 控除上限額のご案内</h1>';
-  html += '<div style="text-align:right; font-size:0.85rem; color:#666; margin:10px 0;">' + dateStr + ' 作成</div>';
+  html += '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:var(--text); line-height:1.8;">';
+  html += '<h1 style="text-align:center; font-size:1.3rem; border-bottom:2px solid var(--heading); padding-bottom:10px; color:var(--heading);">ふるさと納税 控除上限額のご案内</h1>';
+  html += '<div style="text-align:right; font-size:0.85rem; color:var(--text-muted); margin:10px 0;">' + dateStr + ' 作成</div>';
   html += clientLine;
-  html += '<p style="font-size:0.9rem; color:#555; margin-bottom:20px;">下記の前提条件に基づき、ふるさと納税の控除上限額（自己負担2,000円で済む寄附上限額）を試算しました。</p>';
+  html += '<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">下記の前提条件に基づき、ふるさと納税の控除上限額（自己負担2,000円で済む寄附上限額）を試算しました。</p>';
 
   html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.9rem;">';
-  html += '<tr style="background:#f5f0f7;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#4a235a; border:1px solid #d0d8e0;">前提条件</th></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0; width:50%;">対象年分</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + d.yearLabel + '</td></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">総所得金額等</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.income) + ' 円</td></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">所得控除合計額</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.deduction) + ' 円</td></tr>';
+  html += '<tr style="background:var(--surface-blue);"><th colspan="2" style="text-align:left; padding:10px 12px; color:var(--heading); border:1px solid var(--border);">前提条件</th></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border); width:50%;">対象年分</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + d.yearLabel + '</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border);">総所得金額等</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.income) + ' 円</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border);">所得控除合計額</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.deduction) + ' 円</td></tr>';
   html += '</table>';
 
   html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.9rem;">';
-  html += '<tr style="background:#f5f0f7;"><th colspan="2" style="text-align:left; padding:10px 12px; color:#4a235a; border:1px solid #d0d8e0;">計算結果</th></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0; width:50%;">課税所得金額</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.taxableIncome) + ' 円</td></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">適用所得税率</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + (d.incomeTaxRate * 100) + '%</td></tr>';
-  html += '<tr><td style="padding:8px 12px; border:1px solid #d0d8e0;">住民税所得割額' + (d.juuminMode === 'exact' ? '' : '（概算）') + '</td><td style="padding:8px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminTaxBase) + ' 円</td></tr>';
-  html += '<tr style="background:#fff8e1;"><td style="padding:12px; border:1px solid #d0d8e0; font-weight:600;">控除上限額（目安）</td><td style="padding:12px; border:1px solid #d0d8e0; text-align:right; font-size:1.2rem; font-weight:700; color:#c0392b;">' + fmt(d.limit) + ' 円</td></tr>';
+  html += '<tr style="background:var(--surface-blue);"><th colspan="2" style="text-align:left; padding:10px 12px; color:var(--heading); border:1px solid var(--border);">計算結果</th></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border); width:50%;">課税所得金額</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.taxableIncome) + ' 円</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border);">適用所得税率</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + (d.incomeTaxRate * 100) + '%</td></tr>';
+  html += '<tr><td style="padding:8px 12px; border:1px solid var(--border);">住民税所得割額' + (d.juuminMode === 'exact' ? '' : '（概算）') + '</td><td style="padding:8px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.juuminTaxBase) + ' 円</td></tr>';
+  html += '<tr style="background:var(--warning-bg);"><td style="padding:12px; border:1px solid var(--border); font-weight:600;">控除上限額（目安）</td><td style="padding:12px; border:1px solid var(--border); text-align:right; font-size:1.2rem; font-weight:700; color:var(--danger);">' + fmt(d.limit) + ' 円</td></tr>';
   html += '</table>';
 
   html += '<table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.85rem;">';
-  html += '<tr style="background:#f5f0f7;"><th colspan="2" style="text-align:left; padding:8px 12px; color:#4a235a; border:1px solid #d0d8e0;">控除内訳（参考）</th></tr>';
-  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">所得税からの控除</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.incomeTaxDeduction) + ' 円</td></tr>';
-  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">住民税からの控除（基本分）</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminBasicDeduction) + ' 円</td></tr>';
-  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">住民税からの控除（特例分）</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">' + fmt(d.juuminSpecialDeduction) + ' 円</td></tr>';
-  html += '<tr><td style="padding:6px 12px; border:1px solid #d0d8e0;">自己負担額</td><td style="padding:6px 12px; border:1px solid #d0d8e0; text-align:right;">2,000 円</td></tr>';
+  html += '<tr style="background:var(--surface-blue);"><th colspan="2" style="text-align:left; padding:8px 12px; color:var(--heading); border:1px solid var(--border);">控除内訳（参考）</th></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid var(--border);">所得税からの控除</td><td style="padding:6px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.incomeTaxDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid var(--border);">住民税からの控除（基本分）</td><td style="padding:6px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.juuminBasicDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid var(--border);">住民税からの控除（特例分）</td><td style="padding:6px 12px; border:1px solid var(--border); text-align:right;">' + fmt(d.juuminSpecialDeduction) + ' 円</td></tr>';
+  html += '<tr><td style="padding:6px 12px; border:1px solid var(--border);">自己負担額</td><td style="padding:6px 12px; border:1px solid var(--border); text-align:right;">2,000 円</td></tr>';
   html += '</table>';
 
-  html += '<div style="background:#f8f8f8; border:1px solid #ddd; border-radius:6px; padding:14px; font-size:0.78rem; color:#777; line-height:1.8;">';
-  html += '<p style="font-weight:600; color:#555; margin-bottom:4px;">ご注意</p>';
+  html += '<div style="background:var(--surface-neutral); border:1px solid var(--border); border-radius:6px; padding:14px; font-size:0.78rem; color:var(--text-muted); line-height:1.8;">';
+  html += '<p style="font-weight:600; color:var(--text-muted); margin-bottom:4px;">ご注意</p>';
   html += '<ul style="padding-left:18px; margin:0;">';
   html += '<li>上記は簡易計算による概算値です。住宅ローン控除・調整控除・住民税と所得税の控除差額等は考慮しておりません。</li>';
   html += '<li>実際の控除上限額とは数千円〜数万円程度の差が生じる場合があります。</li>';
