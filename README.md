@@ -1,6 +1,6 @@
 # Tax Tools
 
-> Single-HTML Japanese tax & accounting calculators — payroll withholding, officer compensation, furusato-nozei, depreciation, and more. Runs 100% in the browser (no backend, no tracking).
+> Single-HTML Japanese tax & accounting calculators — payroll withholding, officer compensation, furusato-nozei, depreciation, and more. Runs 100% in the browser (no backend; your inputs never leave the browser). Page views are measured with Google Analytics — see [privacy.html](privacy.html).
 >
 > **English:** This overview is all that's in English. The tools themselves and full documentation below are in Japanese, as they target Japanese tax law.
 

@@ -3798,7 +3798,7 @@ function printYakuin() {
 
   var today = new Date();
   var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
-  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + d.clientName + '</p>' : '';
+  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + String(d.clientName).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }) + '</p>' : '';
 
   var tr = function(label, value, opts) {
     opts = opts || {};

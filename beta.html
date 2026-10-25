@@ -2721,7 +2721,7 @@ function printFurusato() {
 
   var today = new Date();
   var dateStr = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
-  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + d.clientName + '</p>' : '';
+  var clientLine = d.clientName ? '<p style="font-size:1.2rem; font-weight:600; margin-bottom:4px;">' + String(d.clientName).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }) + '</p>' : '';
 
   var html = '';
   html += '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Hiragino Sans\',Meiryo,sans-serif; max-width:700px; margin:0 auto; padding:40px 30px; color:var(--text); line-height:1.8;">';
