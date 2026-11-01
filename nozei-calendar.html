@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<!-- 通信先の制限: 入力をこのページの外へ送れないようにする（Google Analytics の計測先だけ許可） -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
 <meta charset="utf-8">
 <meta name="portal:title" content="納税予測カレンダー">
 <meta name="portal:desc" content="前期確定額の入力だけで法人税・住民税・事業税・消費税の中間/確定納税スケジュールを自動配置。法人・個人・統合の3タブ・印刷/xlsx出力対応・保存なし">
