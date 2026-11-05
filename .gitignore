@@ -22,6 +22,12 @@
 !/beta.html
 !/nozei-calendar.html
 !/beppyou4-keisan.html
+!/calc.html
+!/calc-sw.js
+!/calc.webmanifest
+!/calc-icon.svg
+!/calc-icon-192.png
+!/calc-icon-512.png
 !/TEST_CASES.md
 !/tests/
 !/tests/*.test.js

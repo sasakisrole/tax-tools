@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<!-- 通信先の制限: このページは外部と通信しない（計算・履歴はすべて端末内） -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#1a5276" media="(prefers-color-scheme: light)"/>
+<meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)"/>
+<meta name="description" content="消費税・報酬の源泉税・日数計算をワンタップで行う税理士向けの電卓"/>
+<link rel="manifest" href="calc.webmanifest"/>
+<link rel="icon" href="calc-icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="calc-icon-192.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="税理士電卓"/>
+<title>税理士電卓</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f0f2f5;
+  --surface: #fff;
+  --text: #1f2328;
+  --muted: #5a6270;
+  --border: #c9cfd6;
+  --key: #fff;
+  --key-text: #1f2328;
+  --key-op: #dce8f3;
+  --key-op-text: #123a57;
+  --key-fn: #e6e9ed;
+  --key-tax: #1a5276;
+  --key-tax-text: #fff;
+  --key-eq: #b9461b;
+  --key-eq-text: #fff;
+  --on: #1a5276;
+  --on-text: #fff;
+  --focus: #d97706;
+  --danger: #b42318;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #111418;
+    --surface: #1b2027;
+    --text: #e8eaed;
+    --muted: #a6aebb;
+    --border: #3a424d;
+    --key: #262c35;
+    --key-text: #e8eaed;
+    --key-op: #20374a;
+    --key-op-text: #cfe3f5;
+    --key-fn: #313844;
+    --key-tax: #2f6f9f;
+    --key-tax-text: #fff;
+    --key-eq: #c7552a;
+    --key-eq-text: #fff;
+    --on: #5fa3d6;
+    --on-text: #0b1520;
+    --focus: #fbbf24;
+    --danger: #ff8a80;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 8px 12px calc(12px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+h1 { font-size: 1rem; margin: 0; }
+header a { color: var(--on); font-size: 0.85rem; }
+.views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.seg { display: flex; gap: 4px; }
+.seg button, .views button {
+  flex: 1;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.seg button[aria-pressed="true"], .views button[aria-selected="true"] {
+  background: var(--on);
+  color: var(--on-text);
+  border-color: var(--on);
+  font-weight: 700;
+}
+button { font: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.display {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: right;
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+}
+.expr { color: var(--muted); font-size: 0.95rem; min-height: 1.3em; overflow-wrap: anywhere; }
+.main { font-size: 2.4rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; line-height: 1.15; }
+.detail { color: var(--muted); font-size: 0.85rem; min-height: 1.2em; overflow-wrap: anywhere; }
+.detail.err { color: var(--danger); }
+.opts { display: grid; gap: 6px; }
+.opt-row { display: flex; align-items: center; gap: 6px; }
+.opt-row > span { font-size: 0.8rem; color: var(--muted); min-width: 3em; }
+.keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: auto; }
+.keys button {
+  min-height: 60px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--key);
+  color: var(--key-text);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.keys button:active { filter: brightness(0.9); }
+.keys .op { background: var(--key-op); color: var(--key-op-text); font-weight: 700; }
+.keys .fn { background: var(--key-fn); font-size: 1.1rem; }
+.keys .tax { background: var(--key-tax); color: var(--key-tax-text); font-size: 0.95rem; font-weight: 700; line-height: 1.2; border-color: var(--key-tax); }
+.keys .eq { background: var(--key-eq); color: var(--key-eq-text); font-weight: 700; border-color: var(--key-eq); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.panel h2 { font-size: 0.95rem; margin: 0 0 8px; }
+.panel + .panel { margin-top: 8px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field label { font-size: 0.85rem; color: var(--muted); }
+.field input {
+  min-height: 48px;
+  font-size: 1.1rem;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+.out { font-size: 1.05rem; line-height: 1.6; }
+.out strong { font-size: 1.3rem; }
+.btn {
+  min-height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: var(--key-tax);
+  color: var(--key-tax-text);
+  font-weight: 700;
+  padding: 0 16px;
+}
+.btn.sub { background: var(--key-fn); color: var(--text); border: 1px solid var(--border); }
+.hist { list-style: none; margin: 0; padding: 0; }
+.hist li + li { border-top: 1px solid var(--border); }
+.hist button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 10px 2px;
+  min-height: 48px;
+}
+.hist .h-label { display: block; font-size: 0.8rem; color: var(--muted); }
+.hist .h-val { display: block; font-size: 1.05rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin: 8px 0 0; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (min-height: 760px) { .keys button { min-height: 68px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>税理士電卓</h1>
+<a href="index.html">税務ツールボックスへ</a>
+</header>
+
+<div class="views" role="tablist" aria-label="表示の切替">
+<button type="button" role="tab" id="tab-calc" aria-controls="view-calc" aria-selected="true" data-view="calc">電卓</button>
+<button type="button" role="tab" id="tab-date" aria-controls="view-date" aria-selected="false" data-view="date" tabindex="-1">日付</button>
+<button type="button" role="tab" id="tab-hist" aria-controls="view-hist" aria-selected="false" data-view="hist" tabindex="-1">履歴</button>
+</div>
+
+<!-- ===== 電卓 ===== -->
+<section id="view-calc" role="tabpanel" aria-labelledby="tab-calc" style="display:flex; flex-direction:column; gap:8px; flex:1;">
+<div class="display">
+<div class="expr" id="expr" aria-hidden="true"></div>
+<div class="main" id="main" role="status" aria-live="polite" aria-atomic="true">0</div>
+<div class="detail" id="detail" aria-live="polite"></div>
+</div>
+
+<div class="opts">
+<div class="opt-row" role="group" aria-label="消費税率">
+<span aria-hidden="true">税率</span>
+<div class="seg" style="flex:1;">
+<button type="button" data-rate="10" aria-pressed="true">10%</button>
+<button type="button" data-rate="8" aria-pressed="false">8%</button>
+</div>
+</div>
+<div class="opt-row" role="group" aria-label="消費税の端数処理">
+<span aria-hidden="true">端数</span>
+<div class="seg" style="flex:1;">
+<button type="button" data-rounding="floor" aria-pressed="true">切り捨て</button>
+<button type="button" data-rounding="round" aria-pressed="false">四捨五入</button>
+<button type="button" data-rounding="ceil" aria-pressed="false">切り上げ</button>
+</div>
+</div>
+</div>
+
+<div class="keys" role="group" aria-label="電卓のキー">
+<button type="button" class="tax" data-act="addTax" aria-label="税抜から税込へ">税抜→<br>税込</button>
+<button type="button" class="tax" data-act="removeTax" aria-label="税込から税抜へ">税込→<br>税抜</button>
+<button type="button" class="tax" data-act="taxOnly" aria-label="税込金額に含まれる消費税額">内税額</button>
+<button type="button" class="tax" data-act="withholding" aria-label="報酬の源泉税額">源泉税</button>
+
+<button type="button" class="fn" data-act="allClear" aria-label="オールクリア">AC</button>
+<button type="button" class="fn" data-act="backspace" aria-label="1文字消す">&#9003;</button>
+<button type="button" class="fn" data-act="percent" aria-label="パーセント">%</button>
+<button type="button" class="op" data-op="/" aria-label="割る">&divide;</button>
+
+<button type="button" data-digit="7">7</button>
+<button type="button" data-digit="8">8</button>
+<button type="button" data-digit="9">9</button>
+<button type="button" class="op" data-op="*" aria-label="掛ける">&times;</button>
+
+<button type="button" data-digit="4">4</button>
+<button type="button" data-digit="5">5</button>
+<button type="button" data-digit="6">6</button>
+<button type="button" class="op" data-op="-" aria-label="引く">&minus;</button>
+
+<button type="button" data-digit="1">1</button>
+<button type="button" data-digit="2">2</button>
+<button type="button" data-digit="3">3</button>
+<button type="button" class="op" data-op="+" aria-label="足す">+</button>
+
+<button type="button" data-digit="0">0</button>
+<button type="button" data-digit="00" aria-label="ゼロゼロ">00</button>
+<button type="button" data-act="dot" aria-label="小数点">.</button>
+<button type="button" class="eq" data-act="equals" aria-label="イコール">=</button>
+</div>
+<p class="note">源泉税は報酬額（100万円以下の部分 10.21%、超える部分 20.42%、1円未満切り捨て）で、税務ツールボックスの「報酬源泉計算」と同じ計算です。端数処理の切替は消費税の計算だけに使います。</p>
+</section>
+
+<!-- ===== 日付 ===== -->
+<section id="view-date" role="tabpanel" aria-labelledby="tab-date" hidden>
+<div class="panel">
+<h2>○日後・○日前</h2>
+<div class="field">
+<label for="d-base">基準日</label>
+<input type="date" id="d-base"/>
+</div>
+<div class="field">
+<label for="d-days">日数（前にさかのぼるときはマイナス）</label>
+<input type="text" id="d-days" inputmode="numeric" placeholder="例: 60" autocomplete="off"/>
+</div>
+<button type="button" class="btn" id="d-add-btn">計算する</button>
+<div class="out" id="d-add-out" role="status" aria-live="polite"></div>
+</div>
+<div class="panel">
+<h2>2つの日付の間の日数</h2>
+<div class="field">
+<label for="d-from">開始日</label>
+<input type="date" id="d-from"/>
+</div>
+<div class="field">
+<label for="d-to">終了日</label>
+<input type="date" id="d-to"/>
+</div>
+<button type="button" class="btn" id="d-diff-btn">計算する</button>
+<div class="out" id="d-diff-out" role="status" aria-live="polite"></div>
+</div>
+<p class="note">和暦は税務ツールボックスの「和暦⇔西暦変換」と同じ判定（改元日基準）です。明治より前の日付は和暦を表示しません。</p>
+</section>
+
+<!-- ===== 履歴 ===== -->
+<section id="view-hist" role="tabpanel" aria-labelledby="tab-hist" hidden>
+<div class="panel">
+<h2>直近の計算</h2>
+<p class="note" id="hist-empty" style="margin:0 0 8px;">まだ履歴はありません。</p>
+<ul class="hist" id="hist-list" aria-label="計算履歴（押すとその値を電卓に入れます）"></ul>
+<button type="button" class="btn sub" id="hist-clear" style="margin-top:10px;">履歴をすべて消す</button>
+<p class="note">履歴はこの端末のブラウザ内にだけ保存し、外部へは送りません（最大 30 件）。</p>
+</div>
+</section>
+</div>
+
+<script>
+// ===== 計算エンジン（DOM を使わない。tests/calc.test.js から直接呼ぶ） =====
+
+// --- 報酬源泉（index.html の calcHoshuForward と同じ。テストで本文の一致と結果の一致を確かめる） ---
+function calcHoshuForward(gross) {
+  // 100万円以下: 10.21%, 100万円超の部分: 20.42%
+  let tax;
+  if (gross <= 1000000) {
+    tax = Math.floor(gross * 0.1021);
+  } else {
+    tax = Math.floor(1000000 * 0.1021) + Math.floor((gross - 1000000) * 0.2042);
+  }
+  return tax;
+}
+
+// --- 和暦（index.html の WAREKI_ERAS・cmpWDate・eraForDate・fmtWarekiYear と同じ） ---
+const WAREKI_ERAS = [
+  { id:'reiwa',  name:'令和', startYear:2019, start:{y:2019,m:5,d:1},   end:{y:9999,m:12,d:31} },
+  { id:'heisei', name:'平成', startYear:1989, start:{y:1989,m:1,d:8},   end:{y:2019,m:4,d:30} },
+  { id:'showa',  name:'昭和', startYear:1926, start:{y:1926,m:12,d:25}, end:{y:1989,m:1,d:7} },
+  { id:'taisho', name:'大正', startYear:1912, start:{y:1912,m:7,d:30},  end:{y:1926,m:12,d:24} },
+  { id:'meiji',  name:'明治', startYear:1868, start:{y:1868,m:10,d:23}, end:{y:1912,m:7,d:29} }
+];
+function cmpWDate(a, b){
+  if (a.y !== b.y) return a.y - b.y;
+  if (a.m !== b.m) return a.m - b.m;
+  return a.d - b.d;
+}
+function eraForDate(y, m, d){
+  var date = {y:y, m:m, d:d};
+  for (var i=0; i<WAREKI_ERAS.length; i++){
+    if (cmpWDate(date, WAREKI_ERAS[i].start) >= 0) return WAREKI_ERAS[i];
+  }
+  return null;
+}
+function fmtWarekiYear(era, wy){ return era.name + (wy === 1 ? '元' : wy) + '年'; }
+
+// 年月日がそろった日付の和暦表記（index.html の西暦→和暦で年月日を全部入れたときの表示と同じ形）。
+function warekiLabel(y, m, d){
+  var era = eraForDate(y, m, d);
+  if (!era) return null;
+  return fmtWarekiYear(era, y - era.startYear + 1) + m + '月' + d + '日';
+}
+
+// --- 端数処理（整数の分子・分母で計算し、小数の誤差を持ち込まない） ---
+// n / den を mode（'floor' 切り捨て・'round' 四捨五入・'ceil' 切り上げ）で整数にする。n は 0 以上の整数。
+function divRound(n, den, mode){
+  var q = Math.floor(n / den);
+  var r = n - q * den;
+  if (r < 0) { q -= 1; r += den; }
+  if (r >= den) { q += 1; r -= den; }
+  if (r === 0) return q;
+  if (mode === 'ceil') return q + 1;
+  if (mode === 'round') return (r * 2 >= den) ? q + 1 : q;
+  return q;
+}
+
+// --- 消費税（税率は画面の 10% / 8% 切替の値をそのまま使う） ---
+// 税抜金額から税額と税込金額。
+function taxFromExclusive(excl, rate, mode){
+  var tax = divRound(excl * rate, 100, mode);
+  return { excl: excl, tax: tax, incl: excl + tax };
+}
+// 税込金額に含まれる税額と税抜金額。
+function taxFromInclusive(incl, rate, mode){
+  var tax = divRound(incl * rate, 100 + rate, mode);
+  return { incl: incl, tax: tax, excl: incl - tax };
+}
+
+// --- 日付（暦日だけを扱うため UTC で計算する） ---
+function parseYmd(s){
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+  if (!m) return null;
+  var y = +m[1], mo = +m[2], d = +m[3];
+  var t = Date.UTC(y, mo - 1, d);
+  var dt = new Date(t);
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+  return { y: y, m: mo, d: d, t: t };
+}
+function addDays(ymd, days){
+  var dt = new Date(Date.UTC(ymd.y, ymd.m - 1, ymd.d) + days * 86400000);
+  return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), w: dt.getUTCDay() };
+}
+function daysBetween(a, b){
+  return Math.round((Date.UTC(b.y, b.m - 1, b.d) - Date.UTC(a.y, a.m - 1, a.d)) / 86400000);
+}
+var WEEKDAYS = ['日','月','火','水','木','金','土'];
+function weekday(ymd){ return WEEKDAYS[new Date(Date.UTC(ymd.y, ymd.m - 1, ymd.d)).getUTCDay()]; }
+
+// --- 数値の表示 ---
+// 浮動小数の誤差（0.1+0.2 など）を有効数字 15 桁で丸める。
+function tidy(x){ return Number.isFinite(x) ? Number(x.toPrecision(15)) : x; }
+function groupInt(s){ return s.replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+// 入力途中の文字列（"1234." や "-0.50" など）も桁区切りして表示する。
+function formatEntry(s){
+  var neg = s.charAt(0) === '-';
+  var body = neg ? s.slice(1) : s;
+  var dot = body.indexOf('.');
+  var ip = dot < 0 ? body : body.slice(0, dot);
+  var fp = dot < 0 ? '' : body.slice(dot);
+  return (neg ? '-' : '') + groupInt(ip || '0') + fp;
+}
+function formatNumber(x){
+  if (!Number.isFinite(x)) return 'エラー';
+  var v = tidy(x);
+  var s = String(v);
+  if (/e/i.test(s)) return s;
+  return formatEntry(s);
+}
+function yen(n){ return formatNumber(n) + '円'; }
+
+// --- 四則演算（ふつうの電卓と同じく、押した順に計算する） ---
+function applyOp(a, op, b){
+  if (op === '+') return tidy(a + b);
+  if (op === '-') return tidy(a - b);
+  if (op === '*') return tidy(a * b);
+  if (op === '/') return b === 0 ? NaN : tidy(a / b);
+  return b;
+}
+// % キー: a + b% → a の b%を足す、a − b% → 引く、a × b% → a の b%、a ÷ b% → a ÷ (b/100)、単独の b% → b/100。
+function percentValue(acc, op, b){
+  if (op === '+' || op === '-') return tidy(acc * b / 100);
+  return tidy(b / 100);
+}
+
+function newCalcState(){ return { acc: null, op: null, entry: '0', fresh: true, error: false }; }
+</script>
+
+<script>
+// ===== 画面 =====
+(function(){
+  var OP_LABEL = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+  var HIST_KEY = 'taxcalc-history-v1';
+  var HIST_MAX = 30;
+  var state = newCalcState();
+  var settings = { rate: 10, rounding: 'floor' };
+  var ROUND_LABEL = { floor: '切り捨て', round: '四捨五入', ceil: '切り上げ' };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var elMain = $('main'), elExpr = $('expr'), elDetail = $('detail');
+
+  function current(){ return Number(state.entry); }
+  function setEntryNumber(x){ state.entry = String(tidy(x)); }
+
+  function render(){
+    elMain.textContent = state.error ? 'エラー' : formatEntry(state.entry);
+    elExpr.textContent = (state.acc !== null && state.op) ? formatNumber(state.acc) + ' ' + OP_LABEL[state.op] : '';
+  }
+  function setDetail(text, isErr){
+    elDetail.textContent = text || '';
+    elDetail.classList.toggle('err', !!isErr);
+  }
+
+  function inputDigit(dg){
+    if (state.error) state = newCalcState();
+    if (state.fresh) { state.entry = (dg === '00') ? '0' : dg; state.fresh = false; }
+    else if (state.entry.replace(/[-.]/g, '').length >= 15) { return; }
+    else if (state.entry === '0') { state.entry = (dg === '00') ? '0' : dg; }
+    else if (state.entry === '-0') { state.entry = (dg === '00') ? '-0' : '-' + dg; }
+    else { state.entry += dg; }
+    setDetail('');
+    render();
+  }
+  function inputDot(){
+    if (state.error) state = newCalcState();
+    if (state.fresh) { state.entry = '0.'; state.fresh = false; }
+    else if (state.entry.indexOf('.') < 0) { state.entry += '.'; }
+    render();
+  }
+  function backspace(){
+    if (state.error || state.fresh) return;
+    state.entry = state.entry.slice(0, -1);
+    if (state.entry === '' || state.entry === '-') { state.entry = '0'; state.fresh = true; }
+    render();
+  }
+  function allClear(){ state = newCalcState(); setDetail(''); render(); }
+
+  function setOp(op){
+    if (state.error) return;
+    if (state.acc !== null && state.op && !state.fresh) {
+      var r = applyOp(state.acc, state.op, current());
+      if (!Number.isFinite(r)) { fail(); return; }
+      state.acc = r;
+      setEntryNumber(r);
+    } else if (state.acc === null || !state.op || !state.fresh) {
+      state.acc = current();
+    }
+    state.op = op;
+    state.fresh = true;
+    setDetail('');
+    render();
+  }
+  function equals(){
+    if (state.error || state.acc === null || !state.op) return;
+    var a = state.acc, op = state.op, b = current();
+    var r = applyOp(a, op, b);
+    if (!Number.isFinite(r)) { fail(); return; }
+    var exprText = formatNumber(a) + ' ' + OP_LABEL[op] + ' ' + formatNumber(b);
+    state.acc = null; state.op = null;
+    setEntryNumber(r);
+    state.fresh = true;
+    setDetail('');
+    render();
+    elExpr.textContent = exprText + ' =';
+    addHistory(exprText, r);
+  }
+  function percent(){
+    if (state.error) return;
+    var b = current();
+    var p = percentValue(state.acc === null ? 0 : state.acc, state.op, b);
+    if (state.acc !== null && state.op) {
+      var a = state.acc, op = state.op;
+      var r = applyOp(a, op, p);
+      if (op === '*') r = tidy(a * b / 100);
+      if (op === '/') r = b === 0 ? NaN : tidy(a / (b / 100));
+      if (!Number.isFinite(r)) { fail(); return; }
+      var exprText = formatNumber(a) + ' ' + OP_LABEL[op] + ' ' + formatNumber(b) + '%';
+      state.acc = null; state.op = null;
+      setEntryNumber(r);
+      state.fresh = true;
+      render();
+      elExpr.textContent = exprText + ' =';
+      addHistory(exprText, r);
+    } else {
+      setEntryNumber(p);
+      state.fresh = true;
+      render();
+    }
+  }
+  function fail(){ state = newCalcState(); state.error = true; setDetail('計算できません（0 で割っています）', true); render(); }
+
+  // 税務ボタンは表示中の数値（計算途中なら先に = を済ませた値）を対象にする。
+  function targetAmount(){
+    if (state.error) return null;
+    if (state.acc !== null && state.op && !state.fresh) equals();
+    var v = current();
+    if (!Number.isInteger(v) || v < 0) { setDetail('0 以上の円単位（整数）の金額で使えます', true); return null; }
+    if (v > 1e13) { setDetail('金額が大きすぎます', true); return null; }
+    state.acc = null; state.op = null;
+    return v;
+  }
+  function showResult(value, exprText, detailText, histLabel){
+    setEntryNumber(value);
+    state.fresh = true;
+    render();
+    elExpr.textContent = exprText;
+    setDetail(detailText);
+    addHistory(histLabel, value, detailText);
+  }
+  function rateLabel(){ return settings.rate + '%・' + ROUND_LABEL[settings.rounding]; }
+  function addTax(){
+    var v = targetAmount(); if (v === null) return;
+    var r = taxFromExclusive(v, settings.rate, settings.rounding);
+    showResult(r.incl, '税抜 ' + yen(v) + ' → 税込（' + rateLabel() + '）',
+      '消費税 ' + yen(r.tax), '税抜→税込 ' + yen(v) + '（' + rateLabel() + '）');
+  }
+  function removeTax(){
+    var v = targetAmount(); if (v === null) return;
+    var r = taxFromInclusive(v, settings.rate, settings.rounding);
+    showResult(r.excl, '税込 ' + yen(v) + ' → 税抜（' + rateLabel() + '）',
+      '消費税 ' + yen(r.tax), '税込→税抜 ' + yen(v) + '（' + rateLabel() + '）');
+  }
+  function taxOnly(){
+    var v = targetAmount(); if (v === null) return;
+    var r = taxFromInclusive(v, settings.rate, settings.rounding);
+    showResult(r.tax, '税込 ' + yen(v) + ' の内税額（' + rateLabel() + '）',
+      '税抜 ' + yen(r.excl), '内税額 ' + yen(v) + '（' + rateLabel() + '）');
+  }
+  function withholding(){
+    var v = targetAmount(); if (v === null) return;
+    var tax = calcHoshuForward(v);
+    showResult(tax, '報酬 ' + yen(v) + ' の源泉税',
+      '差引支払額 ' + yen(v - tax), '源泉税 報酬 ' + yen(v));
+  }
+
+  var ACTIONS = { allClear: allClear, backspace: backspace, percent: percent, dot: inputDot, equals: equals,
+    addTax: addTax, removeTax: removeTax, taxOnly: taxOnly, withholding: withholding };
+
+  document.querySelector('.keys').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.digit) inputDigit(b.dataset.digit);
+    else if (b.dataset.op) setOp(b.dataset.op);
+    else if (b.dataset.act && ACTIONS[b.dataset.act]) ACTIONS[b.dataset.act]();
+  });
+
+  // 物理キーボード（外付けキーボードや PC）でも打てるようにする。
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if ($('view-calc').hidden) return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT') return;
+    var k = e.key;
+    if (/^[0-9]$/.test(k)) inputDigit(k);
+    else if (k === '.') inputDot();
+    else if (k === '+' || k === '-' || k === '*' || k === '/') setOp(k);
+    else if (k === '=' ) equals();
+    else if (k === 'Enter') { if (tag === 'BUTTON') return; equals(); }
+    else if (k === 'Backspace') backspace();
+    else if (k === 'Escape' || k === 'Delete') allClear();
+    else if (k === '%') percent();
+    else return;
+    e.preventDefault();
+  });
+
+  // --- 設定（税率・端数）の切替。選んだ値はこの端末にだけ覚えておく ---
+  var SETTINGS_KEY = 'taxcalc-settings-v1';
+  try {
+    var saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+    if (saved && (saved.rate === 10 || saved.rate === 8)) settings.rate = saved.rate;
+    if (saved && ROUND_LABEL[saved.rounding]) settings.rounding = saved.rounding;
+  } catch (err) {}
+  function syncSettings(){
+    document.querySelectorAll('[data-rate]').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.dataset.rate === settings.rate)); });
+    document.querySelectorAll('[data-rounding]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.rounding === settings.rounding)); });
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (err) {}
+  }
+  document.querySelectorAll('[data-rate]').forEach(function(b){
+    b.addEventListener('click', function(){ settings.rate = +b.dataset.rate; syncSettings(); });
+  });
+  document.querySelectorAll('[data-rounding]').forEach(function(b){
+    b.addEventListener('click', function(){ settings.rounding = b.dataset.rounding; syncSettings(); });
+  });
+  syncSettings();
+
+  // --- 表示の切替（電卓・日付・履歴） ---
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function showView(name, focus){
+    tabs.forEach(function(t){
+      var on = t.dataset.view === name;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+      $('view-' + t.dataset.view).hidden = !on;
+    });
+    if (name === 'hist') renderHistory();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ showView(t.dataset.view); });
+    t.addEventListener('keydown', function(e){
+      var n = null;
+      if (e.key === 'ArrowRight') n = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') n = 0;
+      else if (e.key === 'End') n = tabs.length - 1;
+      if (n === null) return;
+      e.preventDefault();
+      showView(tabs[n].dataset.view, true);
+    });
+  });
+
+  // --- 履歴（localStorage のみ。外部へは送らない） ---
+  function loadHistory(){
+    try {
+      var list = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (err) { return []; }
+  }
+  function saveHistory(list){ try { localStorage.setItem(HIST_KEY, JSON.stringify(list)); } catch (err) {} }
+  function addHistory(label, value, detail){
+    if (!Number.isFinite(value)) return;
+    var list = loadHistory();
+    list.unshift({ label: String(label), value: tidy(value), detail: detail ? String(detail) : '' });
+    saveHistory(list.slice(0, HIST_MAX));
+  }
+  function renderHistory(){
+    var list = loadHistory();
+    var ul = $('hist-list');
+    ul.textContent = '';
+    $('hist-empty').hidden = list.length > 0;
+    $('hist-clear').hidden = list.length === 0;
+    list.forEach(function(h){
+      if (!h || typeof h.value !== 'number') return;
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      var l = document.createElement('span'); l.className = 'h-label'; l.textContent = h.label + (h.detail ? '　' + h.detail : '');
+      var v = document.createElement('span'); v.className = 'h-val'; v.textContent = '= ' + formatNumber(h.value);
+      b.appendChild(l); b.appendChild(v);
+      b.setAttribute('aria-label', h.label + '、結果 ' + formatNumber(h.value) + (h.detail ? '、' + h.detail : '') + '。押すと電卓に入れます');
+      b.addEventListener('click', function(){
+        state = newCalcState();
+        setEntryNumber(h.value);
+        render();
+        setDetail('');
+        showView('calc');
+      });
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+  }
+  $('hist-clear').addEventListener('click', function(){
+    if (!confirm('計算履歴をすべて消しますか？')) return;
+    saveHistory([]);
+    renderHistory();
+    $('tab-hist').focus();
+  });
+
+  // --- 日付 ---
+  function ymdString(o){ return o.y + '-' + String(o.m).padStart(2, '0') + '-' + String(o.d).padStart(2, '0'); }
+  function dateLine(o){
+    var w = warekiLabel(o.y, o.m, o.d);
+    return o.y + '年' + o.m + '月' + o.d + '日（' + weekday(o) + '）' + (w ? '　' + w : '');
+  }
+  function setOut(id, lines, isErr){
+    var el = $(id);
+    el.textContent = '';
+    lines.forEach(function(line, i){
+      var p = document.createElement(i === 0 && !isErr ? 'strong' : 'div');
+      p.textContent = line;
+      if (isErr) p.style.color = 'var(--danger)';
+      if (i === 0 && !isErr) { var wrap = document.createElement('div'); wrap.appendChild(p); el.appendChild(wrap); }
+      else el.appendChild(p);
+    });
+  }
+  var now = new Date();
+  var todayStr = ymdString({ y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() });
+  $('d-base').value = todayStr; $('d-from').value = todayStr; $('d-to').value = todayStr;
+
+  function calcAdd(){
+    var base = parseYmd($('d-base').value);
+    var raw = ($('d-days').value || '').replace(/[,，\s]/g, '').replace(/[０-９]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/^[−ー－]/, '-');
+    if (!base) { setOut('d-add-out', ['基準日を入れてください'], true); return; }
+    if (!/^-?\d{1,6}$/.test(raw)) { setOut('d-add-out', ['日数を整数で入れてください'], true); return; }
+    var n = parseInt(raw, 10);
+    var r = addDays(base, n);
+    var lines = [dateLine(r), '基準日 ' + dateLine(base) + ' の ' + Math.abs(n) + '日' + (n < 0 ? '前' : '後')];
+    setOut('d-add-out', lines);
+    addHistory(dateLine(base) + ' の ' + Math.abs(n) + '日' + (n < 0 ? '前' : '後') + ' → ' + dateLine(r), n);
+  }
+  function calcDiff(){
+    var a = parseYmd($('d-from').value), b = parseYmd($('d-to').value);
+    if (!a || !b) { setOut('d-diff-out', ['2つの日付を入れてください'], true); return; }
+    var n = daysBetween(a, b);
+    var abs = Math.abs(n);
+    var lines = [abs + '日' + (n < 0 ? '（終了日が開始日より前）' : ''),
+      '初日も数えると ' + (abs + 1) + '日',
+      '開始 ' + dateLine(a), '終了 ' + dateLine(b)];
+    setOut('d-diff-out', lines);
+    addHistory(dateLine(a) + ' 〜 ' + dateLine(b) + ' の日数', abs);
+  }
+  $('d-add-btn').addEventListener('click', calcAdd);
+  $('d-diff-btn').addEventListener('click', calcDiff);
+  $('d-days').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); calcAdd(); } });
+
+  render();
+
+  // --- オフライン対応（このページだけを対象にし、他のページの動作には関わらない） ---
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('calc-sw.js', { scope: './calc.html' }).catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>

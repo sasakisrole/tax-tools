@@ -1,0 +1,18 @@
+{
+  "name": "税理士電卓",
+  "short_name": "税理士電卓",
+  "description": "消費税・報酬の源泉税・日数計算をワンタップで行う電卓",
+  "lang": "ja",
+  "start_url": "calc.html",
+  "scope": "calc.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f0f2f5",
+  "theme_color": "#1a5276",
+  "icons": [
+    { "src": "calc-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "calc-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "calc-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "calc-icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
