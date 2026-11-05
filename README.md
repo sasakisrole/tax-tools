@@ -54,6 +54,10 @@ git clone https://github.com/sasakisrole/tax-tools.git
 ```
 して `index.html` をブラウザで開く。
 
+## 開発
+
+`node --test` で、ホーム画面「計算エンジン検証」と同じゴールデンテスト（`tests/golden.test.js`）を含む全テストをブラウザなしで流せる（追加の依存なし）。
+
 ## プライバシー
 
 - 入力したデータは**ブラウザの外に一切出ません**
