@@ -748,8 +748,8 @@ function loadPage(fileName, options = {}) {
       ["-", "-", "", null],
       ["007", "7", "7", 7],
       [" 2 000 ", "2000", "2000", 2000],
-      // 小数点は取り除かれ、桁がつながる
-      ["1.5", "15", "15", 15]
+      // 小数点を含む入力は桁をつながず、そのまま残して無効入力にする
+      ["1.5", "1.5", "1.5", null]
     ];
     for (const [input, typing, final, parsed] of cases) {
       assert.equal(api.normalizeMoneyText(input, false), typing, `入力中 ${input}`);

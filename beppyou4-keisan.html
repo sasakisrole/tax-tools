@@ -767,10 +767,11 @@ function normalizeMoneyText(value, finalMode) {
   let text = String(value || "").replace(/[０-９]/g, function(ch) {
     return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
   });
-  text = text.replace(/[，、\s円]/g, "");
-  text = text.replace(/[－ー―]/g, "-").replace(/[△▲]/g, "-");
-  text = text.replace(/[^0-9-]/g, "");
-  const negative = text.indexOf("-") >= 0;
+  text = text.replace(/[，、,\s円]/g, "");
+  text = text.replace(/[－ー―−‐‑]/g, "-").replace(/[△▲]/g, "-");
+  // 小数点・括弧・途中のマイナス・英字は桁をつながず残し、無効入力として知らせる（黙って別の金額にしない）
+  if (!/^-?\d*$/.test(text)) return text;
+  const negative = text.charAt(0) === "-";
   text = text.replace(/-/g, "");
   if (!text) return negative && !finalMode ? "-" : "";
   text = text.replace(/^0+(?=\d)/, "");
@@ -785,7 +786,7 @@ function parseMoney(value) {
   const raw = value === null || typeof value === "undefined" ? "" : String(value);
   if (!raw.trim()) return undefined;
   const text = normalizeMoneyText(raw, true);
-  if (!text || text === "-") return null;
+  if (!/^-?\d+$/.test(text)) return null;
   const num = Number(text);
   return Number.isFinite(num) ? Math.trunc(num) : null;
 }
@@ -853,7 +854,8 @@ function collectData(blankFields, invalidFieldsOut) {
     additions: getRows("additions", invalidFields, blankFields),
     subtractions: getRows("subtractions", invalidFields, blankFields),
     afterTentative: getRows("afterTentative", invalidFields, blankFields),
-    lossCarryforward: typeof parsedLossCarryforward === "undefined" ? 0 : parsedLossCarryforward
+    // 様式の欠損金等の当期控除額欄は△付きで印字されるため、△付きで転記されても控除額として引く
+    lossCarryforward: typeof parsedLossCarryforward === "undefined" ? 0 : Math.abs(parsedLossCarryforward)
   };
   if (invalidFields.length) {
     setStorageStatus("無効な金額欄があります: " + invalidFields.join("、"));

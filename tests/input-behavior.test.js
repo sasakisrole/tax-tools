@@ -210,6 +210,41 @@ test("別表4の有効入力は従来の算式どおりに計算する", () => {
   assert.equal(result.income, 1000000);
 });
 
+test("別表4の小数点・括弧・途中のマイナス・英字を含む金額は、桁をつながず入力エラーにする", () => {
+  const { api, document } = loadBeppyou();
+  for (const value of ["1,234.00", "1234.5", "(500)", "100-50", "5e3", "100-"]) {
+    const input = { value };
+    assert.equal(api.parseMoney(value), null, `parseMoney ${value}`);
+    assert.equal(api.formatInput(input), false, `formatInput ${value}`);
+    assert.equal(input.value, value, `値を消さない ${value}`);
+  }
+  document.getElementById("current-profit").value = "1234.5";
+  document.getElementById("loss-carryforward").value = "0";
+  assert.equal(api.updateResults(), false);
+  assert.match(document.getElementById("storage-status").textContent, /当期利益又は当期欠損の額/);
+});
+
+test("別表4の貼り付けで混ざるマイナス記号（U+2212・U+2010）と半角カンマはマイナス・区切りとして読む", () => {
+  const { api } = loadBeppyou();
+  assert.equal(api.parseMoney("\u2212500"), -500);
+  assert.equal(api.parseMoney("\u20101,000"), -1000);
+  assert.equal(api.parseMoney("1,234,567"), 1234567);
+  assert.equal(api.parseMoney("△ 500"), -500);
+});
+
+test("別表4の欠損金等の当期控除額は△付きで入れても控除額として引く", () => {
+  const { api, document } = loadBeppyou();
+  for (const loss of ["500,000", "△500,000", "-500000"]) {
+    document.getElementById("current-profit").value = "9,000,000";
+    document.getElementById("loss-carryforward").value = loss;
+    assert.equal(api.updateResults(), true, `控除額 ${loss}`);
+    assert.equal(document.getElementById("income-amount").textContent, "8,500,000円", `控除額 ${loss}`);
+  }
+  document.getElementById("loss-carryforward").value = "△500,000";
+  const data = api.collectData();
+  assert.equal(data.lossCarryforward, 500000);
+});
+
 // 構文エラーだけは空の保存領域へ救済される現状を固定する。
 test("別表4の空欄は0として計算しつつ、どの欄を0にしたか画面に出す", () => {
   const { api, document } = loadBeppyou();
