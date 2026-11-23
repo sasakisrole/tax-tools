@@ -619,13 +619,14 @@ function loadPage(fileName, options = {}) {
     ]);
   });
 
-  test("現状固定: 納税カレンダー（法人）の消費税11回中間は決算月の3か月後から毎月並ぶ", () => {
+  test("現状固定: 納税カレンダー（法人）の消費税11回中間は最初の2回が決算月の4か月後にまとまり、以後毎月並ぶ（国税庁 No.6609）", () => {
     const result = corporate(1, { consumptionTaxNational: 48000001 });
     assert.equal(result.summary.consumptionCount, 11);
     const national = result.events.filter((line) => line.startsWith("consumptionNational|"));
     assert.equal(national.length, 12);
     assert.equal(national[0], "consumptionNational|消費税国税 確定|48000001|2026-03-31");
-    assert.equal(national[1], "consumptionNational|消費税国税 中間1|4000000.0833333335|2026-04-30");
+    assert.equal(national[1], "consumptionNational|消費税国税 中間1|4000000.0833333335|2026-05-31");
+    assert.equal(national[2], "consumptionNational|消費税国税 中間2|4000000.0833333335|2026-05-31");
     assert.equal(national[11], "consumptionNational|消費税国税 中間11|4000000.0833333335|2027-02-28");
     const local = result.events.filter((line) => line.startsWith("consumptionLocal|"));
     assert.equal(local[0], "consumptionLocal|地方消費税 確定|13538462|2026-03-31");
@@ -688,7 +689,8 @@ function loadPage(fileName, options = {}) {
     const eleven = individual({ consumptionTaxNational: 48000001 });
     const national = eleven.events.filter((line) => line.startsWith("consumptionNational|"));
     assert.equal(national.length, 12);
-    assert.equal(national[0], "consumptionNational|消費税国税 中間1|4000000.0833333335|2026-03-31");
+    assert.equal(national[0], "consumptionNational|消費税国税 中間1|4000000.0833333335|2026-05-31");
+    assert.equal(national[2], "consumptionNational|消費税国税 中間3|4000000.0833333335|2026-05-31");
     assert.equal(national[9], "consumptionNational|消費税国税 中間10|4000000.0833333335|2026-12-31");
     assert.equal(national[10], "consumptionNational|消費税国税 中間11|4000000.0833333335|2027-01-31");
     assert.equal(national[11], "consumptionNational|消費税国税 確定|48000001|2027-03-31");

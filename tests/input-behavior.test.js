@@ -302,7 +302,7 @@ test("別表4の形が壊れたdataは例外にせず読み込みを拒否する
 // これは現状固定であって望ましい挙動ではない。修正時は期待値を未入力または入力エラーへ反転する。
 test("現状固定（望ましい挙動ではない）: 納税カレンダーの未入力・空文字・数字なし文字列は空欄と0になり、修正時は期待値を未入力またはエラーへ反転する", () => {
   const { api } = loadNozei();
-  for (const value of [undefined, "", "not-a-number"]) {
+  for (const value of [undefined, "", "notanumber"]) {
     const input = moneyInput(value);
     api.updateStateFromInput(input);
     assert.equal(input.value, "");
