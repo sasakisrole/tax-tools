@@ -194,3 +194,52 @@ test("REQ-4 統合の2026年7月と2027年7月は別行・別合計になる", (
     assert.ok(body.includes('<td class="total-cell">' + total + '</td>'));
   }
 });
+
+function amountsOf(events, taxKey, deadlineType) {
+  return [...events.filter((event) => event.taxKey === taxKey && event.deadlineType === deadlineType).map((event) => event.amount)];
+}
+
+test("REQ-5 祝日表の収録年を越える期限があるときだけ、土日だけで判定している旨を出す", () => {
+  const page = loadPage();
+  const note = /2028年以降の祝日は内閣府の公表前のため、土日だけで判定しています/;
+  page.api.setState({ corporate: { fiscalMonth: 3, prevYear: { corpTax: 800000, consumptionTaxNational: 48000001 } } });
+  for (const tab of ["corporate", "individual", "combined"]) assert.doesNotMatch(page.result(tab), note);
+  page.api.setState({ corporate: { fiscalMonth: 12, prevYear: { consumptionTaxNational: 48000001 } } });
+  assert.match(page.result("corporate"), note);
+  assert.match(page.result("combined"), note);
+  assert.doesNotMatch(page.result("individual"), note);
+});
+
+test("REQ-6 個人の消費税確定は同じ年の中間を差し引いた見込み額、法人の確定は注記", () => {
+  const page = loadPage();
+  page.api.setState({ individual: { consumptionTaxNational: 4000001 } });
+  const events = page.api.calculateIndividual().events;
+  assert.deepEqual(amountsOf(events, "consumptionNational", "中間"), [1000000, 1000000, 1000000]);
+  assert.deepEqual(amountsOf(events, "consumptionNational", "確定"), [1000001]);
+  const localInterim = amountsOf(events, "consumptionLocal", "中間").reduce((a, b) => a + b, 0);
+  assert.deepEqual(amountsOf(events, "consumptionLocal", "確定"), [Math.round(4000001 * 22 / 78) - localInterim]);
+  const corporateNote = /法人の確定欄は前期の年税額そのままです/;
+  page.api.setState({ corporate: { fiscalMonth: 3, prevYear: { corpTax: 800000 } } });
+  assert.match(page.result("corporate"), corporateNote);
+  assert.match(page.result("combined"), corporateNote);
+  assert.doesNotMatch(page.result("individual"), corporateNote);
+});
+
+test("REQ-7 予定納税・中間の国税は100円未満を切り捨て、要否の判定は切捨て前の額で行う", () => {
+  const page = loadPage();
+  page.api.setState({ individual: { incomeTaxBase: 600100 } });
+  assert.deepEqual(amountsOf(page.api.calculateIndividual().events, "incomeTax", "予定納税"), [200000, 200000]);
+  page.api.setState({ individual: { incomeTaxBase: 150000 } });
+  assert.deepEqual(amountsOf(page.api.calculateIndividual().events, "incomeTax", "予定納税"), [50000, 50000]);
+
+  page.api.setState({ corporate: { fiscalMonth: 3, prevYear: { corpTax: 1000150, consumptionTaxNational: 6000300 } } });
+  const corporate = page.api.calculateCorporate().events;
+  assert.deepEqual(amountsOf(corporate, "corpTax", "中間"), [500000]);
+  assert.deepEqual(amountsOf(corporate, "consumptionNational", "中間"), [1500000, 1500000, 1500000]);
+  // 地方消費税は切捨て前の基礎額（1,500,075円）×22/78 の円未満四捨五入
+  assert.deepEqual(amountsOf(corporate, "consumptionLocal", "中間"), [423098, 423098, 423098]);
+
+  // 前期20万1円は半額が10万円を超えるので中間が出る（切捨て後は10万円ちょうど）
+  page.api.setState({ corporate: { fiscalMonth: 3, prevYear: { corpTax: 200001 } } });
+  assert.deepEqual(amountsOf(page.api.calculateCorporate().events, "corpTax", "中間"), [100000]);
+});
